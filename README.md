@@ -30,3 +30,7 @@ Brain.js is the initial version of the tool. These are the goals for a v1.0, aim
 * Visual Field and "Guess Mode": A stimulus tool that displays various stimuli onto the brain's "visual field" with a variant where the stimulus is hidden and the viewer has to guess what is being shown 
 * Recorder: Electrodes that can be placed into the brainviewer to record 
 * Tutorials: Transitioning the Psych 50 tutorials from stand-alone HTML pages to a format based on JGL that is directly integrated in Brain.
+
+# deployment
+
+git push heroku master (push the heroku remote repository?)
