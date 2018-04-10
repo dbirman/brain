@@ -80,19 +80,19 @@ function reqRespond(id,req) {
   console.log('Request complete');
 }
 
-var data = {};
-var load = require('./data/data.js');
-var settings = require('./data/settings.json');
+// var data = {};
+// var load = require('./data/data.js');
+// var settings = require('./data/settings.json');
 
 var port = 8080;
 http.listen(port, function(){
   console.log('listening on *: ' + port);
-  var lkeys = Object.keys(load);
-  for (var i=0;i<lkeys.length;i++) {
-    console.log('Found stimulus: ' + load[lkeys[i]].stim);
-    console.log('Found region data for: ' + load[lkeys[i]].area);
-    if (data[load[lkeys[i]].stim]==undefined) {data[load[lkeys[i]].stim]={};}
-    data[load[lkeys[i]].stim][load[lkeys[i]].area] = load[lkeys[i]].data;
-  }
-  load = {};
+  // var lkeys = Object.keys(load);
+  // for (var i=0;i<lkeys.length;i++) {
+  //   console.log('Found stimulus: ' + load[lkeys[i]].stim);
+  //   console.log('Found region data for: ' + load[lkeys[i]].area);
+  //   if (data[load[lkeys[i]].stim]==undefined) {data[load[lkeys[i]].stim]={};}
+  //   data[load[lkeys[i]].stim][load[lkeys[i]].area] = load[lkeys[i]].data;
+  // }
+  // load = {};
 });
