@@ -1,0 +1,23 @@
+{
+  "name": "brainexp",
+  "version": "1.0.0",
+  "description": "test.",
+  "main": "https://danbirman.com/brain",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "example",
+    "heroku"
+  ],
+  "engines": {
+    "node": "8.9.1"
+  },
+  "author": "Daniel Birman",
+  "license": "N/A",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^2.1.0",
+    "socket.io-client": "^2.1.0"
+  }
+}
