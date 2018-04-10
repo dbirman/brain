@@ -1,7 +1,9 @@
+// Setup express and socket.io
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+// Return files that are requested (we could filter if needed)
 app.get( '/*' , function( req, res ) {
     // this is the current file they have requested
     var file = req.params[0]; 
