@@ -84,9 +84,19 @@ function reqRespond(id,req) {
 // var load = require('./data/data.js');
 // var settings = require('./data/settings.json');
 
+var MongoClient = require('mongodb').MongoClient;
+
 var port = 8080;
 http.listen(port, function(){
   console.log('listening on *: ' + port);
+
+  // test mongodb
+  MongoClient.connect("mongodb://server:aardvark@ds143039.mlab.com:43039/heroku_pvjwdcdk", function(err, db) {
+    if(!err) {
+      console.log("We are connected");
+    }
+  });
+
   // var lkeys = Object.keys(load);
   // for (var i=0;i<lkeys.length;i++) {
   //   console.log('Found stimulus: ' + load[lkeys[i]].stim);
