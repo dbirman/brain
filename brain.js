@@ -23,21 +23,16 @@ io.on('connection', function(socket){
   });
 });
 
-require('./data.js');
+// Setup the server
+function init() {
+  
+}
+
+const DATA = require('./data.js');
 
 var port = 8080;
 http.listen(port, function(){
   console.log('listening on *: ' + port);
 
-  // var data = new DATA();
-  // data.init();
-
-  // var lkeys = Object.keys(load);
-  // for (var i=0;i<lkeys.length;i++) {
-  //   console.log('Found stimulus: ' + load[lkeys[i]].stim);
-  //   console.log('Found region data for: ' + load[lkeys[i]].area);
-  //   if (data[load[lkeys[i]].stim]==undefined) {data[load[lkeys[i]].stim]={};}
-  //   data[load[lkeys[i]].stim][load[lkeys[i]].area] = load[lkeys[i]].data;
-  // }
-  // load = {};
+  init();
 });
