@@ -14,20 +14,22 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		
 		<!-- PIXI -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.1/pixi.min.js"></script>
 
 		<style>
 			html, body {
+				height: 100vh;
 				background-color: #AED2FF;
+				margin: 0; padding: 0; overflow:hidden;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="canvas">
 		</div>
-
-    <script src="./ui.js"></script>
+		
     <script src="./client.js"></script>
+    <script src="./ui.js"></script>
     <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
 		<!-- <script src="./assets/js/shared_spikes.js"></script> -->
 		<!-- <script src="./assets/js/pixi_dots.js"></script> -->

@@ -18,10 +18,10 @@ var ORIGIN_WIDTH = window.innerWidth,
 		ORIGIN_HEIGHT = window.innerHeight,
 		MENU_SCALEV = 0.05, // vertical scaling of the menu bars (which we overlay over everything else)
 		BRAIN_SCALEV = 0.75, // vertical scaling of brains (default: 80% of screen)
-		MBRAIN_SCALEV = 0.20, // vertical scaling of mini brains (default: 20% of screen)
+		MBRAIN_SCALEV = 0.18, // vertical scaling of mini brains (default: 20% of screen)
 		VIS_SCALEH = 0.40,  // horizontal scaling of the "visual field" viewer
 		SPC_SCALEH = 0.20, // horizontal scaling of the spacer between the visual field viewer and electrodes
-		ELEC_SCALEH = 0.40, // horizontal scaling of the electrode boxes
+		ELEC_SCALEH = 0.40; // horizontal scaling of the electrode boxes
 
 
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
@@ -41,4 +41,41 @@ function launch() {
 
   // init UI
   uiInit();
+}
+
+
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// EXTRA CODE
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+
+class DContainer extends PIXI.Container {
+  addChildZ(container, zOrder) {
+    container.zOrder = zOrder || 0;
+    container.arrivalOrder = this.children.length;
+    this.addChild(container);
+    this.sortChildren();
+  }
+ 
+  sortChildren() {
+    const _children = this.children;
+    let len = _children.length, i, j, tmp;
+    for (i = 1; i < len; i++) {
+      tmp = _children[i];
+      j = i - 1;
+      while (j >= 0) {
+        if (tmp.zOrder < _children[j].zOrder) {
+          _children[j + 1] = _children[j];
+        } else if (tmp.zOrder === _children[j].zOrder && tmp.arrivalOrder < _children[j].arrivalOrder) {
+          _children[j + 1] = _children[j];
+ 
+        } else {
+          break;
+        }
+        j--;
+      }
+      _children[j + 1] = tmp;
+    }
+  };
 }
