@@ -7,10 +7,10 @@ var io = require('socket.io')(http);
 app.get( '/*' , function( req, res ) {
     // this is the current file they have requested
     var file = req.params[0]; 
-    // console.log('\t :: Express :: file requested: ' + file);    
+    console.log('\t :: Express :: file requested: ' + file);    
 
     // give them what they want
-    res.sendfile("./" + file);
+    res.sendFile(__dirname + '/' + file);
 }); 
 
 var connectionList = {};
@@ -23,9 +23,16 @@ io.on('connection', function(socket){
   });
 });
 
+let mode = false;
+
 // Setup the server
 function init() {
-  
+  slog('Loading and pre-processing data.');
+  DATA.init();
+  DATA.preProcess();
+  slog('Spinning up PIXI.');
+  slog('Setting mode to: online');
+  mode = true;
 }
 
 const DATA = require('./data.js');
@@ -36,3 +43,17 @@ http.listen(port, function(){
 
   init();
 });
+
+function slog(msg) {
+  if (msg.length<=16) {
+    console.log('**** SERVER ****');
+    console.log(msg);
+    console.log('**** ****** ****');
+  } else {
+    let l = Math.ceil((msg.length-8)/2);
+    let stars = '*'.repeat(l);
+    console.log(stars+' SERVER '+stars);
+    console.log(msg);
+    console.log(stars+' ****** '+stars);
+  }
+}

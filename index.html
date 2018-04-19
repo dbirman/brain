@@ -1,1 +1,30 @@
-test stuff
+<!DOCTYPE HTML>
+<!--
+	Landed by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Brain: a simulation for cognitive neuroscience learning by Daniel Birman</title>
+  	<meta http-equiv="Cache-control" content="public">
+	  <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
+	  <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<!-- PIXI -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.5.1/pixi.min.js"></script>
+	</head>
+	<body>
+		<div id="canvas">
+		</div>
+
+    <script src="./ui.js"></script>
+    <script src="./client.js"></script>
+    <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
+		<!-- <script src="./assets/js/shared_spikes.js"></script> -->
+		<!-- <script src="./assets/js/pixi_dots.js"></script> -->
+
+		<script>launch();</script>
+	</body>
