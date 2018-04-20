@@ -7,10 +7,34 @@ function uiInit() {
 	app.stage.addChild(ui_container);
 
 	uiMenuInit();
+	uiElecInit();
 	uiMiniInit();
 	uiBrainInit();
+	uiSpikeInit();
+	uiStimInit();
 
 	ui_container.sortChildren();
+}
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// STIMULUS WINDOW
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+let ui_stim_container;
+
+function uiStimInit() {
+	var width = app.renderer.width, height = app.renderer.height;
+}
+
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// SPIKE OUTPUT WINDOW
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+let ui_spike_container;
+
+function uiSpikeInit() {
+	
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -20,83 +44,153 @@ function uiInit() {
 let ui_elec_container;
 
 function uiElecInit() {
+	var width = app.renderer.width, height = app.renderer.height;
+
 	// Initialize container
 	ui_elec_container = new DContainer();
+	ui_elec_container.x = 10;
+	ui_elec_container.y = height - MBRAIN_SCALEV*height-10;
 
+	ui_container.addChild(ui_elec_container);
+
+	// Add a white background
+	let g = new PIXI.Graphics();
+	g.beginFill(0xFFFFFF,1);
+	g.lineStyle(1,0x000000,1);
+	g.drawRect(-2.5,-2.5,200,MBRAIN_SCALEV*height);
+
+	ui_elec_container.addChild(g);
+
+	let p1 = 200/3-10, p2 = 200*2/3+10;
+	// Add buttons to create new electrodes (4 maximum)
+	let xs = [p1,p2,p1,p2], ys=[p1,p1,p2,p2];
+
+	for (let ii=0;ii<xs.length;ii++) {
+		let x = xs[ii], y = ys[ii];
+
+		// Create a button, graphic + text, use gray -- we'll update the color when an electrode is created
+		let bg = new PIXI.Graphics();
+		bg.beginFill(0x808080,1);
+		bg.lineStyle(1,0x000000,1);
+		bg.drawCircle(x,y,200/6,200/6);
+
+		// Add a little white electrode using the image
+		let bs = new PIXI.Sprite.fromImage('./assets/electrode.png');
+		bs.scale.set(50/167);
+		bs.anchor.set(0.5,0.5);
+		bs.x = x, bs.y = y;
+
+		bg.addChild(bs);
+
+		bg.interactive = true;
+		bg.on('click',function() {elecClick(ii,bs);});
+
+		ui_elec_container.addChild(bg);
+	}
+
+	// Add text at the top
+
+  var style = new PIXI.TextStyle({fill:'#000000'});
+  var t = new PIXI.Text('Electrodes',style);
+  t.x = 100; t.y = 10;
+  t.anchor.set(0.5,0.5);
+  ui_elec_container.addChild(t);
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE PICKER CALLBACKS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function elecClick() {
-	
+function elecClick(id,sprite) {
+	if (electrodes[id]!=undefined) {
+		electrodes[id].destroy();
+		delete electrodes[id];
+		sprite.tint = 0xFFFFFF;
+	} else {
+		console.log('creating new electrode with id: ' + id);
+		let temp = new Electrode(id);
+		sprite.tint = temp.color;
+	}
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // MENU BAR RENDERING
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let ui_menu_container, ui_menu_brain_buttons, ui_menu_viselec_buttons;
+let ui_menu_container, ui_menu_graphics_left, ui_menu_graphics_right;
 
 function uiMenuInit() {
 	// Create buttons and link to appropriate callbacks
-	// set menu size
-	// let menu_width = MENU_SCALEV*2*window.innerHeight,
-	// 	menu_height = MENU_SCALEV*window.innerHeight;
-	// // add menu container
-	// ui_menu_container = new DContainer();
-	// ui_container.addChild(ui_menu_container);
-	// // set container properties
-	// ui_menu_container.zOrder = 99;
-	// ui_menu_container.position.set(10,10);
-	// ui_menu_container.interactive = true;
-	// ui_menu_container
-	// 	.on('click', menuClick);
+	// add menu container
+	ui_menu_container = new DContainer();
+	ui_container.addChild(ui_menu_container);
+	// set container properties
+	ui_menu_container.zOrder = 99;
+	ui_menu_container.position.set(10,10);
 
-	// // draw lines
-	// ui_menu_graphics = new PIXI.Graphics();
-	// ui_menu_graphics.beginFill(0x808080,1);
-	// ui_menu_graphics.drawRect(0,0,menu_width,menu_height);
-	// ui_menu_graphics.endFill();
-	// ui_menu_graphics.lineStyle(1,0x000000,1);
-	// ui_menu_graphics.moveTo(1,1);
-	// ui_menu_graphics.lineTo(menu_width,1);
-	// ui_menu_graphics.lineTo(menu_width,menu_height);
-	// ui_menu_graphics.lineTo(1,menu_height);
-	// ui_menu_graphics.lineTo(1,1);
-	// ui_menu_graphics.moveTo(menu_width/2,1);
-	// ui_menu_graphics.lineTo(menu_width/2,menu_height);
-	// ui_menu_graphics.moveTo(1,menu_height/2);
-	// ui_menu_graphics.lineTo(menu_width,menu_height/2);
+	redrawMenu(0xFFFFFF,0x808080);
+}
 
-	// // add text
+function redrawMenu(lcolor,rcolor) {
+	if (ui_menu_graphics_left!=undefined) {ui_menu_graphics_left.destroy();}
+	if (ui_menu_graphics_right!=undefined) {ui_menu_graphics_right.destroy();}
+	console.log('Menu re-drawing');
+	let lwidth = 160, rwidth = 275, menu_height = 40;
+	ui_menu_graphics_left = new PIXI.Graphics();
 
-	// ui_menu_container.addChild(ui_menu_graphics);
+	ui_menu_graphics_left.beginFill(lcolor,1);
+	ui_menu_graphics_left.lineStyle(1,0x000000,1);
+	ui_menu_graphics_left.drawRect(0,0,lwidth,menu_height);
+	ui_menu_graphics_left.endFill();
+
+	ui_menu_graphics_right = new PIXI.Graphics();
+
+	ui_menu_graphics_right.beginFill(rcolor,1);
+	ui_menu_graphics_right.lineStyle(1,0x000000,1);
+	ui_menu_graphics_right.drawRect(lwidth,0,rwidth,menu_height);
+	ui_menu_graphics_right.endFill();
+
+	// add text
+  var style = new PIXI.TextStyle({fill:'#000000'});
+  var t = new PIXI.Text('Brain viewer',style);
+  t.x = lwidth/2; t.y = 1;
+  t.anchor.set(0.5,0);
+  ui_menu_graphics_left.addChild(t);
+
+  var t = new PIXI.Text('Stimulus and recorder',style);
+  t.x = lwidth+rwidth/2; t.y = 1;
+  t.anchor.set(0.5,0);
+  ui_menu_graphics_right.addChild(t);
+
+	// add interaction
+	ui_menu_graphics_left.interactive = true;
+	ui_menu_graphics_left.on('click',viewerSwitch)
+
+	ui_menu_graphics_right.interactive = true;
+	ui_menu_graphics_right.on('click',stimulusSwitch)
+
+
+	// add both boxes
+	ui_menu_container.addChild(ui_menu_graphics_left);
+	ui_menu_container.addChild(ui_menu_graphics_right);
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // MENU CALLBACKS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function menuClick(event) {
-  var pos = event.data.getLocalPosition(this.parent);
-  pos.x = pos.x / this.width;
-  pos.y = pos.y / this.height;
-  if (this.height <= 0.5) {
-  	// clicked in the top half (center on left/right hemisphere)
-  	if (pos.x <= 0.5) {
-  		// center left
-  	} else {
-  		// center right
-  	}
-  } else {
-  	// clicked in the bottom half
-  	if (pos.x <= 0.5) {
-  		// 
-  	}
+function viewerSwitch() {
+	redrawMenu(0xFFFFFF,0x808080);
+	ui_brain_container.visible = true;
+	ui_stim_container.visible = false;
+	ui_spike_container.visible = false;
+}
 
-  }
+function stimulusSwitch() {
+	ui_brain_container.visible = false;
+	ui_stim_container.visible = true;
+	ui_spike_container.visible = true;
+	redrawMenu(0x808080,0xFFFFFF);
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -171,6 +265,7 @@ function uiMiniInit() {
 		  // add the lateral brain image
 		  itype = imgs[ii];
 			let img = PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png');
+			img.alpha = 0.5;
 			img.anchor.set(0,0);
 			img.x = mini_scale*(ii*iwidth+offset+iwidth*si)-2.5;
 			img.y = -2.5;
@@ -195,8 +290,18 @@ function uiMiniInit() {
 // MINI CALLBACKS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+let miniElecs = {};
+
+function miniAddElec() {
+
+}
+
+function miniRemoveElec() {
+
+}
+
 function miniDown(event) {
-	console.log('Not implemented');
+	// console.log('Not implemented');
 	// this.isdown = true;
  //  // calculate offset
  //  var pos = event.data.getLocalPosition(this.parent);
@@ -206,14 +311,14 @@ function miniDown(event) {
  //  ui_areas_container.visible = true;
 }
 function miniUp() {
-	console.log('Not implemented');
+	// console.log('Not implemented');
   // this.isdown = false;
   // ui_brains_container.alpha = 1;
   // ui_areas_container.visible = false;
 }
 
 function miniMove(event) {
-	console.log('Not implemented');
+	// console.log('Not implemented');
   // if (this.isdown) {
   //   var pos = event.data.getLocalPosition(this.parent);
   // 	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*80,pos.x-this.offX)),
@@ -305,6 +410,8 @@ function uiBrainInit() {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function brainDown(event) {
+	if (electrodeMoving) {return;}
+
 	this.isdown = true;
   // calculate offset
   var pos = event.data.getLocalPosition(this.parent);
@@ -313,13 +420,17 @@ function brainDown(event) {
   ui_brains_container.alpha = 0.5;
   ui_areas_container.visible = true;
 }
-function brainUp() {
+function brainUp(event) {
+	if (electrodeMoving) {return;}
+
   this.isdown = false;
   ui_brains_container.alpha = 1;
   ui_areas_container.visible = false;
 }
 
 function brainMove(event) {
+	if (electrodeMoving) {return;}
+
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
   	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*80,pos.x-this.offX)),

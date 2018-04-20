@@ -2,6 +2,13 @@
 // BRAIN INFORMATION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+let brain = {};
+
+function brainInit() {
+	// The brain starts from location [0,0]. As the brain gets scrolled we will adjust this.
+	brain.position = {};
+	brain.position.x = 0; brain.position.y = 0;
+}
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // INITIALIZATION
@@ -16,6 +23,7 @@ var rendererOptions = {
 
 var ORIGIN_WIDTH = window.innerWidth,
 		ORIGIN_HEIGHT = window.innerHeight,
+		MENU_SCALEH = 0.2,
 		MENU_SCALEV = 0.05, // vertical scaling of the menu bars (which we overlay over everything else)
 		BRAIN_SCALEV = 0.75, // vertical scaling of brains (default: 80% of screen)
 		MBRAIN_SCALEV = 0.18, // vertical scaling of mini brains (default: 20% of screen)
@@ -32,6 +40,8 @@ document.getElementById("canvas").appendChild(app.view);
 
 function launch() {
 	console.log('launched');
+
+	brainInit();
 
   // set renderer stuff
   app.renderer.plugins.interaction.cursorStyles.crosshair = 'crosshair';
