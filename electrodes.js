@@ -85,17 +85,25 @@ function Electrode(id) {
 // Receive data about electrodes
 socket.on('elecInfo', function(neuron) {
     // do something with this information
+    console.log(neuron);
 });
 
-function testNeurons() {
-	// Call the server and get every neuron's data -- then plot it
-	for (let x=0;x<100;x++) {
-		for (let y=0;y<100;y++) {
-			info = {};
-			info.x = x;
-			info.y = y;
-			info.lateral = true;
-			socket.emit('request',info);
+let data;
+socket.on('proc', function(proc) {console.log('received proc'); data = proc; testData();});
+
+function testData() {
+	// Cruise through data and plot every point (that exists) onto 
+	let ldata = data.l;
+
+	g = new PIXI.Graphics();
+	ui_brain_container.addChild(g);
+
+	g.beginFill(0xFF0000,1);
+	for (let x=0;x<1183;x++) {
+		for (let y=0;y<880;y++) {
+			if ((ldata[x]!=undefined) && (ldata[x][y]!=undefined)) {
+				g.drawRect(x,y,1,1);
+			}
 		}
 	}
 }

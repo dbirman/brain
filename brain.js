@@ -18,13 +18,18 @@ var connectionList = {};
 io.on('connection', function(socket){
   console.log('Connection: ID ' + socket.id);
 
+  io.to(socket.id).emit('proc',DATA.proc);
+
   socket.on('disconnect', function(){
   	console.log('disconnect');
   });
 
   socket.on('request', function(info){
-    console.log(info);
-    
+    if ((DATA.proc[info.type]!=undefined) && (DATA.proc[info.type][info.x]!=undefined) && (DATa.proc[info.type][info.x][info.y]!=undefined)) {
+      io.to(socket.id).emit('elecInfo',DATA.proc[info.type][info.x][info.y]);
+      console.log('Sending data for: ');
+      console.log(dat);
+    }
   });
 });
 
