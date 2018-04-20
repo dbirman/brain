@@ -18,7 +18,8 @@ var connectionList = {};
 io.on('connection', function(socket){
   console.log('Connection: ID ' + socket.id);
 
-  io.to(socket.id).emit('proc',DATA.proc);
+  // test code
+  // io.to(socket.id).emit('proc',DATA.proc);
 
   socket.on('disconnect', function(){
   	console.log('disconnect');

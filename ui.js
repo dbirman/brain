@@ -453,11 +453,9 @@ function brainMove(event) {
 
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
-    console.log(pos.x);
-  	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*80,pos.x-this.offX));
-  	console.log(nx);
+  	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*305,pos.x-this.offX));
     this.position.set(nx,this.position.y);
-    ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+bscale*80),ui_mini_overlay_container.position.y);
+    ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+bscale*305),ui_mini_overlay_container.position.y);
 
     // compute the percentage scrolled and use that to light up the menu
   }

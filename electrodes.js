@@ -88,8 +88,8 @@ socket.on('elecInfo', function(neuron) {
     console.log(neuron);
 });
 
-let data;
-socket.on('proc', function(proc) {console.log('received proc'); data = proc; testData();});
+// let data;
+// socket.on('proc', function(proc) {console.log('received proc'); data = proc; testData();});
 
 function testData() {
 	// Cruise through data and plot every point (that exists) onto 
