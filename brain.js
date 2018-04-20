@@ -21,6 +21,11 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
   	console.log('disconnect');
   });
+
+  socket.on('request', function(info){
+    console.log(info);
+    
+  });
 });
 
 let mode = false;
@@ -30,19 +35,12 @@ function init() {
   slog('Loading and pre-processing data.');
   DATA.init();
   DATA.preProcess();
-  slog('Spinning up PIXI.');
   slog('Setting mode to: online');
+  console.log('listening on *: ' + port);
   mode = true;
 }
 
 const DATA = require('./data.js');
-
-var port = 8080;
-http.listen(port, function(){
-  console.log('listening on *: ' + port);
-
-  init();
-});
 
 function slog(msg) {
   if (msg.length<=16) {
@@ -57,3 +55,6 @@ function slog(msg) {
     console.log(stars+' ****** '+stars);
   }
 }
+
+var port = 8080;
+http.listen(port, function(){ init(); });

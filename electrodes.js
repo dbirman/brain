@@ -1,4 +1,6 @@
 
+var socket = io();
+
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -38,7 +40,6 @@ function Electrode(id) {
 
 	ui_mini_electrodes_container.addChild(this.mini_sprite);
 
-
 	this.destroy = function () {
 		this.sprite.destroy();
 		this.mini_sprite.destroy();
@@ -59,6 +60,18 @@ function Electrode(id) {
 		this.mini_sprite.position.set(this.sprite.position.x*bscale*mini_scale,this.sprite.position.y*bscale*mini_scale);
 	}
 
+	this.trace = createElectrodeTrace;
+
+	this.setRate = function (rate) {
+		spk_setRate(trace,rate);
+	}
+
+	// Request the server for information about this neuron
+	this.getInfo = function () {
+		let id = Math.random()*1000000;
+		// femit('request',)
+	}
+
 	this.drawPos();
 	electrodes[id] = this;
 
@@ -69,6 +82,23 @@ function Electrode(id) {
 // ELECTRODE FUNCTIONS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+// Receive data about electrodes
+socket.on('elecInfo', function(neuron) {
+    // do something with this information
+});
+
+function testNeurons() {
+	// Call the server and get every neuron's data -- then plot it
+	for (let x=0;x<100;x++) {
+		for (let y=0;y<100;y++) {
+			info = {};
+			info.x = x;
+			info.y = y;
+			info.lateral = true;
+			socket.emit('request',info);
+		}
+	}
+}
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE CALLBACKS
@@ -77,16 +107,17 @@ function Electrode(id) {
 var electrodeMoving = false;
 
 function elecDown(event) {
-	if (event.currentTarget==this) {electrodeMoving = true;}
-	this.isdown = true;
- //  // calculate offset
+  if (event.currentTarget==this) {electrodeMoving = true;}
+  this.isdown = true;
+  // calculate offset
   var pos = event.data.getLocalPosition(this.parent);
   this.offX = pos.x - this.x;
   this.offY = pos.y - this.y;
   this.alpha = 0.5;
 }
+
 function elecUp(event) {
-	if (event.currentTarget==this) {electrodeMoving = false;}
+  if (event.currentTarget==this) {electrodeMoving = false;}
 
   this.isdown = false;
   this.alpha = 1;
@@ -108,4 +139,14 @@ function updateElectrodePos() {
 		let electrode = electrodes[keys[ki]];
 		electrode.drawPos();
 	}
+}
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// ELECTRODE TRACES + TRACE BOXES
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+function createElectrodeTrace() {
+	trace = spk_addTrace();
+
+	return trace;
 }

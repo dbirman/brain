@@ -13,6 +13,9 @@ function uiInit() {
 	uiSpikeInit();
 	uiStimInit();
 
+	console.log('temp code');
+	stimulusSwitch();
+
 	ui_container.sortChildren();
 }
 
@@ -24,8 +27,17 @@ let ui_stim_container;
 
 function uiStimInit() {
 	var width = app.renderer.width, height = app.renderer.height;
-}
 
+	ui_stim_container = new DContainer();
+	ui_stim_container.visible = false;
+	ui_container.addChild(ui_stim_container);
+
+	// build the stimulus container
+	initStimulus(ui_stim_container);
+
+	// add mouse wheel trackers
+	window.addEventListener('mousewheel',stimScroll,false);
+}
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // SPIKE OUTPUT WINDOW
@@ -34,7 +46,10 @@ function uiStimInit() {
 let ui_spike_container;
 
 function uiSpikeInit() {
-	
+	ui_spike_container = new DContainer();
+	ui_spike_container.visible = false;
+
+	//
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -46,10 +61,14 @@ let ui_elec_container;
 function uiElecInit() {
 	var width = app.renderer.width, height = app.renderer.height;
 
+	var ecsize = height * MBRAIN_SCALEV;
+	console.log(ecsize);
+
 	// Initialize container
 	ui_elec_container = new DContainer();
 	ui_elec_container.x = 10;
 	ui_elec_container.y = height - MBRAIN_SCALEV*height-10;
+	ui_elec_container.zOrder = 4;
 
 	ui_container.addChild(ui_elec_container);
 
@@ -57,11 +76,11 @@ function uiElecInit() {
 	let g = new PIXI.Graphics();
 	g.beginFill(0xFFFFFF,1);
 	g.lineStyle(1,0x000000,1);
-	g.drawRect(-2.5,-2.5,200,MBRAIN_SCALEV*height);
+	g.drawRect(-2.5,-2.5,ecsize,MBRAIN_SCALEV*height);
 
 	ui_elec_container.addChild(g);
 
-	let p1 = 200/3-10, p2 = 200*2/3+10;
+	let p1 = ecsize/3-ecsize/20, p2 = ecsize*2/3+ecsize/20;
 	// Add buttons to create new electrodes (4 maximum)
 	let xs = [p1,p2,p1,p2], ys=[p1,p1,p2,p2];
 
@@ -72,11 +91,11 @@ function uiElecInit() {
 		let bg = new PIXI.Graphics();
 		bg.beginFill(0x808080,1);
 		bg.lineStyle(1,0x000000,1);
-		bg.drawCircle(x,y,200/6,200/6);
+		bg.drawCircle(x,y,ecsize/6,ecsize/6);
 
 		// Add a little white electrode using the image
 		let bs = new PIXI.Sprite.fromImage('./assets/electrode.png');
-		bs.scale.set(50/167);
+		bs.scale.set(ecsize/5/167);
 		bs.anchor.set(0.5,0.5);
 		bs.x = x, bs.y = y;
 
@@ -90,9 +109,9 @@ function uiElecInit() {
 
 	// Add text at the top
 
-  var style = new PIXI.TextStyle({fill:'#000000'});
+  var style = new PIXI.TextStyle({fill:'#000000',fontSize:ecsize/10});
   var t = new PIXI.Text('Electrodes',style);
-  t.x = 100; t.y = 10;
+  t.x = ecsize/2; t.y = ecsize/20;
   t.anchor.set(0.5,0.5);
   ui_elec_container.addChild(t);
 }
@@ -135,7 +154,7 @@ function redrawMenu(lcolor,rcolor) {
 	if (ui_menu_graphics_left!=undefined) {ui_menu_graphics_left.destroy();}
 	if (ui_menu_graphics_right!=undefined) {ui_menu_graphics_right.destroy();}
 	console.log('Menu re-drawing');
-	let lwidth = 160, rwidth = 275, menu_height = 40;
+	let lwidth = 160, rwidth = 275, menu_height = MENU_SCALEV*app.renderer.height;
 	ui_menu_graphics_left = new PIXI.Graphics();
 
 	ui_menu_graphics_left.beginFill(lcolor,1);
@@ -151,7 +170,7 @@ function redrawMenu(lcolor,rcolor) {
 	ui_menu_graphics_right.endFill();
 
 	// add text
-  var style = new PIXI.TextStyle({fill:'#000000'});
+  var style = new PIXI.TextStyle({fill:'#000000',fontSize:menu_height/1.5});
   var t = new PIXI.Text('Brain viewer',style);
   t.x = lwidth/2; t.y = 1;
   t.anchor.set(0.5,0);
@@ -420,6 +439,7 @@ function brainDown(event) {
   ui_brains_container.alpha = 0.5;
   ui_areas_container.visible = true;
 }
+
 function brainUp(event) {
 	if (electrodeMoving) {return;}
 
@@ -429,13 +449,13 @@ function brainUp(event) {
 }
 
 function brainMove(event) {
-	if (electrodeMoving) {return;}
+  if (electrodeMoving) {return;}
 
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
-  	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*80,pos.x-this.offX)),
-  		ny = pos.y-this.offY;
-  	ny = 0;	
+    console.log(pos.x);
+  	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*80,pos.x-this.offX));
+  	console.log(nx);
     this.position.set(nx,this.position.y);
     ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+bscale*80),ui_mini_overlay_container.position.y);
 
