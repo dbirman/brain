@@ -10,6 +10,8 @@ let electrodes = {};
 function Electrode(id) {
 	// create a new GUI element for the lectrode
 	// hard code w/h
+	this.id = id;
+
 	let ewidth = 167, eheight = 208;
 	this.color = Math.random() * 0xFFFFFF;
 
@@ -34,7 +36,7 @@ function Electrode(id) {
 	ui_brain_container.addChild(this.sprite);
 
 	// create the mini electrode
-	this.mini_sprite = PIXI.Sprite.fromImage('./assets/electrode.png');
+	this.mini_sprite = PIXI.Sprite.fromImage('./assets/electrode_mini.png');
 	this.mini_sprite.tint = this.color;
 	this.mini_sprite.scale.set(bscale*mini_scale);
 	this.mini_sprite.position.set(-50,0);
@@ -61,16 +63,31 @@ function Electrode(id) {
 		this.mini_sprite.position.set(this.sprite.position.x*bscale*mini_scale,this.sprite.position.y*bscale*mini_scale);
 	}
 
+	this.data = {};
+
+	this.requestData = function () {
+		if ((this.sprite.position.x!=this.data.x) || (this.sprite.position.y!=this.data.y)) {
+			this.data.x = this.sprite.position.x % 1183;
+			this.data.y = this.sprite.position.y+eheight;
+			let types = ['l','m','m','l'];
+			let idx = Math.floor(this.sprite.position.x/1183);
+			this.data.type = types[idx];
+			if (idx>=2) {
+				this.data.x = 1183-this.data.x;
+			}
+			// Update needed
+			let info = this.data;
+			info.id = this.id;
+			info.x = Math.floor(info.x); info.y = Math.floor(info.y);
+
+			socket.emit('request',info);
+		}
+	}
+
 	this.trace = createElectrodeTrace;
 
 	this.setRate = function (rate) {
 		spk_setRate(trace,rate);
-	}
-
-	// Request the server for information about this neuron
-	this.getInfo = function () {
-		let id = Math.random()*1000000;
-		// femit('request',)
 	}
 
 	this.drawPos();
@@ -84,30 +101,31 @@ function Electrode(id) {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 // Receive data about electrodes
-socket.on('elecInfo', function(neuron) {
+socket.on('elecInfo', function(data) {
     // do something with this information
-    console.log(neuron);
+    electrodes[data.id].data.neuron = data.neuron;
+    console.log(data.neuron);
 });
 
 // let data;
 // socket.on('proc', function(proc) {console.log('received proc'); data = proc; testData();});
 
-function testData() {
-	// Cruise through data and plot every point (that exists) onto 
-	let ldata = data.l;
+// function testData() {
+// 	// Cruise through data and plot every point (that exists) onto 
+// 	let ldata = data.l;
 
-	g = new PIXI.Graphics();
-	ui_brain_container.addChild(g);
+// 	g = new PIXI.Graphics();
+// 	ui_brain_container.addChild(g);
 
-	g.beginFill(0xFF0000,1);
-	for (let x=0;x<1183;x++) {
-		for (let y=0;y<880;y++) {
-			if ((ldata[x]!=undefined) && (ldata[x][y]!=undefined)) {
-				g.drawRect(x,y,1,1);
-			}
-		}
-	}
-}
+// 	g.beginFill(0xFF0000,1);
+// 	for (let x=0;x<1183;x++) {
+// 		for (let y=0;y<880;y++) {
+// 			if ((ldata[x]!=undefined) && (ldata[x][y]!=undefined)) {
+// 				g.drawRect(x,y,1,1);
+// 			}
+// 		}
+// 	}
+// }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE CALLBACKS
@@ -128,6 +146,7 @@ function elecDown(event) {
 function elecUp(event) {
   if (event.currentTarget==this) {electrodeMoving = false;}
 
+  updateElectrodes('requestData');
   this.isdown = false;
   this.alpha = 1;
 }
@@ -138,15 +157,15 @@ function elecMove(event) {
   	let nx = pos.x-this.offX,
   		ny = pos.y-this.offY;
     this.position.set(nx,ny);
-    updateElectrodePos();
+  	updateElectrodes('drawPos');
   }
 }
 
-function updateElectrodePos() {
+function updateElectrodes(callback) {
 	let keys = Object.keys(electrodes);
 	for (let ki=0;ki<keys.length;ki++) {
 		let electrode = electrodes[keys[ki]];
-		electrode.drawPos();
+		electrode[callback]();
 	}
 }
 

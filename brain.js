@@ -26,11 +26,10 @@ io.on('connection', function(socket){
   });
 
   socket.on('request', function(info){
-    if ((DATA.proc[info.type]!=undefined) && (DATA.proc[info.type][info.x]!=undefined) && (DATa.proc[info.type][info.x][info.y]!=undefined)) {
-      io.to(socket.id).emit('elecInfo',DATA.proc[info.type][info.x][info.y]);
-      console.log('Sending data for: ');
-      console.log(dat);
-    }
+    let data = {};
+    data.neuron = ((DATA.proc[info.type]!=undefined) && (DATA.proc[info.type][info.x]!=undefined) && (DATA.proc[info.type][info.x][info.y]!=undefined)) ? DATA.proc[info.type][info.x][info.y] : undefined;
+    data.id = info.id;
+    io.to(socket.id).emit('elecInfo',data);
   });
 });
 

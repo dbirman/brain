@@ -309,16 +309,6 @@ function uiMiniInit() {
 // MINI CALLBACKS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let miniElecs = {};
-
-function miniAddElec() {
-
-}
-
-function miniRemoveElec() {
-
-}
-
 function miniDown(event) {
 	// console.log('Not implemented');
 	// this.isdown = true;
