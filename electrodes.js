@@ -22,7 +22,8 @@ function Electrode(id) {
 	this.sprite.hitArea = new PIXI.Polygon(points);
 	// set other properties
 	this.sprite.interactive = true;
-	this.sprite.position.set(-ui_brain_container.position.x+iwidth/2+ewidth/2,ui_brain_container.position.y+iheight/2-eheight);
+	console.log(ui_brain_container.position.x);
+	this.sprite.position.set(-ui_brain_container.position.x/bscale+iwidth/2,ui_brain_container.position.y+iheight/2-eheight);
 	this.sprite.alpha = 1;
 	this.sprite
 		.on('pointerdown', elecDown)
