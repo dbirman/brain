@@ -41,10 +41,11 @@ function Electrode(id) {
 	ui_brain_container.addChild(this.sprite);
 
 	// create the mini electrode
-	this.mini_sprite = PIXI.Sprite.fromImage('./assets/electrode_mini.png');
+	this.mini_sprite = PIXI.Sprite.fromImage('./assets/mini.png');
 	this.mini_sprite.tint = this.color;
-	this.mini_sprite.scale.set(bscale*mini_scale);
-	this.mini_sprite.position.set(-50,0);
+	this.mini_sprite.anchor.set(0.5,0.5);
+	this.mini_sprite.scale.set(bscale*mini_scale*4);
+	this.mini_sprite.position.set(0,0);
 
 	ui_mini_electrodes_container.addChild(this.mini_sprite);
 
@@ -69,7 +70,7 @@ function Electrode(id) {
 		// ui_brain_container.addChild(this.posGraphic); 
 
 		// update the mini_sprite location
-		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y-this.mini_sprite.height)*mini_scale);
+		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y)*mini_scale+this.mini_sprite.height);
 	}
 
 	this.data = {};
