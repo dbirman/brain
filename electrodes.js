@@ -94,7 +94,11 @@ function Electrode(id) {
 	this.trace = createElectrodeTrace();
 
 	this.setRate = function (rate) {
-		spk_setRate(trace,rate);
+		spk_setRate(this.trace,rate);
+	}
+
+	this.spike = function() {
+		spike(this.id);
 	}
 
 	// setup the electrode window
@@ -107,7 +111,7 @@ function Electrode(id) {
 	// draw black square (crush by 5 pixels)
 	this.trace.graphic = new PIXI.Graphics();
 	this.trace.graphic.beginFill(0x000000,1);
-	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4);
+	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
 
 	ui_spike_container.addChild(this.trace.graphic);
 
@@ -124,16 +128,20 @@ function Electrode(id) {
 let ticks = {};
 
 function spike(id) {
-	ticks[id] = setTimeout(function() {spike(id);},10);
-	let trace = electrodes[id].trace;
-	if (trace.g!=undefined) {trace.g.destroy();}
-	trace.g = drawTrace(this.trace);
-	trace.graphic.addChild(trace.g);
+	if (ui_spike_container.visible) {
+		let trace = electrodes[id].trace;
+		if (trace.g!=undefined) {trace.g.destroy();}
+		trace.g = drawTrace(this.trace);
+		ticks[id] = setTimeout(function() {spike(id);},10);
+	} else {
+		clearTimeout(ticks[id]);
+	}
 }
 
-function drawTrace(trace) {
+function drawTrace(trace,graphic) {
 	// Draw a trace starting at sx and sy
 	g = new PIXI.Graphics();
+	trace.graphic.addChild(g);
 	g.lineStyle(1,trace.color,1);
 	g.moveTo(trace.sx,trace.sy-trace.spk[0]);
 	for (let ii=1;ii<trace.spk.length;ii++) {

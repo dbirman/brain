@@ -212,6 +212,7 @@ function stimulusSwitch() {
 	ui_brain_container.visible = false;
 	ui_stim_container.visible = true;
 	ui_spike_container.visible = true;
+	updateElectrodes('spike');
 	redrawMenu(0x808080,0xFFFFFF);
 }
 

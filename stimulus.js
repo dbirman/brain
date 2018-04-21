@@ -41,5 +41,7 @@ function stimScroll(event) {
 	if (!ui_stim_container.visible) {return;}
 	console.log(event.wheelDelta);
 	console.log(event);
-	// event.preventDefault();
+	if (document.getElementById('opener').style.display=='none') {
+		event.preventDefault();
+	}
 }
