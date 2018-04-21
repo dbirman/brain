@@ -7,12 +7,12 @@
 */
 let stimulus = []; 
 
-function initStimulus(container) {
+function initStimulus() {
 
 	let x = 10, y = MENU_SCALEV*app.renderer.height+20,
 		swidth=VIS_SCALEH*app.renderer.width, sheight=BRAIN_SCALEV*app.renderer.height-30;
 
-	container.position.set(x,y);
+	ui_stim_container.position.set(x,y);
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
@@ -28,10 +28,31 @@ function initStimulus(container) {
 
 	g.moveTo()
 
-	container.addChild(g);
+	ui_stim_container.addChild(g);
+
+	// Setup the event listener functions
+
+  document.body.onkeydown = function(e){checkKey(e);};
+}
+
+function checkKey(e) {
+	console.log(e.keyCode);
+
+  if (any(equals([77],e.keyCode))) {e.preventDefault();}
+
+  if (e.keyCode==77) {
+  	stimulus.push(createMotionStimulus);
+  }
 }
 
 //// stimulus drawings
+
+function createMotionStimulus() {
+	let container = new PIXI.Container();
+	ui_stim_container.addChild(container);
+
+	container.dots = initDots()
+}
 
 // function 
 
@@ -49,7 +70,15 @@ function stimScroll(event) {
 //// Sensitivity computation
 
 function computeSensitivity() {
-	// For each electrode compute the sensitivity to the current stimulus 
+	// For each electrode compute the sensitivity to the current stimulus for all
+	// x and y positions in the visual field. This speeds up computation 
+	// when people move the stimuli around.
+}
+
+function computePartialSensitivity() {
+	// For each electrode re-compute the sensitivity at the current parameters.
+	// This is used when the parameters are being directly adjusted (e.g. size
+	// contrast, coherence, etc)
 }
 
 // The data code uses the function mappings to communicate which response function

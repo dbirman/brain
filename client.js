@@ -156,3 +156,17 @@ function randn() {
   var c = Math.sqrt(-2 * Math.log(rad) / rad);
   return x1 * c;
 };
+
+
+function any(array) {
+  for (var i =0; i< array.length;i++) {
+    if (array[i] != 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function normpdf(x,mu,sd) {
+  return 1 / Math.sqrt(2*Math.PI*Math.pow(sd,2)) * Math.exp(-Math.pow(x-mu,2)/(2*Math.pow(sd,2)));
+}

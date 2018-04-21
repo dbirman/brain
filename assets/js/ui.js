@@ -35,7 +35,7 @@ function uiStimInit() {
 	ui_container.addChild(ui_stim_container);
 
 	// build the stimulus container
-	initStimulus(ui_stim_container);
+	initStimulus();
 
 	// add mouse wheel trackers
 	window.addEventListener('mousewheel',stimScroll,false);
@@ -208,6 +208,7 @@ function viewerSwitch() {
 	ui_stim_container.visible = false;
 	ui_spike_container.visible = false;
 	ui_mini_overlay_container.visible=true;
+	updateElectrodes('silence');
 }
 
 function stimulusSwitch() {
@@ -216,6 +217,7 @@ function stimulusSwitch() {
 	ui_spike_container.visible = true;
 	ui_mini_overlay_container.visible=false;
 	updateElectrodes('spike');
+	updateElectrodes('wake');
 	redrawMenu(0x808080,0xFFFFFF);
 }
 

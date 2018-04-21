@@ -104,6 +104,14 @@ function Electrode(id) {
 		spike(this.id);
 	}
 
+	this.silence = function() {
+		this.trace.silent = true;
+	}
+
+	this.wake = function() {
+		this.trace.silent = false;
+	}
+
 	// setup the electrode window
 	this.trace.tx = e_trace_left;
 	this.trace.ty = e_trace_top+e_trace_height*this.id/4;
