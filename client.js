@@ -54,6 +54,30 @@ function launch() {
 }
 
 
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// MODAL CODE
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+
+window.onclick = function(event) { closeCheck(event); }
+window.ontouchstart = function(event) {closeCheck(event); }
+
+function closeCheck(event) {
+  target = event.target;
+  if ((event.target.className == "close") || (event.target.className== "modal-content-big")) {
+      // chain parentElements until you find the modal
+      var parent = event.target.parentElement;
+      while (parent.className!="modal") {
+        parent = parent.parentElement;
+      }
+      parent.style.display = "none";
+    }
+    if (event.target.className == "modal") {
+      event.target.style.display = "none";
+    }
+}
+
+
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // EXTRA CODE

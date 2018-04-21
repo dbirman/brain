@@ -1,5 +1,5 @@
 
-var socket = io();
+const socket = io();
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE FUNCTIONALITY
@@ -102,9 +102,8 @@ function Electrode(id) {
 
 // Receive data about electrodes
 socket.on('elecInfo', function(data) {
-    // do something with this information
-    electrodes[data.id].data.neuron = data.neuron;
-    console.log(data.neuron);
+  // do something with this information
+  electrodes[data.id].data.neuron = data.neuron;
 });
 
 // let data;
