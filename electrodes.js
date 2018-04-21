@@ -5,7 +5,11 @@ const socket = io();
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let electrodes = {};
+let electrodes = {},
+	e_trace_top = MENU_SCALEV*app.renderer.height,
+	e_trace_height = BRAIN_SCALEV*app.renderer.height,
+	e_trace_left = (1-ELEC_SCALEH)*app.renderer.width,
+	e_trace_width = (ELEC_SCALEH-0.05)*app.renderer.width;
 
 function Electrode(id) {
 	// create a new GUI element for the lectrode
@@ -25,7 +29,7 @@ function Electrode(id) {
 	// set other properties
 	this.sprite.interactive = true;
 	console.log(ui_brain_container.position.x);
-	this.sprite.position.set(-ui_brain_container.position.x/bscale+iwidth/2,ui_brain_container.position.y+iheight/2-eheight);
+	this.sprite.position.set(brain_ioffset-ui_brain_container.position.x/bscale+iwidth/2,ui_brain_container.position.y+iheight/2-eheight);
 	this.sprite.alpha = 1;
 	this.sprite
 		.on('pointerdown', elecDown)
@@ -44,8 +48,11 @@ function Electrode(id) {
 	ui_mini_electrodes_container.addChild(this.mini_sprite);
 
 	this.destroy = function () {
+		clearTimeout(ticks[this.id]);
+		delete ticks[this.id];
 		this.sprite.destroy();
 		this.mini_sprite.destroy();
+		this.trace.graphic.destroy();
 	}
 
 	this.drawPos = function () {
@@ -60,7 +67,7 @@ function Electrode(id) {
 		// ui_brain_container.addChild(this.posGraphic); 
 
 		// update the mini_sprite location
-		this.mini_sprite.position.set(this.sprite.position.x*bscale*mini_scale,this.sprite.position.y*bscale*mini_scale);
+		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y-this.mini_sprite.height)*mini_scale);
 	}
 
 	this.data = {};
@@ -84,16 +91,55 @@ function Electrode(id) {
 		}
 	}
 
-	this.trace = createElectrodeTrace;
+	this.trace = createElectrodeTrace();
 
 	this.setRate = function (rate) {
 		spk_setRate(trace,rate);
 	}
 
+	// setup the electrode window
+	this.trace.tx = e_trace_left;
+	this.trace.ty = e_trace_top+e_trace_height*this.id/4;
+	this.trace.sx = this.trace.tx;
+	this.trace.sy = this.trace.ty+e_trace_height*1.5/8;
+	this.trace.color = this.color;
+
+	// draw black square (crush by 5 pixels)
+	this.trace.graphic = new PIXI.Graphics();
+	this.trace.graphic.beginFill(0x000000,1);
+	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4);
+
+	ui_spike_container.addChild(this.trace.graphic);
+
 	this.drawPos();
 	electrodes[id] = this;
+	spike(this.id);
 
 	return this.color;
+}
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// ELECTRODE FUNCTIONS
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+let ticks = {};
+
+function spike(id) {
+	ticks[id] = setTimeout(function() {spike(id);},10);
+	let trace = electrodes[id].trace;
+	if (trace.g!=undefined) {trace.g.destroy();}
+	trace.g = drawTrace(this.trace);
+	trace.graphic.addChild(trace.g);
+}
+
+function drawTrace(trace) {
+	// Draw a trace starting at sx and sy
+	g = new PIXI.Graphics();
+	g.lineStyle(1,trace.color,1);
+	g.moveTo(trace.sx,trace.sy-trace.spk[0]);
+	for (let ii=1;ii<trace.spk.length;ii++) {
+		g.lineTo(trace.sx+ii,trace.sy-trace.spk[ii]);
+	}
+	return g;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //

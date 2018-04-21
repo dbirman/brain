@@ -197,6 +197,22 @@ function nakarushton(x,params) {
 }
 // },
 
+
+function interp1(x,stops,vals) {
+	if ((x < stops[0]) || (x > stops[stops.length])) {
+		return undefined;
+	}
+    for (let vi=1;vi<vals.length;vi++) {
+    	if (x <= stops[vi]) {
+    		x1 = stops[vi-1];
+    		x2 = stops[vi];
+    		y1 = vals[vi-1];
+    		y2 = vals[vi];
+    		return y1 + (x-x1) * (y2-y1) / (x2-x1);
+    	}
+    }
+}
+
 // // RESPONSE FUNCTIONS
 // funcs: {
 // 	// INSENSITIVE RESPONSE (if x>0, max response)
@@ -226,22 +242,6 @@ function nakarushton(x,params) {
 // 			params);
 // 	}
 // },
-
-function interp1(x,stops,vals) {
-	if ((x < stops[0]) || (x > stops[stops.length])) {
-		return undefined;
-	}
-    for (let vi=1;vi<vals.length;vi++) {
-    	if (x <= stops[vi]) {
-    		x1 = stops[vi-1];
-    		x2 = stops[vi];
-    		y1 = vals[vi-1];
-    		y2 = vals[vi];
-    		return y1 + (x-x1) * (y2-y1) / (x2-x1);
-    	}
-    }
-}
-
 function arrayMap(array,func,params) {
 	if (Array.isArray(array)) {
 		out = [];

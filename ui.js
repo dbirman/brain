@@ -1,11 +1,13 @@
 let ui_container,
 	iwidth = 1183, iheight = 880,
-	bscale = BRAIN_SCALEV * app.renderer.height / iheight; // pixel size of the images
+	bscale = BRAIN_SCALEV * app.renderer.height / iheight, // pixel size of the images
+	brain_ioffset = (app.renderer.width - bscale*iwidth)/2;
 
 function uiInit() {
 	ui_container = new DContainer();
 	app.stage.addChild(ui_container);
 
+	document.getElementById('opener').style.display='none';
 	uiMenuInit();
 	uiElecInit();
 	uiMiniInit();
@@ -49,6 +51,7 @@ function uiSpikeInit() {
 	ui_spike_container = new DContainer();
 	ui_spike_container.visible = false;
 
+	ui_container.addChild(ui_spike_container);
 	//
 }
 
@@ -411,7 +414,7 @@ function uiBrainInit() {
 	}
 
 	ui_brain_container.scale.set(bscale);
-	ui_brain_container.position.x = (app.renderer.width - bscale*iwidth)/2;
+	ui_brain_container.position.x = brain_ioffset;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -443,9 +446,9 @@ function brainMove(event) {
 
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
-  	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*305,pos.x-this.offX));
+  	let nx = Math.max(brain_ioffset-bscale*1183*3,Math.min(brain_ioffset,pos.x-this.offX));
     this.position.set(nx,this.position.y);
-    ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+bscale*305),ui_mini_overlay_container.position.y);
+    ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+brain_ioffset),ui_mini_overlay_container.position.y);
 
     // compute the percentage scrolled and use that to light up the menu
   }

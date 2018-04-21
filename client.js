@@ -41,6 +41,11 @@ document.getElementById("canvas").appendChild(app.view);
 function launch() {
 	console.log('launched');
 
+  // ensure any browser dependencies run
+  checkBrowser();
+
+  // Local stuff
+  spk_init();
 	brainInit();
 
   // set renderer stuff
@@ -112,4 +117,23 @@ class DContainer extends PIXI.Container {
       _children[j + 1] = tmp;
     }
   };
+}
+
+var browser;
+
+function checkBrowser(){
+    c = navigator.userAgent.search("Chrome");
+    f = navigator.userAgent.search("Firefox");
+    m8 = navigator.userAgent.search("MSIE 8.0");
+    m9 = navigator.userAgent.search("MSIE 9.0");
+    if (c > -1) {
+        browser = "Chrome";
+    } else if (f > -1) {
+        browser = "Firefox";
+    } else if (m9 > -1) {
+        browser ="MSIE 9.0";
+    } else if (m8 > -1) {
+        browser ="MSIE 8.0";
+    }
+    return browser;
 }
