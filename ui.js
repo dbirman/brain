@@ -207,12 +207,14 @@ function viewerSwitch() {
 	ui_brain_container.visible = true;
 	ui_stim_container.visible = false;
 	ui_spike_container.visible = false;
+	ui_mini_overlay_container.visible=true;
 }
 
 function stimulusSwitch() {
 	ui_brain_container.visible = false;
 	ui_stim_container.visible = true;
 	ui_spike_container.visible = true;
+	ui_mini_overlay_container.visible=false;
 	updateElectrodes('spike');
 	redrawMenu(0x808080,0xFFFFFF);
 }

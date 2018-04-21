@@ -70,7 +70,7 @@ function Electrode(id) {
 		// ui_brain_container.addChild(this.posGraphic); 
 
 		// update the mini_sprite location
-		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y)*mini_scale+this.mini_sprite.height);
+		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+brain_ioffset)*mini_scale);
 	}
 
 	this.data = {};
