@@ -7,15 +7,15 @@ var stick,
     spk_max = 50;
 
 function spk_init() {
+  var cspk;
+  if (browser=="Firefox") {
+    cspk = new Audio("./assets/snd/spike_16.wav");
+  } else {
+    cspk = new Audio("./assets/snd/spike.wav");
+  }
+  cspk.load();
   for (var i=0;i<50;i++) {
-    var cspk;
-    if (browser=="Firefox") {
-      cspk = new Audio("../assets/snd/spike_16.wav");
-    } else {
-      cspk = new Audio("../assets/snd/spike.wav");
-    }
-    cspk.load();
-    spikes.push(cspk);
+    spikes.push(cspk.cloneNode());
   }
 }
 
@@ -42,6 +42,10 @@ function spk_setRate(trace,rate) {
   // }
 }
 
+function spk_destroy(trace) {
+  clearTimeout(trace.tick);
+}
+
 function _spk_spike(trace) {
   // check the stop condition
   // if (trace.rate <= 0) {
@@ -66,18 +70,3 @@ function _spk_play() {
   spikes[cur_spk].play();
   cur_spk += 1; if(cur_spk>=spikes.length) {cur_spk=0;}
 }
-
-function zeros(z) {
-  a=[]; for(let zi=0;zi<z;zi++) {a.push(0);}return a;
-}
-
-function randn() {
-  var x1, x2, rad, y1;
-  do {
-    x1 = 2 * Math.random() - 1;
-    x2 = 2 * Math.random() - 1;
-    rad = x1 * x1 + x2 * x2;
-  } while(rad >= 1 || rad == 0);
-  var c = Math.sqrt(-2 * Math.log(rad) / rad);
-  return x1 * c;
-};

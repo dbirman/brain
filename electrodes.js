@@ -6,7 +6,7 @@ const socket = io();
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 let electrodes = {},
-	e_trace_top = MENU_SCALEV*app.renderer.height,
+	e_trace_top = (MENU_SCALEV/2)*app.renderer.height,
 	e_trace_height = BRAIN_SCALEV*app.renderer.height,
 	e_trace_left = (1-ELEC_SCALEH)*app.renderer.width,
 	e_trace_width = (ELEC_SCALEH-0.05)*app.renderer.width;
@@ -17,7 +17,9 @@ function Electrode(id) {
 	this.id = id;
 
 	let ewidth = 167, eheight = 208;
-	this.color = Math.random() * 0xFFFFFF;
+
+	let opts = [0xFF0000,0x00FF00,0x0000FF,0xFFFF00,0xFF00FF,0x00FFFF];
+	this.color = opts[Math.floor(Math.random()*opts.length)];
 
 	this.sprite = PIXI.Sprite.fromImage('./assets/electrode.png');
 	this.sprite.tint = this.color;
@@ -28,7 +30,6 @@ function Electrode(id) {
 	this.sprite.hitArea = new PIXI.Polygon(points);
 	// set other properties
 	this.sprite.interactive = true;
-	console.log(ui_brain_container.position.x);
 	this.sprite.position.set(brain_ioffset-ui_brain_container.position.x/bscale+iwidth/2,ui_brain_container.position.y+iheight/2-eheight);
 	this.sprite.alpha = 1;
 	this.sprite
@@ -50,6 +51,7 @@ function Electrode(id) {
 	this.destroy = function () {
 		clearTimeout(ticks[this.id]);
 		delete ticks[this.id];
+		spk_destroy(this.trace);
 		this.sprite.destroy();
 		this.mini_sprite.destroy();
 		this.trace.graphic.destroy();
@@ -116,10 +118,8 @@ function Electrode(id) {
 	ui_spike_container.addChild(this.trace.graphic);
 
 	this.drawPos();
-	electrodes[id] = this;
-	spike(this.id);
 
-	return this.color;
+	return this;
 }
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE FUNCTIONS
@@ -131,22 +131,22 @@ function spike(id) {
 	if (ui_spike_container.visible) {
 		let trace = electrodes[id].trace;
 		if (trace.g!=undefined) {trace.g.destroy();}
-		trace.g = drawTrace(this.trace);
+		trace.g = drawTrace(trace,id);
 		ticks[id] = setTimeout(function() {spike(id);},10);
 	} else {
 		clearTimeout(ticks[id]);
 	}
 }
 
-function drawTrace(trace,graphic) {
+function drawTrace(trace,id) {
 	// Draw a trace starting at sx and sy
 	g = new PIXI.Graphics();
-	trace.graphic.addChild(g);
 	g.lineStyle(1,trace.color,1);
 	g.moveTo(trace.sx,trace.sy-trace.spk[0]);
 	for (let ii=1;ii<trace.spk.length;ii++) {
 		g.lineTo(trace.sx+ii,trace.sy-trace.spk[ii]);
 	}
+	trace.graphic.addChild(g);
 	return g;
 }
 
@@ -227,7 +227,5 @@ function updateElectrodes(callback) {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createElectrodeTrace() {
-	trace = spk_addTrace();
-
-	return trace;
+	return spk_addTrace();
 }

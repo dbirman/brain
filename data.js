@@ -10,41 +10,21 @@ const fs = require('fs'),
 PNG = require('pngjs').PNG;
 
 const DATA = {
+	areas: {
+		'V1' : {
+			order: 0,
+			orient: function() {return Math.random()*2*Math.PI;}
+		},
+		'MT' : {
+			order: 1,
+			orient: function() {return Math.random()*2*Math.PI;}
+		}
+	},
 	path: './assets/data/raw',
 	types: ['l','m'], // Types of data that may be found
 	vars: ['x','y','sd'], // variables and their ordering
 	proc: {},
 	raw: {},
-	funcs: {
-		linear: linear,
-		nakarushton: nakarushton,
-		insensitive: insensitive
-	},
-	// AREAS AND SET VALUES
-	areas: {
-		V1: {
-			contrast: {
-				func: nakarushton,
-				params: {slope:25,b0:0}
-			},
-			coherence: {
-				func: insensitive,
-				params: {max:1}
-			},
-			orient: function() {return Math.random()*2*Math.PI;}
-		},
-		MT: {
-			contrast: {
-				func: insensitive,
-				params: {max:1}
-			},
-			coherence: {
-				func: linear,
-				params: {slope:10,b0:0}
-			},
-			orient: function() {return Math.random()*2*Math.PI;}
-		}
-	},
 	// RULES
 	rules: {
 		x: {
@@ -130,9 +110,15 @@ const DATA = {
   				}
   				// save the green value to the corresponding position
   				this.raw[type][xi][yi][varpos] = data[1];
+  				
+  				// add the extra infos
   				// add the orientation data
   				if ((DATA.areas[area].orient!=undefined) && (this.raw[type][xi][yi][3]==undefined)) {
   					this.raw[type][xi][yi][3] = DATA.areas[area].orient();
+  				}
+  				// add the area
+  				if (this.raw[type][xi][yi][4]==undefined) {
+  					this.raw[type][xi][yi][4] = DATA.areas[area].order;
   				}
   			}
   		}
@@ -166,38 +152,6 @@ module.exports = DATA;
 
 // helper functions
 
-
-// RESPONSE FUNCTIONS
-// funcs: {
-// INSENSITIVE RESPONSE (if x>0, max response)
-// max
-function insensitive(x,params) {
-	return arrayMap(x,
-		function(x,params) {return x>0 ? params.max : 0;},
-		params);
-}
-// LINEAR RESPONSE FUNCTION
-// slope
-// b0
-function linear(x,params) {
-	return arrayMap(x,
-		function(x,params) {return params.b0 + x*params.slope;},
-		params);
-}
-// NAKA RUSHTON RESPONSE FUNCTION
-// rmax
-// x50
-function nakarushton(x,params) {
-	return arrayMap(x,
-		function(x,params) {
-			let p = 0.3, q = 1.6;
-			return params.rmax * ((Math.pow(x,p+q)) / (Math.pow(x,q)+Math.pow(params.x50,q)));
-		},
-		params);
-}
-// },
-
-
 function interp1(x,stops,vals) {
 	if ((x < stops[0]) || (x > stops[stops.length])) {
 		return undefined;
@@ -211,45 +165,4 @@ function interp1(x,stops,vals) {
     		return y1 + (x-x1) * (y2-y1) / (x2-x1);
     	}
     }
-}
-
-// // RESPONSE FUNCTIONS
-// funcs: {
-// 	// INSENSITIVE RESPONSE (if x>0, max response)
-// 	// max
-// 	insensitive: function(x,params) {
-// 		return arrayMap(x,
-// 			function(x,params) {return x>0 ? params.max : 0;},
-// 			params);
-// 	},
-// 	// LINEAR RESPONSE FUNCTION
-// 	// slope
-// 	// b0
-// 	linear: function (x,params) {
-// 		return arrayMap(x,
-// 			function(x,params) {return params.b0 + x*params.slope;},
-// 			params);
-// 	},
-// 	// NAKA RUSHTON RESPONSE FUNCTION
-// 	// rmax
-// 	// x50
-// 	nakarushton: function (x,params) {
-// 		return arrayMap(x,
-// 			function(x,params) {
-// 				let p = 0.3, q = 1.6;
-// 				return params.rmax * ((Math.pow(x,p+q)) / (Math.pow(x,q)+Math.pow(params.x50,q)));
-// 			},
-// 			params);
-// 	}
-// },
-function arrayMap(array,func,params) {
-	if (Array.isArray(array)) {
-		out = [];
-		for (let ai=0;ai<array.length;ai++) {
-			out.push(func(array[ai],params));
-		}
-	} else {
-		out = func(array,params);
-	}
-	return out;
 }

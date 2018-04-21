@@ -130,8 +130,9 @@ function elecClick(id,sprite) {
 		sprite.tint = 0xFFFFFF;
 	} else {
 		console.log('creating new electrode with id: ' + id);
-		let temp = new Electrode(id);
-		sprite.tint = temp.color;
+		electrodes[id] = new Electrode(id);
+		electrodes[id].spike();
+		sprite.tint = electrodes[id].color;
 	}
 }
 
