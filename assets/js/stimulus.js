@@ -72,12 +72,23 @@ function checkKey(e) {
 function createMotionStimulus() {
 	let stim = new PIXI.Container();
 
+	stim.type = 'rdm'; // random dot motion
+	// random dot motion has parameters:
+	// x
+	// y 
+	// sd
+	// contrast
+	// coherence
+	// theta
+
 	// parameter window
 	stim.moved = false // for tracking when to open the window
 	stim.contrast = 1;
 	stim.coherence = 1;
+	stim.theta = 0;
 	stim.paramWindow = createMotionParams(stim);
 	stim.paramWindow.visible = false;
+	stim.radius = 25;
 
 	// setup stim interaction
 	stim.interactive = true;
@@ -90,14 +101,51 @@ function createMotionStimulus() {
 
 	ui_stim_container.addChild(stim);
 
+	// add the getter functions (for computeSensitivity and computePartialSensitivity)
+
+	// funcs will track what actually can be calculated for this stimulus
+	stim.funcs = ['size','con','coh','theta'];
+
+	// actual functions:
+	stim.getSize = function() {
+		let x = this.position.x+this.radius,
+			y = this.position.y+this.radius;
+
+		let degx = x/swidth*50-25,
+			degy = y/sheight*50-25;
+
+		// we return both the position and radius so that we can do overlap calculations
+		return {pos: new PIXI.Point(degx,degy), rad:this.radius};
+	}
+
+	stim.getContrast = function() {
+		return stim.contrast;
+	}
+
+	stim.getCoherence = function() {
+		return stim.coherence;
+	}
+
+	stim.getTheta = function() {
+		return stim.theta;
+	}
+
+	// create the mask
+	stim.circmask = new PIXI.Graphics();
+	stim.circmask.beginFill(0xFFFFFF,1);
+	stim.circmask.drawCircle(stim.radius,stim.radius,stim.radius);
+	stim.addChild(stim.circmask);
+	stim.mask = stim.circmask;
+
 	stim.g = new PIXI.Graphics();
 	stim.addChild(stim.g);
 
-	stim.dots = initDots(25,50,50,1,1,0,app.renderer.width/20,2);
+	stim.dots = initDots(Math.PI*stim.radius**2/80,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
 	stim.position.set(150,150); // the true center is position+25/25
 
 	return stim;
 }
+
 
 // Create the parameter window for the motion stimulus
 // - this can be toggled on/off, but allows us to edit
@@ -137,11 +185,11 @@ function createMotionParams(stim) {
 }
 
 function destroyMotionStimulus(idx) {
-	// pass this isn't functional yet
+	// pass: this isn't functional yet
 }
 
 function drawMotionStimulus(idx) {
-	stimulus[idx].dots = updateDots(stimulus[idx].dots,stimulus[idx].coherence,stimulus[idx].contrast,0);
+	stimulus[idx].dots = updateDots(stimulus[idx].dots,stimulus[idx].coherence,stimulus[idx].contrast,stimulus[idx].theta);
 	drawDots(stimulus[idx].dots,stimulus[idx].g);
 	setTimeout(function() {drawMotionStimulus(idx);},50);
 }
@@ -174,8 +222,8 @@ function stimMove(event) {
 		this.dots.isdown = true;
 		this.moved = true;
     var pos = event.data.getLocalPosition(this.parent);
-  	let nx = Math.min(swidth,Math.max(0,pos.x-this.offX)),
-  		ny = Math.min(sheight,Math.max(0,pos.y-this.offY));
+  	let nx = Math.min(swidth-this.radius*2,Math.max(0,pos.x-this.offX)),
+  		ny = Math.min(sheight-this.radius*2,Math.max(0,pos.y-this.offY));
     this.position.set(nx,ny);
 
     // compute the percentage scrolled and use that to light up the menu
@@ -197,10 +245,41 @@ function stimScroll(event) {
 
 //// Sensitivity computation
 
+let sensTest = true, tg;
+
 function computeSensitivity() {
 	// For each electrode compute the sensitivity to the current stimulus for all
 	// x and y positions in the visual field. This speeds up computation 
 	// when people move the stimuli around.
+	let ekeys = Object.keys(electrodes);
+
+	if (sensTest) {
+		if (tg!=undefined) {tg.destroy();}
+		tg = new PIXI.Graphics();
+	}
+
+	for (let ei = 0; ei < ekeys.length; ei++) {
+		let electrode = electrodes[ekeys[ei]];
+
+		let einfo = getElectrodePosition(electrode);
+
+		// Draw the x/y and radius for this electrode (testing)
+		if (sensTest) {
+			// tg.drawCircle(einfo.)
+		}
+
+		// Compute response to each stimulus
+		let response = 0;
+		for (let si = 0; si < stimulus.length; si++) {
+			let stim = stimulus[si];
+			// Get the stimulus type
+			switch (stim.type) {
+				case 'rdm':
+					response += responseMotion(einfo,stim);
+					break;
+			}
+		}
+	}
 }
 
 function computePartialSensitivity() {
@@ -209,32 +288,57 @@ function computePartialSensitivity() {
 	// contrast, coherence, etc)
 }
 
+function responseMotion(elec,stim) {
+
+}
+
 // The data code uses the function mappings to communicate which response function
 // to use for contrast/coherence sensitivity. The parameters are stored by area.
 const areas =  {
-		0: {
-			name: 'V1',
-			contrast: {
-				func: nakarushton,
-				params: {slope:25,b0:0}
-			},
-			coherence: {
-				func: insensitive,
-				params: {max:1}
-			}
+	0: {
+		name: 'V1',
+		contrast: {
+			func: nakarushton,
+			params: {slope:25,b0:0}
 		},
-		1: {
-			name: 'MT',
-			contrast: {
-				func: insensitive,
-				params: {max:1}
-			},
-			coherence: {
-				func: linear,
-				params: {slope:10,b0:0}
-			}
+		coherence: {
+			func: insensitive,
+			params: {max:1}
 		}
-	};
+	},
+	1: {
+		name: 'MT',
+		contrast: {
+			func: insensitive,
+			params: {max:1}
+		},
+		coherence: {
+			func: linear,
+			params: {slope:10,b0:0}
+		}
+	}
+};
+
+
+// POSITION FUNCTIONS
+
+function getElectrodePosition(elec) {
+	if (elec.data.neuron==undefined) {
+		console.log('neuron has no position - skip');
+		return undefined;
+	}
+	return {pos: new PIXI.Point(elec.data.neuron[0],elec.data.neuron[1]), rad: elec.data.neuron[2]};
+}
+
+function getVisualFieldPosition(point) {
+	let degx = point.x, degy = point.y;
+	// convert from degrees to visual field position
+	let vf_range = [-25,25];
+
+	// let x = ,
+		// y = ;
+	return new PIXI.Point(x,y);
+}
 
 // RESPONSE FUNCTIONS
 // funcs: {

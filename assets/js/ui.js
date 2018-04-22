@@ -65,7 +65,6 @@ function uiElecInit() {
 	var width = app.renderer.width, height = app.renderer.height;
 
 	var ecsize = height * MBRAIN_SCALEV;
-	console.log(ecsize);
 
 	// Initialize container
 	ui_elec_container = new DContainer();
@@ -157,7 +156,6 @@ function uiMenuInit() {
 function redrawMenu(lcolor,rcolor) {
 	if (ui_menu_graphics_left!=undefined) {ui_menu_graphics_left.destroy();}
 	if (ui_menu_graphics_right!=undefined) {ui_menu_graphics_right.destroy();}
-	console.log('Menu re-drawing');
 	let lwidth = 160, rwidth = 275, menu_height = MENU_SCALEV*app.renderer.height;
 	ui_menu_graphics_left = new PIXI.Graphics();
 
@@ -299,7 +297,6 @@ function uiMiniInit() {
 			img.y = -2.5;
 			img.scale.set(mini_scale*scale,Math.abs(mini_scale*scale));
 
-			console.log('here')
 			ui_mini_brains_container.addChild(img);
 		}
 	}

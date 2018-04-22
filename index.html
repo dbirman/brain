@@ -23,7 +23,6 @@
 			margin: 0; padding: 0; overflow:hidden;
 		}
 
-
     /* The Modal (background) */
     .modal {
       display: block; /* Hidden by default */
@@ -96,13 +95,23 @@
     .close:hover { background: #AED2FF; }
 
 	</style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-34324563-4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-34324563-4');
+  </script>
+
 </head>
 <body>
 	<div id="canvas">
 	</div>
 
 
-  <div id="opener" class="modal">
+  <div id="opener" class="modal" style="display:none">
 
     <!-- Modal content -->
     <div class="modal-content fifty">
@@ -156,12 +165,18 @@
   </div>
 
   <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
+  <!-- order matters: load helpers first -->
+  <script src="./assets/js/helpers.js"></script>
+  <!-- then load client which sets some default information and sets the launch() func -->
   <script src="./client.js"></script>
+  <!-- now load the base functionality (stimulus settings, spikes, etc) -->
   <script src="./assets/js/pixi_dots.js"></script>
+  <script src="./assets/js/spikes.js"></script>
   <script src="./assets/js/electrodes.js"></script>
   <script src="./assets/js/stimulus.js"></script>
-  <script src="./assets/js/spikes.js"></script>
+  <!-- finally load the user interfaces -->
   <script src="./assets/js/ui.js"></script>
 
+  <!-- the last thing we do is actually call launch -->
 	<script>launch();</script>
 </body>
