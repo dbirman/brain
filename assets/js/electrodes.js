@@ -19,7 +19,7 @@ function Electrode(id) {
 	let ewidth = 167, eheight = 208;
 
 	let opts = [0xFF0000,0x00FF00,0x0000FF,0xFFFF00,0xFF00FF,0x00FFFF];
-	this.color = opts[Math.floor(Math.random()*opts.length)];
+	this.color = opts[id];
 
 	this.sprite = PIXI.Sprite.fromImage('./assets/electrode.png');
 	this.sprite.tint = this.color;

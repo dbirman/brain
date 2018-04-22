@@ -9,9 +9,9 @@ let stimulus = [], stimulus_graphic, swidth, sheight;
 
 function initStimulus() {
 
-	let x = 10, y = MENU_SCALEV*app.renderer.height+20;
+	let x = 10, y = MENU_SCALEV*app.renderer.height+20+0.2*BRAIN_SCALEV*app.renderer.height;
 	
-	swidth=VIS_SCALEH*app.renderer.width, sheight=BRAIN_SCALEV*app.renderer.height-30;
+	swidth=VIS_SCALEH*app.renderer.width, sheight=0.6*BRAIN_SCALEV*app.renderer.height-30;
 
 	ui_stim_container.position.set(x,y);
 
@@ -30,6 +30,16 @@ function initStimulus() {
 	g.lineTo(swidth/2,sheight);
 
 	ui_stim_container.addChild(g);
+
+  var style = new PIXI.TextStyle({fill:'#000000',fontSize:20});
+  var t = new PIXI.Text('Left visual field',style);
+  t.anchor.set(0.5,0);
+  t.position.set(swidth/4,0);
+  ui_stim_container.addChild(t);
+  var t = new PIXI.Text('Right visual field',style);
+  t.anchor.set(0.5,0);
+  t.position.set(swidth*3/4,0);
+  ui_stim_container.addChild(t);
 
 	stimulus_graphic = g;
 
