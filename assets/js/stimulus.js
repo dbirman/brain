@@ -51,11 +51,19 @@ function initStimulus() {
 function checkKey(e) {
 	console.log(e.keyCode);
 
-  if (any(equals([77],e.keyCode))) {e.preventDefault();}
+  if (any(equals([72,77],e.keyCode))) {e.preventDefault();}
 
   if (e.keyCode==77) {
   	stimulus.push(createMotionStimulus());
   	drawMotionStimulus(stimulus.length-1);
+  }
+
+  if (e.keyCode==72) {
+  	if (document.getElementById('help').style.display=='none') {
+  		document.getElementById('help').style.display='block';
+  	} else {
+  		document.getElementById('help').style.display='none';
+  	}
   }
 }
 
@@ -177,7 +185,7 @@ function stimMove(event) {
 //// parameter controls
 
 function stimScroll(event) {
-	if (document.getElementById('opener').style.display=='none') {
+	if ((document.getElementById('help').style.display=='none') && (document.getElementById('opener').style.display=='none')) {
 		event.preventDefault();
 	}
 	if (!ui_stim_container.visible) {
