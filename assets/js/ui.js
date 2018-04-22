@@ -452,10 +452,20 @@ function brainMove(event) {
 
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
-  	let nx = Math.max(brain_ioffset-bscale*1183*3,Math.min(brain_ioffset,pos.x-this.offX));
+  	let nx = checkBrainX(pos.x-this.offX);
     this.position.set(nx,this.position.y);
     ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+brain_ioffset),ui_mini_overlay_container.position.y);
 
     // compute the percentage scrolled and use that to light up the menu
   }
+}
+
+function checkBrainX(nx) {
+	return Math.max(brain_ioffset-bscale*1183*3,Math.min(brain_ioffset,nx));
+}
+
+function brainScroll(event) {
+	let nx = checkBrainX(ui_brain_container.position.x-event.deltaX);
+  ui_brain_container.position.set(nx,ui_brain_container.position.y); 
+  ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+brain_ioffset),ui_mini_overlay_container.position.y);
 }

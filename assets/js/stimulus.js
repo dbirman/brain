@@ -68,7 +68,8 @@ function createMotionStimulus() {
 	stim.moved = false // for tracking when to open the window
 	stim.contrast = 1;
 	stim.coherence = 1;
-	stim.paramWindow = createMotionParams();
+	stim.paramWindow = createMotionParams(stim);
+	stim.paramWindow.visible = false;
 
 	// setup stim interaction
 	stim.interactive = true;
@@ -85,7 +86,7 @@ function createMotionStimulus() {
 	stim.addChild(stim.g);
 
 	stim.dots = initDots(25,50,50,1,1,0,app.renderer.width/20,2);
-	stim.position.set(150,150);
+	stim.position.set(150,150); // the true center is position+25/25
 
 	return stim;
 }
@@ -93,13 +94,42 @@ function createMotionStimulus() {
 // Create the parameter window for the motion stimulus
 // - this can be toggled on/off, but allows us to edit
 // the properties of the stimulus, e.g. contrast/coherence etc
-function createMotionParams() {
+function createMotionParams(stim) {
 	let param_window = new PIXI.Container();
+	stim.addChild(param_window);
 
+	// Create an actual window
+	param_window.g = new PIXI.Graphics();
+	param_window.g.beginFill(0xD3D3D3,1);
+	param_window.g.lineStyle(1,0x000000,1);
+	param_window.g.drawRect(75,0,100,150);
+	param_window.g.moveTo(75,50);
+	param_window.g.lineTo(175,50);
+	param_window.g.moveTo(75,100);
+	param_window.g.lineTo(175,100);
+	param_window.addChild(param_window.g);
+
+  var style = new PIXI.TextStyle({fill:'#000000',fontSize:10});
+
+	// Add theta/con/coh text
+  var t = new PIXI.Text('Rotation',style);
+  t.position.set(75,0);
+  param_window.addChild(t);
+  var t = new PIXI.Text('Contrast',style);
+  t.position.set(75,50);
+  param_window.addChild(t);
+  var t = new PIXI.Text('Coherence',style);
+  t.position.set(75,100);
+  param_window.addChild(t);
+
+  // Add the scrollbars
+
+
+	return param_window;
 }
 
 function destroyMotionStimulus(idx) {
-
+	// pass this isn't functional yet
 }
 
 function drawMotionStimulus(idx) {
@@ -112,7 +142,7 @@ function drawMotionStimulus(idx) {
 
 function stimClick(event) {
 	if (!this.moved) {
-		console.log('click');
+		this.paramWindow.visible = !this.paramWindow.visible;
 	}
 }
 
@@ -147,11 +177,13 @@ function stimMove(event) {
 //// parameter controls
 
 function stimScroll(event) {
-	if (!ui_stim_container.visible) {return;}
-	console.log(event.wheelDelta);
-	console.log(event);
 	if (document.getElementById('opener').style.display=='none') {
 		event.preventDefault();
+	}
+	if (!ui_stim_container.visible) {
+		brainScroll(event);
+	} else {
+		// Check if any parameter windows are open
 	}
 }
 

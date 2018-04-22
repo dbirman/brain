@@ -60,18 +60,8 @@ function Electrode(id) {
 	}
 
 	this.drawPos = function () {
-		// .. pass .. (not actually useful to see the pixel location... pixels too small)
-
-		// let x = this.sprite.position.x, y = this.sprite.position.y;
-		// if (this.posGraphic!=undefined) {this.posGraphic.destroy();}
-		// this.posGraphic = new PIXI.Graphics();
-		// this.posGraphic.beginFill(0xFF0000,1);
-		// this.posGraphic.drawRect(x,y+eheight,1,1);
-		// this.posGraphic.endFill();
-		// ui_brain_container.addChild(this.posGraphic); 
-
 		// update the mini_sprite location
-		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+brain_ioffset+98/2)*mini_scale);
+		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+this.sprite.height)*mini_scale);
 	}
 
 	this.data = {};
