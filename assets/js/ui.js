@@ -7,7 +7,8 @@ function uiInit() {
 	ui_container = new DContainer();
 	app.stage.addChild(ui_container);
 
-	document.getElementById('opener').style.display='none';
+	checkOpener();
+
 	uiMenuInit();
 	uiElecInit();
 	uiMiniInit();
@@ -15,10 +16,32 @@ function uiInit() {
 	uiSpikeInit();
 	uiStimInit();
 
-	console.log('temp code');
-	stimulusSwitch();
+	// console.log('temp code');
+	// stimulusSwitch();
 
 	ui_container.sortChildren();
+}
+
+function checkOpener() {
+	try {
+		if (localStorage.opener==undefined) {
+			showOpener();
+		}
+	} catch (e) {
+		if (sessionStorage.opener==undefined) {
+			showOpener();
+		}
+	}
+}
+
+function showOpener() {
+	try {
+		localStorage.opener = true;
+	} catch (e) {
+		console.log('Local storage was blocked -- defaulting to session');
+		sessionStorage.opener = true;
+	}
+	document.getElementById('opener').style.display='block';
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -78,7 +101,7 @@ function uiElecInit() {
 	let g = new PIXI.Graphics();
 	g.beginFill(0xFFFFFF,1);
 	g.lineStyle(1,0x000000,1);
-	g.drawRect(-2.5,-2.5,ecsize,MBRAIN_SCALEV*height);
+	g.drawRect(0,0,ecsize,MBRAIN_SCALEV*height);
 
 	ui_elec_container.addChild(g);
 

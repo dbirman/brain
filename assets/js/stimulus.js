@@ -8,11 +8,13 @@
 let stimulus = [], stimulus_graphic, swidth, sheight;
 
 function initStimulus() {
+	swidth=VIS_SCALEH*app.renderer.width, sheight=0.9*BRAIN_SCALEV*app.renderer.height-30;
+	swidth = Math.min(swidth,sheight);
+	sheight = swidth;
 
-	let x = 10, y = MENU_SCALEV*app.renderer.height+20+0.2*BRAIN_SCALEV*app.renderer.height;
+
+	let x = 10, y = MENU_SCALEV*app.renderer.height+(BRAIN_SCALEV*app.renderer.height-sheight)/2;
 	
-	swidth=VIS_SCALEH*app.renderer.width, sheight=0.6*BRAIN_SCALEV*app.renderer.height-30;
-
 	ui_stim_container.position.set(x,y);
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
@@ -256,6 +258,7 @@ function computeSensitivity() {
 	if (sensTest) {
 		if (tg!=undefined) {tg.destroy();}
 		tg = new PIXI.Graphics();
+		ui_stim_container.addChild(tg);
 	}
 
 	for (let ei = 0; ei < ekeys.length; ei++) {
@@ -263,20 +266,23 @@ function computeSensitivity() {
 
 		let einfo = getElectrodePosition(electrode);
 
-		// Draw the x/y and radius for this electrode (testing)
-		if (sensTest) {
-			// tg.drawCircle(einfo.)
-		}
+		if (einfo!=undefined) {	
+			// Draw the x/y and radius for this electrode (testing)
+			if (sensTest) {
+				tg.beginFill(0xFFFFFF,0.5);
+				tg.drawCircle(einfo.x,einfo.y)
+			}
 
-		// Compute response to each stimulus
-		let response = 0;
-		for (let si = 0; si < stimulus.length; si++) {
-			let stim = stimulus[si];
-			// Get the stimulus type
-			switch (stim.type) {
-				case 'rdm':
-					response += responseMotion(einfo,stim);
-					break;
+			// Compute response to each stimulus
+			let response = 0;
+			for (let si = 0; si < stimulus.length; si++) {
+				let stim = stimulus[si];
+				// Get the stimulus type
+				switch (stim.type) {
+					case 'rdm':
+						response += responseMotion(einfo,stim);
+						break;
+				}
 			}
 		}
 	}
