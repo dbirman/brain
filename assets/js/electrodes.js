@@ -44,8 +44,9 @@ function Electrode(id) {
 	this.mini_sprite = PIXI.Sprite.fromImage('./assets/mini.png');
 	this.mini_sprite.tint = this.color;
 	this.mini_sprite.anchor.set(0.5,0.5);
-	this.mini_sprite.scale.set(bscale*mini_scale*4);
-	this.mini_sprite.position.set(0,0);
+	 // Set the scale so that the sprites take up 15% of the height of the container
+	this.mini_sprite.scale.set(0.15*ui_mini_container.height/98); 
+	this.mini_sprite.position.set(-1000,-1000);
 
 	ui_mini_electrodes_container.addChild(this.mini_sprite);
 
@@ -70,7 +71,7 @@ function Electrode(id) {
 		// ui_brain_container.addChild(this.posGraphic); 
 
 		// update the mini_sprite location
-		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+brain_ioffset)*mini_scale);
+		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+brain_ioffset+98/2)*mini_scale);
 	}
 
 	this.data = {};

@@ -5,12 +5,13 @@
 	the screen, and deals with calculating the overlap and spike rates for the electrode
 	code. This is the main client-side code. 
 */
-let stimulus = []; 
+let stimulus = [], stimulus_graphic, swidth, sheight;
 
 function initStimulus() {
 
-	let x = 10, y = MENU_SCALEV*app.renderer.height+20,
-		swidth=VIS_SCALEH*app.renderer.width, sheight=BRAIN_SCALEV*app.renderer.height-30;
+	let x = 10, y = MENU_SCALEV*app.renderer.height+20;
+	
+	swidth=VIS_SCALEH*app.renderer.width, sheight=BRAIN_SCALEV*app.renderer.height-30;
 
 	ui_stim_container.position.set(x,y);
 
@@ -23,12 +24,14 @@ function initStimulus() {
 	g = new PIXI.Graphics();
 
 	g.lineStyle(1,0x000000,1);
-	g.beginFill(0x808080,1);
+	g.beginFill(0x7F7F7F,1);
 	g.drawRect(0,0,swidth,sheight);
-
-	g.moveTo()
+	g.moveTo(swidth/2,0);
+	g.lineTo(swidth/2,sheight);
 
 	ui_stim_container.addChild(g);
+
+	stimulus_graphic = g;
 
 	// Setup the event listener functions
 
@@ -41,20 +44,95 @@ function checkKey(e) {
   if (any(equals([77],e.keyCode))) {e.preventDefault();}
 
   if (e.keyCode==77) {
-  	stimulus.push(createMotionStimulus);
+  	stimulus.push(createMotionStimulus());
+  	drawMotionStimulus(stimulus.length-1);
   }
 }
 
 //// stimulus drawings
 
 function createMotionStimulus() {
-	let container = new PIXI.Container();
-	ui_stim_container.addChild(container);
+	let stim = new PIXI.Container();
 
-	container.dots = initDots()
+	// parameter window
+	stim.moved = false // for tracking when to open the window
+	stim.contrast = 1;
+	stim.coherence = 1;
+	stim.paramWindow = createMotionParams();
+
+	// setup stim interaction
+	stim.interactive = true;
+	stim
+		.on('click',stimClick)
+		.on('pointerdown', stimDown)
+		.on('pointermove', stimMove)
+		.on('pointerup', stimUp)
+		.on('pointerupoutside', stimUp);
+
+	ui_stim_container.addChild(stim);
+
+	stim.g = new PIXI.Graphics();
+	stim.addChild(stim.g);
+
+	stim.dots = initDots(25,50,50,1,1,0,app.renderer.width/20,2);
+	stim.position.set(150,150);
+
+	return stim;
 }
 
-// function 
+// Create the parameter window for the motion stimulus
+// - this can be toggled on/off, but allows us to edit
+// the properties of the stimulus, e.g. contrast/coherence etc
+function createMotionParams() {
+	let param_window = new PIXI.Container();
+
+}
+
+function destroyMotionStimulus(idx) {
+
+}
+
+function drawMotionStimulus(idx) {
+	stimulus[idx].dots = updateDots(stimulus[idx].dots,stimulus[idx].coherence,stimulus[idx].contrast,0);
+	drawDots(stimulus[idx].dots,stimulus[idx].g);
+	setTimeout(function() {drawMotionStimulus(idx);},50);
+}
+
+//// stimulus interactivity controls
+
+function stimClick(event) {
+	if (!this.moved) {
+		console.log('click');
+	}
+}
+
+function stimDown(event) {
+	this.moved = false;
+	this.isdown = true;
+  // calculate offset
+  var pos = event.data.getLocalPosition(this.parent);
+  this.offX = pos.x - this.x;
+  this.offY = pos.y - this.y;
+}
+
+function stimUp(event) {
+	this.dots.isdown = false;
+  this.isdown = false;
+}
+
+function stimMove(event) {
+
+  if (this.isdown) {
+		this.dots.isdown = true;
+		this.moved = true;
+    var pos = event.data.getLocalPosition(this.parent);
+  	let nx = Math.min(swidth,Math.max(0,pos.x-this.offX)),
+  		ny = Math.min(sheight,Math.max(0,pos.y-this.offY));
+    this.position.set(nx,ny);
+
+    // compute the percentage scrolled and use that to light up the menu
+  }
+}
 
 //// parameter controls
 

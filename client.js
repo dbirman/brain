@@ -170,3 +170,35 @@ function any(array) {
 function normpdf(x,mu,sd) {
   return 1 / Math.sqrt(2*Math.PI*Math.pow(sd,2)) * Math.exp(-Math.pow(x-mu,2)/(2*Math.pow(sd,2)));
 }
+
+function now() {
+  return Date.now();
+}
+
+function equals(array, val) {
+  var temp = zeros(array.length);
+  for (var i = 0;i< array.length;i++) {
+    if (array[i] === val) {
+      temp[i] = 1;
+    }
+  }
+  return temp;
+}
+
+function rgb2hex(r, g, b) {
+  return '#'+rgb2hex_(r,g,b);
+}
+
+function rgb2hex_(r,g,b) {
+  if (g==undefined) {
+    let c = componentToHex(r);
+    return c + c + c;
+  } else {
+    return componentToHex(r) + componentToHex(g) + componentToHex(b);
+  }
+}
+
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
