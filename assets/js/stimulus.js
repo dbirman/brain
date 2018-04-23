@@ -55,7 +55,7 @@ function initStimulus() {
 function checkKey(e) {
 	console.log(e.keyCode);
 
-  if (any(equals([72,77],e.keyCode))) {e.preventDefault();}
+  if (any(equals([69,68,81,65,87,83,72,77],e.keyCode))) {e.preventDefault();}
 
   if (e.keyCode==77) {
   	stimulus.push(createMotionStimulus());
@@ -69,45 +69,42 @@ function checkKey(e) {
   		document.getElementById('help').style.display='none';
   	}
   }
+
+  // PARAM WINDOW STUFF
+  for (let si=0;si<stimulus.length;si++) {
+  	if (stimulus[si].paramWindow.visible) {
+		  switch (e.keyCode) {
+		  	case 81:
+		  		stimulus[si].setTheta(stimulus[si].getTheta()+Math.PI/4);
+		  		break;
+		  	case 65:
+		  		stimulus[si].setTheta(stimulus[si].getTheta()-Math.PI/4);
+		  		break;
+		  	case 87:
+		  		stimulus[si].setContrast(stimulus[si].getContrast()+0.1);
+		  		break;
+		  	case 83:
+		  		stimulus[si].setContrast(stimulus[si].getContrast()-0.1);
+		  		break;
+		  	case 69:
+		  		stimulus[si].setCoherence(stimulus[si].getCoherence()+0.1);
+		  		break;
+		  	case 68:
+		  		stimulus[si].setCoherence(stimulus[si].getCoherence()-0.1);
+		  		break;
+		  }
+		  updateMotionParams(stimulus[si],stimulus[si].paramWindow.visible);
+		  computePartialSensitivity();
+  	}
+  }
 }
 
 //// stimulus drawings
 
 function createMotionStimulus() {
+
 	let stim = new PIXI.Container();
-
-	stim.type = 'rdm'; // random dot motion
-	// random dot motion has parameters:
-	// x
-	// y 
-	// sd
-	// contrast
-	// coherence
-	// theta
-
-	// parameter window
-	stim.moved = false // for tracking when to open the window
-	stim.contrast = 1;
-	stim.coherence = 1;
-	stim.theta = 0;
-	stim.paramWindow = createMotionParams(stim);
-	stim.paramWindow.visible = false;
-	stim.radius = 25;
-
-	// setup stim interaction
-	stim.interactive = true;
-	stim
-		.on('click',stimClick)
-		.on('pointerdown', stimDown)
-		.on('pointermove', stimMove)
-		.on('pointerup', stimUp)
-		.on('pointerupoutside', stimUp);
-
-	ui_stim_container.addChild(stim);
-
 	// add the getter functions (for computeSensitivity and computePartialSensitivity)
-
-	// actual functions:
 	stim.getSize = function() {
 		let x = this.position.x+this.radius,
 			y = this.position.y+this.radius;
@@ -131,14 +128,60 @@ function createMotionStimulus() {
 		return stim.theta;
 	}
 
+	// add the setter functions
+	stim.setSize = function(nrad) {
+		stim.radius = nrad;
+	}
+
+	stim.setTheta = function(ntheta) {
+		stim.theta = (Math.PI*2 + ntheta) % (Math.PI*2);
+	}
+
+	stim.setContrast = function(ncon) {
+		stim.contrast = Math.max(0,Math.min(1,ncon));
+	}
+
+	stim.setCoherence = function(ncoh) {
+		stim.coherence = Math.max(0,Math.min(1,ncoh));
+	}
+
+	stim.type = 'rdm'; // random dot motion
+	// random dot motion has parameters:
+	// x
+	// y 
+	// sd
+	// contrast
+	// coherence
+	// theta
+
+	// parameter window
+	stim.moved = false // for tracking when to open the window
+	stim.contrast = 1;
+	stim.coherence = 1;
+	stim.theta = 0;
+	updateMotionParams(stim,false);
+	stim.radius = 25;
+
+	// setup stim interaction
+	stim.interactive = true;
+	stim
+		.on('click',stimClick)
+		.on('pointerdown', stimDown)
+		.on('pointermove', stimMove)
+		.on('pointerup', stimUp)
+		.on('pointerupoutside', stimUp);
+
+	ui_stim_container.addChild(stim);
+
+
 	// create the mask
 	stim.circmask = new PIXI.Graphics();
 	stim.circmask.beginFill(0xFFFFFF,1);
 	stim.circmask.drawCircle(stim.radius,stim.radius,stim.radius);
 	stim.addChild(stim.circmask);
-	stim.mask = stim.circmask;
 
 	stim.g = new PIXI.Graphics();
+	stim.g.mask = stim.circmask;
 	stim.addChild(stim.g);
 
 	stim.dots = initDots(Math.PI*stim.radius**2/80,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
@@ -151,8 +194,12 @@ function createMotionStimulus() {
 // Create the parameter window for the motion stimulus
 // - this can be toggled on/off, but allows us to edit
 // the properties of the stimulus, e.g. contrast/coherence etc
-function createMotionParams(stim) {
+function updateMotionParams(stim,vis) {
+	if (stim.paramWindow!=undefined) {stim.paramWindow.destroy();}
+
 	let param_window = new PIXI.Container();
+	stim.paramWindow = param_window;
+	param_window.visible = vis;
 	stim.addChild(param_window);
 
 	// Create an actual window
@@ -166,21 +213,30 @@ function createMotionParams(stim) {
 	param_window.g.lineTo(175,100);
 	param_window.addChild(param_window.g);
 
-  var style = new PIXI.TextStyle({fill:'#000000',fontSize:10});
+  var style = new PIXI.TextStyle({fill:'#000000',fontSize:15});
+  var styleBig = new PIXI.TextStyle({fill:'#000000',fontSize:30});
 
 	// Add theta/con/coh text
   var t = new PIXI.Text('Rotation',style);
   t.position.set(75,0);
   param_window.addChild(t);
+  var t = new PIXI.Text(Math.round(100*stim.getTheta())/100,styleBig);
+  t.anchor.set(0.5,1);
+  t.position.set(125,50);
+  param_window.addChild(t);
   var t = new PIXI.Text('Contrast',style);
   t.position.set(75,50);
+  var t = new PIXI.Text(Math.round(100*stim.getContrast())+'%',styleBig);
+  t.anchor.set(0.5,1);
+  t.position.set(125,100);
   param_window.addChild(t);
   var t = new PIXI.Text('Coherence',style);
   t.position.set(75,100);
   param_window.addChild(t);
-
-  // Add the scrollbars
-  console.log('todo: add scrollbar controls for parameters');
+  var t = new PIXI.Text(Math.round(100*stim.getCoherence())+'%',styleBig);
+  t.anchor.set(0.5,1);
+  t.position.set(125,150);
+  param_window.addChild(t);
 
 	return param_window;
 }
@@ -228,7 +284,7 @@ function stimMove(event) {
     this.position.set(nx,ny);
 
     // compute the percentage scrolled and use that to light up the menu
-    computeSensitivity();
+    computePartialSensitivity();
   }
 }
 
@@ -242,6 +298,7 @@ function stimScroll(event) {
 		brainScroll(event);
 	} else {
 		// Check if any parameter windows are open
+		console.log('todo: add parameter scrolling')
 	}
 }
 
@@ -285,7 +342,6 @@ function computePartialSensitivity() {
 			}
 
 			// Set the spike rate
-			console.log(response);
 			electrode.setRate(response);
 		}
 	}

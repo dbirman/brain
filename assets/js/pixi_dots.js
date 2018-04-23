@@ -69,7 +69,7 @@ function drawDots(dots,g) {
 	g.beginFill(0x7F7F7F,1);
 
 	if (dots.isdown) {g.lineStyle(1,0xFFFFFF,1);}
-	g.drawRect(0,0,dots.maxx,dots.maxy);
+	g.drawCircle(dots.maxx/2,dots.maxy/2,dots.maxx/2-1);
 	g.endFill();
 
 	g.lineStyle(1,0xFFFFFF,0);
