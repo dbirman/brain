@@ -7,7 +7,7 @@ const areas =  {
 		name: 'V1',
 		func: responseV1,
 		contrast: {
-			func: function(x) {return nakarushton(x,{slope:1,b0:0})}
+			func: function(x) {return nakarushton(x,{rmax:1,x50:0.25})}
 		},
 		coherence: {
 			func: function(x) {return insensitive(x,{max:1})}
@@ -61,9 +61,26 @@ function responseMT(elec,stim) {
 }
 
 function responseV1(elec,stim) {
-	// Compute the overlap
+	// A V1 neuron cares only that things have contrast
+	let response = maxFire;
 
-	// Multiply this by the response to contrast
+	// Compute the overlap
+	esz = elec.getSize();
+		ssz = stim.getSize();
+	overlap = computeOverlap(esz,ssz) / (Math.PI * esz.rad**2);
+
+	console.log(overlap);
+	response *= overlap;
+
+	let con = areas[0].contrast.func(stim.contrast);
+
+	console.log(con);
+
+	response *= con;
+
+	console.log(response);
+	return response;
+
 }
 
 function computeOverlap(p1,p2) {

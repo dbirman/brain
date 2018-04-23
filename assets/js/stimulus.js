@@ -53,8 +53,6 @@ function initStimulus() {
 }
 
 function checkKey(e) {
-	console.log(e.keyCode);
-
   if (any(equals([69,68,81,65,87,83,72,77],e.keyCode))) {e.preventDefault();}
 
   if (e.keyCode==77) {
