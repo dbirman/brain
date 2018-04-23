@@ -303,7 +303,7 @@ function stimScroll(event) {
 
 //// Sensitivity computation
 
-let sensTest = true, tg;
+let sensTest = false, tg;
 
 function computePartialSensitivity() {
 	// For each electrode re-compute the sensitivity at the current parameters.
