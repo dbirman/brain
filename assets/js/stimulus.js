@@ -5,13 +5,15 @@
 	the screen, and deals with calculating the overlap and spike rates for the electrode
 	code. This is the main client-side code. 
 */
-let stimulus = [], stimulus_graphic, swidth, sheight;
+let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg;
 
 function initStimulus() {
 	swidth=VIS_SCALEH*app.renderer.width, sheight=0.9*BRAIN_SCALEV*app.renderer.height-30;
 	swidth = Math.min(swidth,sheight);
 	sheight = swidth;
 
+	deg2pix = sheight/50;
+	pix2deg = 50/sheight;
 
 	let x = 10, y = MENU_SCALEV*app.renderer.height+(BRAIN_SCALEV*app.renderer.height-sheight)/2;
 	
@@ -105,19 +107,16 @@ function createMotionStimulus() {
 
 	// add the getter functions (for computeSensitivity and computePartialSensitivity)
 
-	// funcs will track what actually can be calculated for this stimulus
-	stim.funcs = ['size','con','coh','theta'];
-
 	// actual functions:
 	stim.getSize = function() {
 		let x = this.position.x+this.radius,
 			y = this.position.y+this.radius;
 
 		let degx = x/swidth*50-25,
-			degy = y/sheight*50-25;
+			degy = -y/sheight*50+25;
 
 		// we return both the position and radius so that we can do overlap calculations
-		return {pos: new PIXI.Point(degx,degy), rad:this.radius};
+		return {pos: new PIXI.Point(degx,degy), rad:this.radius*pix2deg};
 	}
 
 	stim.getContrast = function() {
@@ -181,7 +180,7 @@ function createMotionParams(stim) {
   param_window.addChild(t);
 
   // Add the scrollbars
-
+  console.log('todo: add scrollbar controls for parameters');
 
 	return param_window;
 }
@@ -229,6 +228,7 @@ function stimMove(event) {
     this.position.set(nx,ny);
 
     // compute the percentage scrolled and use that to light up the menu
+    computeSensitivity();
   }
 }
 
@@ -249,10 +249,10 @@ function stimScroll(event) {
 
 let sensTest = true, tg;
 
-function computeSensitivity() {
-	// For each electrode compute the sensitivity to the current stimulus for all
-	// x and y positions in the visual field. This speeds up computation 
-	// when people move the stimuli around.
+function computePartialSensitivity() {
+	// For each electrode re-compute the sensitivity at the current parameters.
+	// This is used when the parameters are being directly adjusted (e.g. size
+	// contrast, coherence, etc)
 	let ekeys = Object.keys(electrodes);
 
 	if (sensTest) {
@@ -269,61 +269,27 @@ function computeSensitivity() {
 		if (einfo!=undefined) {	
 			// Draw the x/y and radius for this electrode (testing)
 			if (sensTest) {
+				let vf_pos = getVisualFieldPosition(einfo.pos);
+
 				tg.beginFill(0xFFFFFF,0.5);
-				tg.drawCircle(einfo.x,einfo.y)
+				tg.drawCircle(vf_pos.x,vf_pos.y,deg2pix*einfo.rad);
 			}
+
+			// Get the area
+			let area = electrode.data.neuron[4];
 
 			// Compute response to each stimulus
 			let response = 0;
 			for (let si = 0; si < stimulus.length; si++) {
-				let stim = stimulus[si];
-				// Get the stimulus type
-				switch (stim.type) {
-					case 'rdm':
-						response += responseMotion(einfo,stim);
-						break;
-				}
+				response += areas[area].func(electrode,stimulus[si]);
 			}
+
+			// Set the spike rate
+			console.log(response);
+			electrode.setRate(response);
 		}
 	}
 }
-
-function computePartialSensitivity() {
-	// For each electrode re-compute the sensitivity at the current parameters.
-	// This is used when the parameters are being directly adjusted (e.g. size
-	// contrast, coherence, etc)
-}
-
-function responseMotion(elec,stim) {
-
-}
-
-// The data code uses the function mappings to communicate which response function
-// to use for contrast/coherence sensitivity. The parameters are stored by area.
-const areas =  {
-	0: {
-		name: 'V1',
-		contrast: {
-			func: nakarushton,
-			params: {slope:25,b0:0}
-		},
-		coherence: {
-			func: insensitive,
-			params: {max:1}
-		}
-	},
-	1: {
-		name: 'MT',
-		contrast: {
-			func: insensitive,
-			params: {max:1}
-		},
-		coherence: {
-			func: linear,
-			params: {slope:10,b0:0}
-		}
-	}
-};
 
 
 // POSITION FUNCTIONS
@@ -341,48 +307,7 @@ function getVisualFieldPosition(point) {
 	// convert from degrees to visual field position
 	let vf_range = [-25,25];
 
-	// let x = ,
-		// y = ;
+	let x = (degx+25)/50*swidth,
+		y = (25-degy)/50*sheight; // invert y position
 	return new PIXI.Point(x,y);
-}
-
-// RESPONSE FUNCTIONS
-// funcs: {
-// INSENSITIVE RESPONSE (if x>0, max response)
-// max
-function insensitive(x,params) {
-	return arrayMap(x,
-		function(x,params) {return x>0 ? params.max : 0;},
-		params);
-}
-// LINEAR RESPONSE FUNCTION
-// slope
-// b0
-function linear(x,params) {
-	return arrayMap(x,
-		function(x,params) {return params.b0 + x*params.slope;},
-		params);
-}
-// NAKA RUSHTON RESPONSE FUNCTION
-// rmax
-// x50
-function nakarushton(x,params) {
-	return arrayMap(x,
-		function(x,params) {
-			let p = 0.3, q = 1.6;
-			return params.rmax * ((Math.pow(x,p+q)) / (Math.pow(x,q)+Math.pow(params.x50,q)));
-		},
-		params);
-}
-// },
-function arrayMap(array,func,params) {
-	if (Array.isArray(array)) {
-		out = [];
-		for (let ai=0;ai<array.length;ai++) {
-			out.push(func(array[ai],params));
-		}
-	} else {
-		out = func(array,params);
-	}
-	return out;
 }

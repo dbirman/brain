@@ -85,6 +85,25 @@ function Electrode(id) {
 		}
 	}
 
+	// Getters
+	this.getSize = function() {
+		if (this.data.neuron!=undefined) {
+			return {pos: new PIXI.Point(this.data.neuron[0],this.data.neuron[1]), rad: this.data.neuron[2]};
+		} else {
+			return undefined;
+		}
+	}
+
+	this.getTheta = function() {
+		if (this.data.neuron != undefined) {
+			return this.data.neuron[3];
+		} else {
+			return undefined;
+		}
+	}
+
+	// Setters
+
 	this.trace = createElectrodeTrace();
 
 	this.setRate = function (rate) {
