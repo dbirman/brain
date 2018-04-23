@@ -217,20 +217,21 @@ function updateMotionParams(stim,vis) {
   var styleBig = new PIXI.TextStyle({fill:'#000000',fontSize:30});
 
 	// Add theta/con/coh text
-  var t = new PIXI.Text('Rotation',style);
+  var t = new PIXI.Text('Rotation (q/a)',style);
   t.position.set(75,0);
   param_window.addChild(t);
   var t = new PIXI.Text(Math.round(100*stim.getTheta())/100,styleBig);
   t.anchor.set(0.5,1);
   t.position.set(125,50);
   param_window.addChild(t);
-  var t = new PIXI.Text('Contrast',style);
+  var t = new PIXI.Text('Contrast (w/s)',style);
   t.position.set(75,50);
+  param_window.addChild(t);
   var t = new PIXI.Text(Math.round(100*stim.getContrast())+'%',styleBig);
   t.anchor.set(0.5,1);
   t.position.set(125,100);
   param_window.addChild(t);
-  var t = new PIXI.Text('Coherence',style);
+  var t = new PIXI.Text('Coherence (e/d)',style);
   t.position.set(75,100);
   param_window.addChild(t);
   var t = new PIXI.Text(Math.round(100*stim.getCoherence())+'%',styleBig);
