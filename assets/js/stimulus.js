@@ -12,8 +12,8 @@ function initStimulus() {
 	swidth = Math.min(swidth,sheight);
 	sheight = swidth;
 
-	deg2pix = sheight/50;
-	pix2deg = 50/sheight;
+	deg2pix = sheight/51;
+	pix2deg = 51/sheight;
 
 	let x = 10, y = MENU_SCALEV*app.renderer.height+(BRAIN_SCALEV*app.renderer.height-sheight)/2;
 	
@@ -158,7 +158,7 @@ function createMotionStimulus() {
 	stim.coherence = 1;
 	stim.theta = 0;
 	updateMotionParams(stim,false);
-	stim.radius = 25;
+	stim.radius = 50;
 
 	// setup stim interaction
 	stim.interactive = true;

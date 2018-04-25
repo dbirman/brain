@@ -28,7 +28,7 @@ io.on('connection', function(socket){
   socket.on('request', function(info){
     let data = {};
     data.neuron = ((DATA.proc[info.type]!=undefined) && (DATA.proc[info.type][info.x]!=undefined) && (DATA.proc[info.type][info.x][info.y]!=undefined)) ? DATA.proc[info.type][info.x][info.y] : undefined;
-    data.id = info.id;
+    data.info = info;
     io.to(socket.id).emit('elecInfo',data);
   });
 });
