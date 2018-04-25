@@ -71,7 +71,9 @@ function Electrode(id) {
 			this.data.x = this.sprite.position.x % 1183;
 			this.data.y = this.sprite.position.y+eheight;
 			let types = ['l','m','m','l'];
+			let hems = ['l','l','r','r'];
 			let idx = Math.floor(this.sprite.position.x/1183);
+			this.data.hem = hems[idx];
 			this.data.type = types[idx];
 			if (idx>=2) {
 				this.data.x = 1183-this.data.x;
@@ -176,7 +178,12 @@ function drawTrace(trace,id) {
 // Receive data about electrodes
 socket.on('elecInfo', function(data) {
   // do something with this information
-  electrodes[data.id].data.neuron = data.neuron;
+  console.log(data);
+  electrodes[data.info.id].data.neuron = data.neuron;
+  if (data.info.hem=='r') {
+  	// flip the x axis location
+  	electrodes[data.info.id].data.neuron[0] = -electrodes[data.info.id].data.neuron[0];
+  }
 });
 
 // let data;

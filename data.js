@@ -99,6 +99,7 @@ const DATA = {
   			for (let rgba=0;rgba<4;rgba++) {
   				data[rgba] = png.data[((yi*png.width + xi)<<2) + rgba];
   			}
+
   			// skip if R==255
   			if (!(data[0]==255)) {
   				// setup missing arrays if needed
