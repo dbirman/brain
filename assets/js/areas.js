@@ -69,16 +69,12 @@ function responseV1(elec,stim) {
 		ssz = stim.getSize();
 	overlap = computeOverlap(esz,ssz) / (Math.PI * esz.rad**2);
 
-	console.log(overlap);
 	response *= overlap;
 
 	let con = areas[0].contrast.func(stim.contrast);
 
-	console.log(con);
-
 	response *= con;
 
-	console.log(response);
 	return response;
 
 }
