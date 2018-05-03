@@ -53,7 +53,7 @@ function initStimulus() {
 }
 
 function checkKey(e) {
-  if (any(equals([69,68,81,65,87,83,72,77],e.keyCode))) {e.preventDefault();}
+  if (any(equals([69,68,81,65,87,83,72,77,84],e.keyCode))) {e.preventDefault();}
 
   if (e.keyCode==77) {
   	stimulus.push(createMotionStimulus());
@@ -65,6 +65,14 @@ function checkKey(e) {
   		document.getElementById('help').style.display='block';
   	} else {
   		document.getElementById('help').style.display='none';
+  	}
+  }
+
+  if (e.keyCode==84) {
+  	sensTest = !sensTest;
+  	if (!sensTest) {
+  		tg.destroy();
+  		tg = undefined;
   	}
   }
 
@@ -182,7 +190,7 @@ function createMotionStimulus() {
 	stim.g.mask = stim.circmask;
 	stim.addChild(stim.g);
 
-	stim.dots = initDots(Math.PI*stim.radius**2/80,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
+	stim.dots = initDots(Math.PI*stim.radius**2/200,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
 	stim.position.set(150,150); // the true center is position+25/25
 
 	return stim;
@@ -327,7 +335,7 @@ function computePartialSensitivity() {
 			if (sensTest) {
 				let vf_pos = getVisualFieldPosition(einfo.pos);
 
-				tg.beginFill(0xFFFFFF,0.5);
+				tg.beginFill(0xFFFFFF,0.3);
 				tg.drawCircle(vf_pos.x,vf_pos.y,deg2pix*einfo.rad);
 			}
 
