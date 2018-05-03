@@ -91,7 +91,7 @@ function computeOverlap(p1,p2) {
 // max
 function insensitive(x,params) {
 	return arrayMap(x,
-		function(x,params) {return x>0 ? params.max : 0;},
+		function(x,params) {return x>0.01 ? params.max : 0;},
 		params);
 }
 // LINEAR RESPONSE FUNCTION
