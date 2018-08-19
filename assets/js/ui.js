@@ -1,25 +1,43 @@
-let ui_container,
-	iwidth = 1183, iheight = 880,
-	bscale = BRAIN_SCALEV * app.renderer.height / iheight, // pixel size of the images
-	brain_ioffset = (app.renderer.width - bscale*iwidth)/2;
+// Log of interaction events:
+
+// click
+// mousedown
+// mousemove
+// mouseout
+// mouseover
+// mouseup
+// mouseupoutside
+// pointercancel
+// pointerdown
+// pointermove
+// pointerout
+// pointerover
+// pointertap
+// pointerup
+// pointerupoutside
+// rightclick
+// rightdown
+// rightup
+// rightupoutside
+// tap
+// touchcancel
+// touchend
+// touchendoutside
+// touchmove
+// touchstart
+
 
 function uiInit() {
-	ui_container = new DContainer();
-	app.stage.addChild(ui_container);
+	initViews();
 
 	checkOpener();
 
-	uiMenuInit();
-	uiElecInit();
-	uiMiniInit();
-	uiBrainInit();
-	uiSpikeInit();
-	uiStimInit();
+	// // uiElecInit();
+	// uiSpikeInit();
+	// uiStimInit();
 
 	// console.log('temp code');
 	// stimulusSwitch();
-
-	ui_container.sortChildren();
 }
 
 function checkOpener() {
@@ -45,12 +63,74 @@ function showOpener() {
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
+// VIEWS
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+function initViews() {
+	initStatic();
+	initStim();
+	initBrain();
+	setView('static');
+}
+
+function initStatic() {
+	views.static.container = newViewContainer();
+	uiStaticInit();
+}
+
+function initStim() {
+	views.stim.container = newViewContainer();
+	uiStimInit();
+}
+
+function initBrain() {
+	views.brain.container = newViewContainer();
+	uiBrainInit();
+}
+
+function setView(view) {
+	let keys = Object.keys(views);
+	for (let vi=0; vi<keys.length;vi++) {
+		views[keys[vi]].container.visible = view==keys[vi];
+	}
+}
+
+function newViewContainer() {
+	let container = new DContainer();
+	container.visible = false;
+	app.stage.addChild(container);
+	return container;
+}
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// STATIC VIEW
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+function uiStaticInit() {
+	// Set the background to the brain (no eyes yet...)
+	let sprite = new PIXI.Sprite.fromImage('./assets/brain_lateral.png');
+	let nsize = ORIGIN_WIDTH*0.8*(1-views.static.VISUAL_FIELD);
+	let size = sprite.width;
+	sprite.anchor.set(1,0);
+	sprite.x = ORIGIN_WIDTH;
+	sprite.y = 0;
+	sprite.scale.set(nsize/size);
+
+	// add event handler to switch views
+	sprite.interactive = true;
+	sprite.on('pointertap',function() {setView('brain')});
+
+	views.static.container.addChild(sprite);
+}
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
 // STIMULUS WINDOW
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 let ui_stim_container;
 
 function uiStimInit() {
+	return
 	var width = app.renderer.width, height = app.renderer.height;
 
 	ui_stim_container = new DContainer();
@@ -378,7 +458,7 @@ function miniMove(event) {
 let ui_brain_container, ui_brains_container, ui_areas_container, ui_brains;
 
 function uiBrainInit() {
-
+	return
 	// create a container
 	ui_brain_container = new DContainer();
 	ui_container.addChild(ui_brain_container);

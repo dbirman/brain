@@ -5,29 +5,43 @@
 var rendererOptions = {
   antialiasing: false,
   transparent: true,
-  resolution: window.devicePixelRatio,
+  resolution: devicePixelRatio,
   autoResize: true,
 }
+let ORIGIN_WIDTH = document.body.clientWidth,
+    ORIGIN_HEIGHT = document.body.clientHeight;
 
-var ORIGIN_WIDTH = window.innerWidth,
-		ORIGIN_HEIGHT = window.innerHeight,
-		MENU_SCALEH = 0.2,
-		MENU_SCALEV = 0.05, // vertical scaling of the menu bars (which we overlay over everything else)
-		BRAIN_SCALEV = 0.75, // vertical scaling of brains (default: 80% of screen)
-		MBRAIN_SCALEV = 0.18, // vertical scaling of mini brains (default: 20% of screen)
-		VIS_SCALEH = 0.55,  // horizontal scaling of the "visual field" viewer
-		SPC_SCALEH = 0.05, // horizontal scaling of the spacer between the visual field viewer and electrodes
-		ELEC_SCALEH = 0.40; // horizontal scaling of the electrode boxes
+// setup the different views
+let views = {};
 
+// the first view is the static viewer
+views.static = {};
+views.static.VISUAL_FIELD = 0.3; // just the width, but keep in mind the view is rotated
 
-const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions);
+// use a 2D transform to approximate 3D  (see http://www.html5gamedevs.com/topic/24942-how-can-i-do-a-perspective-transform/ and https://github.com/pixijs/pixi-projection)
+
+// the second view is the stimulus and electrodes view
+views.stim = {};
+views.stim.STIMULUS = 0.5; // just specify width
+views.stim.ELECTRODES = 0.25; // just specify width
+
+// the last view is the brain viewport
+views.brain = {};
+views.brain.BRAIN_W = 0.75;
+views.brain.BRAIN_H = 0.90;
+
+const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions),
+  loader = PIXI.loader;
 
 // The application will create a canvas element for you that you
 // can then insert into the DOM
 document.getElementById("canvas").appendChild(app.view);
 
+
 function launch() {
 	console.log('launched');
+
+  window.addEventListener('resize', resize);
 
   // ensure any browser dependencies run
   checkBrowser();
@@ -41,8 +55,26 @@ function launch() {
   app.renderer.plugins.interaction.cursorStyles.grab = 'grab';
   app.renderer.plugins.interaction.cursorStyles.grabbing= 'grabbing';
 
-  // init UI
-  uiInit();
+  // asset loading -- do this at the start to have widths available immediately
+  var assetsToLoad = [ "./assets/brain_lateral.png"];
+  for (var ai=0; ai<assetsToLoad.length;ai++) {
+    loader.add(assetsToLoad[ai]);
+  }
+  loader.load();
+
+  // Init User Interface
+  loader.onComplete.add(uiInit);
+}
+
+function resize() {
+  console.log('Resizing PIXI');
+  const parent = app.view.parentNode;
+   
+  // Resize the renderer
+  // ORIGIN_WIDTH = parent.clientWidth;
+  // ORIGIN_HEIGHT = parent.clientHeight;
+  let scale = Math.min(parent.clientWidth/ORIGIN_WIDTH,parent.clientHeight/ORIGIN_HEIGHT);
+  app.stage.scale.set(scale);//,ORIGIN_HEIGHT);
 }
 
 
