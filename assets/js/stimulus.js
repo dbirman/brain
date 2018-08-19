@@ -16,8 +16,9 @@ function initStimulus() {
 
 	views.stim.stimulusWindow = new DContainer();
 	views.stim.container.addChild(views.stim.stimulusWindow);	
-	views.stim.stimulusWindow.position.set(10,0.5*(1-views.stim.STIMULUS_H)*ORIGIN_HEIGHT);
-
+	views.stim.stimulusWindow.pivot.set(0,sheight/2);
+	views.stim.stimulusWindow.position.set(10,ORIGIN_HEIGHT/2);
+	
 	// Allow flipping between views
 	views.stim.stimulusWindow.interactive = true
 	views.stim.stimulusWindow.on('pointertap',function() {checkDouble(this,getSwitchView('stim'));});

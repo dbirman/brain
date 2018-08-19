@@ -84,6 +84,8 @@ function switchStatic() {
 	// Move the stimulus viewport to this container and warp it
 	views.static.container.addChild(views.stim.stimulusWindow);
 	views.stim.stimulusWindow.scale.set(0.5);
+	// need to set position to vertical center
+	// views.stim.stimulusWindow.position.set()
 }
 
 function initStim() {
@@ -102,6 +104,7 @@ function initBrain() {
 	views.brain.container = newViewContainer();
 	views.brain.switchCallback = switchBrain;
 	uiBrainInit();
+	uiElecInit();
 }
 
 function switchBrain() {
@@ -194,63 +197,21 @@ function uiSpikeInit() {
 // ELECTRODE PICKER
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let ui_elec_container;
 
 function uiElecInit() {
-	var width = app.renderer.width, height = app.renderer.height;
-
-	var ecsize = height * MBRAIN_SCALEV;
+	// Electrodes start in the top of the brain container. They can be dragged inside of this to different
+	// positions. All four electrodes are visible by default, but they only "record" when they are in
+	// a brain region that we have data for.
 
 	// Initialize container
-	ui_elec_container = new DContainer();
-	ui_elec_container.x = 10;
-	ui_elec_container.y = height - MBRAIN_SCALEV*height-10;
-	ui_elec_container.zOrder = 4;
+	views.brain.elecContainer = views.brain.brainContainer.addChild(new DContainer());
+	views.brain.elecContainer.zOrder = 4;
+	views.brain.electrodes = [];
 
-	ui_container.addChild(ui_elec_container);
-
-	// Add a white background
-	let g = new PIXI.Graphics();
-	g.beginFill(0xFFFFFF,1);
-	g.lineStyle(1,0x000000,1);
-	g.drawRect(0,0,ecsize,MBRAIN_SCALEV*height);
-
-	ui_elec_container.addChild(g);
-
-	let p1 = ecsize/3-ecsize/20, p2 = ecsize*2/3+ecsize/20;
-	// Add buttons to create new electrodes (4 maximum)
-	let xs = [p1,p2,p1,p2], ys=[p1,p1,p2,p2];
-
-	for (let ii=0;ii<xs.length;ii++) {
-		let x = xs[ii], y = ys[ii];
-
-		// Create a button, graphic + text, use gray -- we'll update the color when an electrode is created
-		let bg = new PIXI.Graphics();
-		bg.beginFill(0x808080,1);
-		bg.lineStyle(1,0x000000,1);
-		bg.drawCircle(x,y,ecsize/6,ecsize/6);
-
-		// Add a little white electrode using the image
-		let bs = new PIXI.Sprite.fromImage('./assets/electrode.png');
-		bs.scale.set(ecsize/5/167);
-		bs.anchor.set(0.5,0.5);
-		bs.x = x, bs.y = y;
-
-		bg.addChild(bs);
-
-		bg.interactive = true;
-		bg.on('click',function() {elecClick(ii,bs);});
-
-		ui_elec_container.addChild(bg);
+	// Create the four electrodes
+	for (var ei=0;ei<4;ei++) {
+		views.brain.electrodes.push(new Electrode(ei));
 	}
-
-	// Add text at the top
-
-  var style = new PIXI.TextStyle({fill:'#000000',fontSize:ecsize/10});
-  var t = new PIXI.Text('Electrodes',style);
-  t.x = ecsize/2; t.y = ecsize/20;
-  t.anchor.set(0.5,0.5);
-  ui_elec_container.addChild(t);
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -271,96 +232,13 @@ function elecClick(id,sprite) {
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
-// MENU BAR RENDERING
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-
-let ui_menu_container, ui_menu_graphics_left, ui_menu_graphics_right;
-
-function uiMenuInit() {
-	// Create buttons and link to appropriate callbacks
-	// add menu container
-	ui_menu_container = new DContainer();
-	ui_container.addChild(ui_menu_container);
-	// set container properties
-	ui_menu_container.zOrder = 99;
-	ui_menu_container.position.set(10,10);
-
-	redrawMenu(0xFFFFFF,0x808080);
-}
-
-function redrawMenu(lcolor,rcolor) {
-	if (ui_menu_graphics_left!=undefined) {ui_menu_graphics_left.destroy();}
-	if (ui_menu_graphics_right!=undefined) {ui_menu_graphics_right.destroy();}
-	let lwidth = 160, rwidth = 275, menu_height = MENU_SCALEV*app.renderer.height;
-	ui_menu_graphics_left = new PIXI.Graphics();
-
-	ui_menu_graphics_left.beginFill(lcolor,1);
-	ui_menu_graphics_left.lineStyle(1,0x000000,1);
-	ui_menu_graphics_left.drawRect(0,0,lwidth,menu_height);
-	ui_menu_graphics_left.endFill();
-
-	ui_menu_graphics_right = new PIXI.Graphics();
-
-	ui_menu_graphics_right.beginFill(rcolor,1);
-	ui_menu_graphics_right.lineStyle(1,0x000000,1);
-	ui_menu_graphics_right.drawRect(lwidth,0,rwidth,menu_height);
-	ui_menu_graphics_right.endFill();
-
-	// add text
-  var style = new PIXI.TextStyle({fill:'#000000',fontSize:menu_height/1.5});
-  var t = new PIXI.Text('Brain viewer',style);
-  t.x = lwidth/2; t.y = 1;
-  t.anchor.set(0.5,0);
-  ui_menu_graphics_left.addChild(t);
-
-  var t = new PIXI.Text('Stimulus and recorder',style);
-  t.x = lwidth+rwidth/2; t.y = 1;
-  t.anchor.set(0.5,0);
-  ui_menu_graphics_right.addChild(t);
-
-	// add interaction
-	ui_menu_graphics_left.interactive = true;
-	ui_menu_graphics_left.on('click',viewerSwitch)
-
-	ui_menu_graphics_right.interactive = true;
-	ui_menu_graphics_right.on('click',stimulusSwitch)
-
-
-	// add both boxes
-	ui_menu_container.addChild(ui_menu_graphics_left);
-	ui_menu_container.addChild(ui_menu_graphics_right);
-}
-
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-// MENU CALLBACKS
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-
-function viewerSwitch() {
-	redrawMenu(0xFFFFFF,0x808080);
-	ui_brain_container.visible = true;
-	ui_stim_container.visible = false;
-	ui_spike_container.visible = false;
-	ui_mini_overlay_container.visible=true;
-	updateElectrodes('silence');
-}
-
-function stimulusSwitch() {
-	ui_brain_container.visible = false;
-	ui_stim_container.visible = true;
-	ui_spike_container.visible = true;
-	ui_mini_overlay_container.visible=false;
-	updateElectrodes('spike');
-	updateElectrodes('wake');
-	redrawMenu(0x808080,0xFFFFFF);
-}
-
-// //////////////////////////// //////////////////////////// //////////////////////////// //
 // BRAIN RENDERING
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 
 // brain_container is the one that actually moves, the others just hold the images and set the zOrder
-let brainViewport;
+let brainViewport,
+	iwidth = 1183, iheight = 880;
 
 function uiBrainInit() {
 	// Create the brain viewport
@@ -402,7 +280,7 @@ function uiBrainInit() {
 	brainContainer.zOrder = -1;
 
 	// Set a mask which is the size of the original viewer
-	brainContainer.mask = mask;
+	brainViewport.mask = mask;
 
 	let g2 = brainContainer.addChild(new PIXI.Graphics);
 	// draw a red square
@@ -420,7 +298,6 @@ function uiBrainInit() {
 
 	ui_brains = {};
 	let sides = ['l','r'], sides_pos;
-	let iwidth = 1183, iheight = 880;
 
 	for (let si=0;si<sides.length;si++) {
 		side = sides[si];
@@ -457,19 +334,13 @@ function uiBrainInit() {
 		hScale = mask.height/(iheight*2);
 	let brainScale = Math.min(wScale,);
 	brainContainer.scale.set(brainScale);
-
-	console.log(wScale)
-	console.log(hScale)
-	console.log(brainContainer.height);
+	views.brain.initialScale = brainScale;
 	// shift x/y location 
 	if (wScale < hScale) {
 		brainContainer.y = (mask.height-brainContainer.height)/2;
 	} else {
 		brainContainer.x = (mask.width-brainContainer.width)/2;
 	}
-
-	// ui_brain_container.scale.set(bscale);
-	// ui_brain_container.position.x = brain_ioffset;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -484,9 +355,6 @@ function windowDown(event) {
 function brainDown(event) {
 	if (electrodeMoving) {return;}
 
-	views.brain.evCache.push(event);
-	console.log(views.brain.evCache);
-
 	this.isdown = true;
   // calculate offset
   var pos = event.data.getLocalPosition(this.parent);
@@ -498,13 +366,6 @@ function brainUp(event) {
 	console.log('brainup');
 	if (electrodeMoving) {return;}
 
-	// Remove event from event cache
-	for (var i=0;i<views.brain.evCache.length;i++) {
-		if (views.brain.evCache[i].pointerId == event.pointerId) {
-			views.brain.evCache.splice(i,1); break;
-		}
-	}
-
   this.isdown = false;
 }
 
@@ -515,18 +376,16 @@ function brainMove(event) {
     var pos = event.data.getLocalPosition(this.parent);
   	let nx = checkBrainX(pos.x-views.brain.brainContainer.offX);
   	let ny = checkBrainY(pos.y-views.brain.brainContainer.offY);
-  	console.log(nx)
-  	console.log(ny)
     views.brain.brainContainer.position.set(nx,ny);
   }
 }
 
 function checkBrainX(nx) {
-	return nx; //Math.max(brain_ioffset-bscale*1183*3,Math.min(brain_ioffset,nx));
+	return Math.max(-iwidth*views.brain.brainContainer.scale.x,Math.min(views.brain.brainContainer.width-iwidth*views.brain.brainContainer.scale.x,nx));
 }
 
 function checkBrainY(ny) {
-	return ny;
+	return Math.max(-iheight*views.brain.brainContainer.scale.y,Math.min(views.brain.brainContainer.height-iheight*views.brain.brainContainer.scale.y,ny));
 }
 
 // --- Scrolling functionality 
@@ -543,12 +402,16 @@ function stimScroll(event) {
 		let x = event.x, y = event.y;
 		let p = views.brain.brainContainer.toLocal(new PIXI.Point(x,y));
 		// scale p by the current scale
+		// let px = views.brain.brainContainer.position.x,
+		// 	py = views.brain.brainContainer.position.y;
+		// views.brain.brainContainer.position.set(0,0);
 		// views.brain.brainContainer.pivot.set(p.x,p.y);
-		// views.brain.brainContainer.position.set(views.brain.brainContainer.position.x-p.x,views.brain.brainContainer.position.y-p.y);
 		// scale
-		views.brain.brainContainer.scale.set(scale-event.deltaY*0.01);	
+		let nscale = Math.max(views.brain.initialScale/2,Math.min(views.brain.initialScale*4,scale-event.deltaY*0.01));
+		views.brain.brainContainer.scale.set(nscale);	
 		// de-pivot
 		// views.brain.brainContainer.pivot.set(0,0);
+		// views.brain.brainContainer.position(set,px,py);
 		// views.brain.brainContainer.position.set(views.brain.brainContainer.position.x+p.x,views.brain.brainContainer.position.y+p.y);
   } else {
 		// console.log(event.wheelDeltaZ);
@@ -556,7 +419,7 @@ function stimScroll(event) {
 			brainScroll(event);
 		} else {
 			// Check if any parameter windows are open
-			console.log('todo: add parameter scrolling')
+			// console.log('todo: add parameter scrolling')
 		}
   }
 }

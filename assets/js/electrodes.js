@@ -5,12 +5,6 @@ const socket = io();
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-// let electrodes = {},
-// 	e_trace_top = (MENU_SCALEV/2)*app.renderer.height,
-// 	e_trace_height = BRAIN_SCALEV*app.renderer.height,
-// 	e_trace_left = (1-ELEC_SCALEH)*app.renderer.width,
-// 	e_trace_width = (ELEC_SCALEH-0.05)*app.renderer.width;
-
 function Electrode(id) {
 	// create a new GUI element for the lectrode
 	// hard code w/h
@@ -18,7 +12,7 @@ function Electrode(id) {
 
 	let ewidth = 167, eheight = 208;
 
-	let opts = [0xFF0000,0x00FF00,0x0000FF,0xFFFF00,0xFF00FF,0x00FFFF];
+	let opts = [0xFF0000,0x00FF00,0x0000FF,0xFF00FF,0x00FFFF];
 	this.color = opts[id];
 
 	this.sprite = PIXI.Sprite.fromImage('./assets/electrode.png');
@@ -30,7 +24,7 @@ function Electrode(id) {
 	this.sprite.hitArea = new PIXI.Polygon(points);
 	// set other properties
 	this.sprite.interactive = true;
-	this.sprite.position.set(brain_ioffset-ui_brain_container.position.x/bscale+iwidth/2,ui_brain_container.position.y+iheight/2-eheight);
+	this.sprite.position.set(iwidth-ewidth+ewidth*(id%2),iheight-eheight+(id<2?0:eheight));
 	this.sprite.alpha = 1;
 	this.sprite
 		.on('pointerdown', elecDown)
@@ -38,17 +32,17 @@ function Electrode(id) {
 		.on('pointerup', elecUp)
 		.on('pointerupoutside', elecUp);
 
-	ui_brain_container.addChild(this.sprite);
+	views.brain.elecContainer.addChild(this.sprite);
 
-	// create the mini electrode
-	this.mini_sprite = PIXI.Sprite.fromImage('./assets/mini.png');
-	this.mini_sprite.tint = this.color;
-	this.mini_sprite.anchor.set(0.5,0.5);
-	 // Set the scale so that the sprites take up 15% of the height of the container
-	this.mini_sprite.scale.set(0.15*ui_mini_container.height/98); 
-	this.mini_sprite.position.set(-1000,-1000);
+	// // create the mini electrode
+	// this.mini_sprite = PIXI.Sprite.fromImage('./assets/mini.png');
+	// this.mini_sprite.tint = this.color;
+	// this.mini_sprite.anchor.set(0.5,0.5);
+	//  // Set the scale so that the sprites take up 15% of the height of the container
+	// this.mini_sprite.scale.set(0.15*ui_mini_container.height/98); 
+	// this.mini_sprite.position.set(-1000,-1000);
 
-	ui_mini_electrodes_container.addChild(this.mini_sprite);
+	// ui_mini_electrodes_container.addChild(this.mini_sprite);
 
 	this.destroy = function () {
 		clearTimeout(ticks[this.id]);
@@ -60,8 +54,8 @@ function Electrode(id) {
 	}
 
 	this.drawPos = function () {
-		// update the mini_sprite location
-		this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+this.sprite.height)*mini_scale);
+	// 	// update the mini_sprite location
+	// 	this.mini_sprite.position.set((this.sprite.position.x)*mini_scale,(this.sprite.position.y+this.sprite.height)*mini_scale);
 	}
 
 	this.data = {};
@@ -125,18 +119,18 @@ function Electrode(id) {
 	}
 
 	// setup the electrode window
-	this.trace.tx = e_trace_left;
-	this.trace.ty = e_trace_top+e_trace_height*this.id/4;
-	this.trace.sx = this.trace.tx;
-	this.trace.sy = this.trace.ty+e_trace_height*1.5/8;
-	this.trace.color = this.color;
+	// this.trace.tx = e_trace_left;
+	// this.trace.ty = e_trace_top+e_trace_height*this.id/4;
+	// this.trace.sx = this.trace.tx;
+	// this.trace.sy = this.trace.ty+e_trace_height*1.5/8;
+	// this.trace.color = this.color;
 
 	// draw black square (crush by 5 pixels)
-	this.trace.graphic = new PIXI.Graphics();
-	this.trace.graphic.beginFill(0x000000,1);
-	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
+	// this.trace.graphic = new PIXI.Graphics();
+	// this.trace.graphic.beginFill(0x000000,1);
+	// this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
 
-	ui_spike_container.addChild(this.trace.graphic);
+	// ui_spike_container.addChild(this.trace.graphic);
 
 	this.drawPos();
 
@@ -178,10 +172,10 @@ function drawTrace(trace,id) {
 // Receive data about electrodes
 socket.on('elecInfo', function(data) {
   // do something with this information
-  electrodes[data.info.id].data.neuron = data.neuron;
+  views.brain.electrodes[data.info.id].data.neuron = data.neuron;
   if (data.info.hem=='r') {
   	// flip the x axis location
-  	electrodes[data.info.id].data.neuron[0] = -electrodes[data.info.id].data.neuron[0];
+  	views.brain.electrodes[data.info.id].data.neuron[0] = -views.brain.electrodes[data.info.id].data.neuron[0];
   }
 });
 
@@ -240,9 +234,9 @@ function elecMove(event) {
 }
 
 function updateElectrodes(callback) {
-	let keys = Object.keys(electrodes);
+	let keys = Object.keys(views.brain.electrodes);
 	for (let ki=0;ki<keys.length;ki++) {
-		let electrode = electrodes[keys[ki]];
+		let electrode = views.brain.electrodes[keys[ki]];
 		electrode[callback]();
 	}
 }

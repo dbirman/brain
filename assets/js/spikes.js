@@ -23,7 +23,7 @@ function spk_init() {
 function spk_addTrace() {
   trace = {};
   trace.rate = 0; // average firing rate per second
-  trace.spk = zeros((ELEC_SCALEH-0.05)*app.renderer.width);
+  trace.spk = zeros(200);//zeros((ELEC_SCALEH-0.05)*app.renderer.width);
   trace.tick;
   trace.dying = 0;
   trace.silent = false;
