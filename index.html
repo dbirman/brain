@@ -69,6 +69,14 @@
       min-height:80vh;
     }
 
+    .blur {
+        -webkit-filter: blur(10px);
+        -moz-filter: blur(10px);
+        -o-filter: blur(10px);
+        -ms-filter: blur(10px);
+        filter: blur(10px);
+    }
+
     .close {
       background: #606061;
       color: #FFFFFF;
@@ -162,7 +170,7 @@
     </div>
   </div>
 
-  <script src="./node_modules/socket.io-client/dist/socket.io.js"></script>
+  <script src="./socket.io/socket.io.js"></script>
   <!-- order matters: load helpers first -->
   <script src="./assets/js/helpers.js"></script>
   <!-- then load client which sets some default information and sets the launch() func -->

@@ -95,8 +95,10 @@ function closeCheck(event) {
         parent = parent.parentElement;
       }
       parent.style.display = "none";
+      document.getElementById("canvas").className = "";
     }
     if (event.target.className == "modal") {
       event.target.style.display = "none";
+      document.getElementById("canvas").className = "";
     }
 }

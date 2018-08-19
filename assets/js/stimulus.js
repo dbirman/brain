@@ -20,7 +20,7 @@ function initStimulus() {
 
 	// Allow flipping between views
 	views.stim.stimulusWindow.interactive = true
-	views.stim.stimulusWindow.on('pointertap',switchStimView);
+	views.stim.stimulusWindow.on('pointertap',function() {checkDouble(this,getSwitchView('stim'));});
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
@@ -69,8 +69,10 @@ function checkKey(e) {
   if (e.keyCode==72) {
   	if (document.getElementById('help').style.display=='none') {
   		document.getElementById('help').style.display='block';
+      document.getElementById("canvas").className = "blur";
   	} else {
   		document.getElementById('help').style.display='none';
+      document.getElementById("canvas").className = "";
   	}
   }
 

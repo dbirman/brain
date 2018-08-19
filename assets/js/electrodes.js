@@ -5,11 +5,11 @@ const socket = io();
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let electrodes = {},
-	e_trace_top = (MENU_SCALEV/2)*app.renderer.height,
-	e_trace_height = BRAIN_SCALEV*app.renderer.height,
-	e_trace_left = (1-ELEC_SCALEH)*app.renderer.width,
-	e_trace_width = (ELEC_SCALEH-0.05)*app.renderer.width;
+// let electrodes = {},
+// 	e_trace_top = (MENU_SCALEV/2)*app.renderer.height,
+// 	e_trace_height = BRAIN_SCALEV*app.renderer.height,
+// 	e_trace_left = (1-ELEC_SCALEH)*app.renderer.width,
+// 	e_trace_width = (ELEC_SCALEH-0.05)*app.renderer.width;
 
 function Electrode(id) {
 	// create a new GUI element for the lectrode

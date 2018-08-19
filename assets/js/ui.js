@@ -60,6 +60,7 @@ function showOpener() {
 		sessionStorage.opener = true;
 	}
 	document.getElementById('opener').style.display='block';
+      document.getElementById("canvas").className = "blur";
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -83,7 +84,6 @@ function switchStatic() {
 	// Move the stimulus viewport to this container and warp it
 	views.static.container.addChild(views.stim.stimulusWindow);
 	views.stim.stimulusWindow.scale.set(0.5);
-	console.log('todo');
 }
 
 function initStim() {
@@ -96,8 +96,6 @@ function switchStim() {
 	// Move the stimulus viewport to this container and de-warp it
 	views.stim.container.addChild(views.stim.stimulusWindow);
 	views.stim.stimulusWindow.scale.set(1);
-	
-	console.log('todo');
 }
 
 function initBrain() {
@@ -110,12 +108,12 @@ function switchBrain() {
 	// pass
 }
 
-function switchStimView() {
-	// Switch back and forth between static and stim (clicking on stim)
-	if (cView=='stim') {
-		setView('static');
-	} else {
-		setView('stim');
+function getSwitchView(caller) {
+	if (caller=='stim') {
+		return cView=='stim' ? 'static' : 'stim';
+	}
+	if (caller=='brain') {
+		return cView=='brain' ? 'static' : 'brain';
 	}
 }
 
@@ -152,9 +150,21 @@ function uiStaticInit() {
 
 	// add event handler to switch views
 	sprite.interactive = true;
-	sprite.on('pointertap',function() {setView('brain')});
+	sprite.on('pointertap',function() {checkDouble(this,getSwitchView('brain'));});
 
 	views.static.container.addChild(sprite);
+}
+
+function checkDouble(caller,newView) {
+	if (caller.clickTick!=undefined) {clearTimeout(caller.clickTick);}
+	if (caller.clicked) {
+		// this was a double tap
+		setView(newView);
+		caller.clicked = false;
+	} else {
+		caller.clicked = true;
+		caller.clickTick = setTimeout(function() {caller.clicked=false;},500);
+	}
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -345,175 +355,77 @@ function stimulusSwitch() {
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
-// MINI BRAIN RENDERING
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-
-let ui_mini_container, ui_mini_overlay_container, ui_mini_brains_container, ui_mini_electrodes_container,
-	mini_scale;
-
-function uiMiniInit() {
-	// Set width/height and get the scale of the mini box relative to the full brains
-	var width = app.renderer.width, height = app.renderer.height;
-	// The mini box is scaled relative to the vertical height. bscale stores the relative height compared
-	// to the original images, so we can get the scale of the mini box from this:
-	mini_scale = bscale * MBRAIN_SCALEV / BRAIN_SCALEV;
-
-	ui_mini_container = new DContainer();
-	ui_container.addChild(ui_mini_container);
-	// make interactive and set zOrder
-	ui_mini_container.zOrder = 1;
-	ui_mini_container.interactive = true;
-	ui_mini_container
-		.on('pointerdown', miniDown)
-		.on('pointermove', miniMove)
-		.on('pointerup', miniUp)
-		.on('pointerupoutside', miniUp);
-	// move the mini_container to its position (up from bottom right)
-	ui_mini_container.x = width - mini_scale *iwidth*4-10;
-	ui_mini_container.y = height - MBRAIN_SCALEV*height-10;
-
-	///////////////////////////////////////////////////
-
-	// create the overlay container
-	ui_mini_overlay_container = new DContainer();
-	ui_mini_overlay_container.zOrder = 4;
-	ui_mini_container.addChild(ui_mini_overlay_container);
-
-	// create the window
-	miniWindow = new PIXI.Graphics();
-	miniWindow.beginFill(0x000000,0.25);
-	miniWindow.drawRect(-2.5,-2.5,mini_scale *iwidth,MBRAIN_SCALEV*height);
-	miniWindow.endFill();
-	ui_mini_overlay_container.addChild(miniWindow);
-
-	///////////////////////////////////////////////////
-	
-	// create the mini brains container
-	ui_mini_brains_container = new DContainer();
-	ui_mini_brains_container.zOrder = 2;
-	ui_mini_container.addChild(ui_mini_brains_container);
-
-	// add a white background for the brain container
-	let backgroundGraphic = new PIXI.Graphics();
-	backgroundGraphic.lineStyle(1,0x000000,1);
-	backgroundGraphic.beginFill(0xFFFFFF,1);
-	backgroundGraphic.drawRect(-5,-5,MBRAIN_SCALEV * app.renderer.height / iheight *iwidth*4+5,MBRAIN_SCALEV*height+5);
-	backgroundGraphic.endFill();
-	ui_mini_brains_container.addChild(backgroundGraphic);
-
-	// add the brain images themselves
-
-	let sides = ['l','r'], sides_pos;
-	for (let si=0;si<sides.length;si++) {
-		side = sides[si];
-
-		offset = si*2*iwidth;
-		let scale = si==0 ? 1 : -1;
-
-		let imgs = si==0 ? ['lateral','medial'] : ['medial','lateral'];
-
-		for (let ii=0;ii<imgs.length;ii++) {
-		  // add the lateral brain image
-		  itype = imgs[ii];
-			let img = PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png');
-			img.alpha = 0.5;
-			img.anchor.set(0,0);
-			img.x = mini_scale*(ii*iwidth+offset+iwidth*si)-2.5;
-			img.y = -2.5;
-			img.scale.set(mini_scale*scale,Math.abs(mini_scale*scale));
-
-			ui_mini_brains_container.addChild(img);
-		}
-	}
-
-	///////////////////////////////////////////////////
-	
-	// create the electrodes container
-	ui_mini_electrodes_container = new DContainer();
-	ui_mini_electrodes_container.zOrder = 3;
-	ui_mini_container.addChild(ui_mini_electrodes_container);
-
-	ui_mini_container.sortChildren();
-}
-
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-// MINI CALLBACKS
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-
-function miniDown(event) {
-	// console.log('Not implemented');
-	// this.isdown = true;
- //  // calculate offset
- //  var pos = event.data.getLocalPosition(this.parent);
- //  this.offX = pos.x - this.x;
- //  this.offY = pos.y - this.y;
- //  ui_brains_container.alpha = 0.5;
- //  ui_areas_container.visible = true;
-}
-function miniUp() {
-	// console.log('Not implemented');
-  // this.isdown = false;
-  // ui_brains_container.alpha = 1;
-  // ui_areas_container.visible = false;
-}
-
-function miniMove(event) {
-	// console.log('Not implemented');
-  // if (this.isdown) {
-  //   var pos = event.data.getLocalPosition(this.parent);
-  // 	let nx = Math.max(-bscale*1183*2.935,Math.min(bscale*80,pos.x-this.offX)),
-  // 		ny = pos.y-this.offY;
-  // 	ny = 0;	
-  //   this.position.set(nx,this.position.y);
-  //   ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+bscale*80),ui_mini_overlay_container.position.y);
-
-  //   // compute the percentage scrolled and use that to light up the menu
-  // }
-}
-
-// //////////////////////////// //////////////////////////// //////////////////////////// //
 // BRAIN RENDERING
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 
 // brain_container is the one that actually moves, the others just hold the images and set the zOrder
-let ui_brain_container, ui_brains_container, ui_areas_container, ui_brains;
+let brainViewport;
 
 function uiBrainInit() {
-	return
-	// create a container
-	ui_brain_container = new DContainer();
-	ui_container.addChild(ui_brain_container);
-	// make the container interactive
-	ui_brain_container.y = MENU_SCALEV*app.renderer.height;
-	ui_brain_container.zOrder = 0;
-	ui_brain_container.interactive = true;
-	ui_brain_container.pointer = 'grab';
-	ui_brain_container
+	// Create the brain viewport
+
+	// create viewport
+	let brainViewport = views.brain.container.addChild(new DContainer());
+
+	let offset = 0.5*(1-views.brain.BRAIN_H)*ORIGIN_HEIGHT;
+	brainViewport.x = ORIGIN_WIDTH-offset-views.brain.BRAIN_W*ORIGIN_WIDTH;
+	brainViewport.y = offset;
+
+	brainViewport.interactive = true;
+	// brainViewport.pointer = 'grab';
+	brainViewport
+		.on('pointertap',function() {checkDouble(this,getSwitchView('brain'));})
 		.on('pointerdown', brainDown)
 		.on('pointermove', brainMove)
 		.on('pointerup', brainUp)
 		.on('pointerupoutside', brainUp);
-	// center the brain container
 
-	// create the brains container
-	ui_brains_container = new DContainer();
-	ui_brains_container.zOrder = -1;
-	ui_brain_container.addChild(ui_brains_container);
 
-	// create the areas container
-	ui_areas_container = new DContainer();
-	ui_areas_container.zOrder = 1;
-  ui_areas_container.visible = false;
-	ui_brain_container.addChild(ui_areas_container);
+	// For pinch and zoom events we need to track events
+	views.brain.evCache = [],
+		views.brain.evDiff = -1;
+
+	let g = brainViewport.addChild(new PIXI.Graphics);
+
+	g.beginFill(0xFFFFFF,1);
+	g.lineStyle(1,0x000000,1);
+	g.drawRect(0,0,views.brain.BRAIN_W*ORIGIN_WIDTH,views.brain.BRAIN_H*ORIGIN_HEIGHT);
+
+	let mask = brainViewport.addChild(new PIXI.Graphics);
+
+	mask.beginFill(0xFFFFFF,1,0);
+	mask.drawRect(0,0,views.brain.BRAIN_W*ORIGIN_WIDTH,views.brain.BRAIN_H*ORIGIN_HEIGHT);
+
+	// Create the actual brain viewport
+	let brainContainer = brainViewport.addChild(new DContainer());
+	brainContainer.zOrder = -1;
+
+	// Set a mask which is the size of the original viewer
+	brainContainer.mask = mask;
+
+	let g2 = brainContainer.addChild(new PIXI.Graphics);
+	// draw a red square
+	g2.beginFill(0xFF0000,1);
+	g2.drawRect(300,300,100,100);
+
+	// track containers
+	views.brain.viewport = brainViewport;
+	views.brain.brainContainer = brainContainer;
+
+	// add the scroll watcher
+	window.addEventListener('mousewheel',stimScroll,false);
+
+	// add the four brain images
 
 	ui_brains = {};
 	let sides = ['l','r'], sides_pos;
+	let iwidth = 1183, iheight = 880;
+
 	for (let si=0;si<sides.length;si++) {
 		side = sides[si];
 		ui_brains[side] = {};
 
-		offset = si*2*iwidth;
 		let scale = si==0 ? 1 : -1;
 
 		let imgs = si==0 ? ['lateral','medial'] : ['medial','lateral'];
@@ -521,52 +433,79 @@ function uiBrainInit() {
 		for (let ii=0;ii<imgs.length;ii++) {
 		  // add the lateral brain image
 		  itype = imgs[ii];
-			let img = PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png');
+			let img = brainContainer.addChild(PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png'));
 			img.anchor.set(0,0);
-			img.x = ii*iwidth+offset+iwidth*si;
-			img.y = 0;
+			img.x = ii*iwidth+iwidth*si;
+			img.y = si*iheight;
 			img.scale.x = scale;
 
 			ui_brains[side][itype] = img;
 
-			ui_brains_container.addChild(ui_brains[side][itype]);
+			// // add the invisible area image in front
+			// let aimg = PIXI.Sprite.fromImage('./assets/areas_'+itype+'.png');
+			// aimg.anchor.set(0,0);
+			// aimg.x = ii*iwidth+offset+iwidth*si;
+			// aimg.y = 0;
+			// aimg.scale.x = scale;
 
-			// add the invisible area image in front
-			let aimg = PIXI.Sprite.fromImage('./assets/areas_'+itype+'.png');
-			aimg.anchor.set(0,0);
-			aimg.x = ii*iwidth+offset+iwidth*si;
-			aimg.y = 0;
-			aimg.scale.x = scale;
-			ui_areas_container.addChild(aimg);
+			// brainContainer.addChild(aimg);
 		}
 	}
 
-	ui_brain_container.scale.set(bscale);
-	ui_brain_container.position.x = brain_ioffset;
+	// set the scale so that the brains are entirely visible in the viewport (use the mask width/height)
+	let wScale = mask.width/(iwidth*2),
+		hScale = mask.height/(iheight*2);
+	let brainScale = Math.min(wScale,);
+	brainContainer.scale.set(brainScale);
+
+	console.log(wScale)
+	console.log(hScale)
+	console.log(brainContainer.height);
+	// shift x/y location 
+	if (wScale < hScale) {
+		brainContainer.y = (mask.height-brainContainer.height)/2;
+	} else {
+		brainContainer.x = (mask.width-brainContainer.width)/2;
+	}
+
+	// ui_brain_container.scale.set(bscale);
+	// ui_brain_container.position.x = brain_ioffset;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // BRAIN MOVEMENT
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+function windowDown(event) {
+	console.log(event.target);
+
+
+}
 function brainDown(event) {
 	if (electrodeMoving) {return;}
+
+	views.brain.evCache.push(event);
+	console.log(views.brain.evCache);
 
 	this.isdown = true;
   // calculate offset
   var pos = event.data.getLocalPosition(this.parent);
-  this.offX = pos.x - this.x;
-  this.offY = pos.y - this.y;
-  ui_brains_container.alpha = 0.5;
-  ui_areas_container.visible = true;
+  views.brain.brainContainer.offX = pos.x - views.brain.brainContainer.x;
+  views.brain.brainContainer.offY = pos.y - views.brain.brainContainer.y;
 }
 
 function brainUp(event) {
+	console.log('brainup');
 	if (electrodeMoving) {return;}
 
+	// Remove event from event cache
+	for (var i=0;i<views.brain.evCache.length;i++) {
+		if (views.brain.evCache[i].pointerId == event.pointerId) {
+			views.brain.evCache.splice(i,1); break;
+		}
+	}
+
   this.isdown = false;
-  ui_brains_container.alpha = 1;
-  ui_areas_container.visible = false;
 }
 
 function brainMove(event) {
@@ -574,20 +513,56 @@ function brainMove(event) {
 
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
-  	let nx = checkBrainX(pos.x-this.offX);
-    this.position.set(nx,this.position.y);
-    ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+brain_ioffset),ui_mini_overlay_container.position.y);
-
-    // compute the percentage scrolled and use that to light up the menu
+  	let nx = checkBrainX(pos.x-views.brain.brainContainer.offX);
+  	let ny = checkBrainY(pos.y-views.brain.brainContainer.offY);
+  	console.log(nx)
+  	console.log(ny)
+    views.brain.brainContainer.position.set(nx,ny);
   }
 }
 
 function checkBrainX(nx) {
-	return Math.max(brain_ioffset-bscale*1183*3,Math.min(brain_ioffset,nx));
+	return nx; //Math.max(brain_ioffset-bscale*1183*3,Math.min(brain_ioffset,nx));
+}
+
+function checkBrainY(ny) {
+	return ny;
+}
+
+// --- Scrolling functionality 
+
+function stimScroll(event) {
+	if ((document.getElementById('help').style.display=='none') && (document.getElementById('opener').style.display=='none')) {
+		event.preventDefault();
+	}
+
+	if (event.ctrlKey) {
+		let scale = views.brain.brainContainer.scale.x;
+		//pivot to the location
+		console.log('zoom currently broken (always relative to 0,0)')
+		let x = event.x, y = event.y;
+		let p = views.brain.brainContainer.toLocal(new PIXI.Point(x,y));
+		// scale p by the current scale
+		// views.brain.brainContainer.pivot.set(p.x,p.y);
+		// views.brain.brainContainer.position.set(views.brain.brainContainer.position.x-p.x,views.brain.brainContainer.position.y-p.y);
+		// scale
+		views.brain.brainContainer.scale.set(scale-event.deltaY*0.01);	
+		// de-pivot
+		// views.brain.brainContainer.pivot.set(0,0);
+		// views.brain.brainContainer.position.set(views.brain.brainContainer.position.x+p.x,views.brain.brainContainer.position.y+p.y);
+  } else {
+		// console.log(event.wheelDeltaZ);
+		if (views.brain.container.visible) {
+			brainScroll(event);
+		} else {
+			// Check if any parameter windows are open
+			console.log('todo: add parameter scrolling')
+		}
+  }
 }
 
 function brainScroll(event) {
-	let nx = checkBrainX(ui_brain_container.position.x-event.deltaX);
-  ui_brain_container.position.set(nx,ui_brain_container.position.y); 
-  ui_mini_overlay_container.position.set(mini_scale/bscale*(-nx+brain_ioffset),ui_mini_overlay_container.position.y);
+	let nx = checkBrainX(views.brain.brainContainer.x-event.deltaX);
+	let ny = checkBrainY(views.brain.brainContainer.y-event.deltaY);
+  views.brain.brainContainer.position.set(nx,ny); 
 }
