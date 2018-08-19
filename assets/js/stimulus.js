@@ -8,16 +8,19 @@
 let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg;
 
 function initStimulus() {
-	swidth=VIS_SCALEH*app.renderer.width, sheight=0.9*BRAIN_SCALEV*app.renderer.height-30;
-	swidth = Math.min(swidth,sheight);
-	sheight = swidth;
+	// Calculate the space the stimulus viewer will take up 
+	swidth=views.stim.STIMULUS_W*ORIGIN_WIDTH, sheight=views.stim.STIMULUS_H*ORIGIN_HEIGHT;
 
-	deg2pix = sheight/51;
-	pix2deg = 51/sheight;
+	deg2pix = swidth/51;
+	pix2deg = 51/swidth;
 
-	let x = 10, y = MENU_SCALEV*app.renderer.height+(BRAIN_SCALEV*app.renderer.height-sheight)/2;
-	
-	ui_stim_container.position.set(x,y);
+	views.stim.stimulusWindow = new DContainer();
+	views.stim.container.addChild(views.stim.stimulusWindow);	
+	views.stim.stimulusWindow.position.set(10,0.5*(1-views.stim.STIMULUS_H)*ORIGIN_HEIGHT);
+
+	// Allow flipping between views
+	views.stim.stimulusWindow.interactive = true
+	views.stim.stimulusWindow.on('pointertap',switchStimView);
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
@@ -33,23 +36,26 @@ function initStimulus() {
 	g.moveTo(swidth/2,0);
 	g.lineTo(swidth/2,sheight);
 
-	ui_stim_container.addChild(g);
+	// Save graphics
+	views.stim.stimulusWindow.addChild(g);
+	views.stim.graphics = g;
 
+	// Add some text to the stimulus window
   var style = new PIXI.TextStyle({fill:'#000000',fontSize:20});
   var t = new PIXI.Text('Left visual field',style);
   t.anchor.set(0.5,0);
   t.position.set(swidth/4,0);
-  ui_stim_container.addChild(t);
+  views.stim.stimulusWindow.addChild(t);
   var t = new PIXI.Text('Right visual field',style);
   t.anchor.set(0.5,0);
   t.position.set(swidth*3/4,0);
-  ui_stim_container.addChild(t);
-
-	stimulus_graphic = g;
+  views.stim.stimulusWindow.addChild(t);
 
 	// Setup the event listener functions
 
   document.body.onkeydown = function(e){checkKey(e);};
+
+  console.log('here');
 }
 
 function checkKey(e) {

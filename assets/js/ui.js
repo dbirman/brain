@@ -75,23 +75,57 @@ function initViews() {
 
 function initStatic() {
 	views.static.container = newViewContainer();
+	views.static.switchCallback = switchStatic;
 	uiStaticInit();
+}
+
+function switchStatic() {
+	// Move the stimulus viewport to this container and warp it
+	views.static.container.addChild(views.stim.stimulusWindow);
+	views.stim.stimulusWindow.scale.set(0.5);
+	console.log('todo');
 }
 
 function initStim() {
 	views.stim.container = newViewContainer();
+	views.stim.switchCallback = switchStim;
 	uiStimInit();
+}
+
+function switchStim() {
+	// Move the stimulus viewport to this container and de-warp it
+	views.stim.container.addChild(views.stim.stimulusWindow);
+	views.stim.stimulusWindow.scale.set(1);
+	
+	console.log('todo');
 }
 
 function initBrain() {
 	views.brain.container = newViewContainer();
+	views.brain.switchCallback = switchBrain;
 	uiBrainInit();
 }
+
+function switchBrain() {
+	// pass
+}
+
+function switchStimView() {
+	// Switch back and forth between static and stim (clicking on stim)
+	if (cView=='stim') {
+		setView('static');
+	} else {
+		setView('stim');
+	}
+}
+
+let cView;
 
 function setView(view) {
 	let keys = Object.keys(views);
 	for (let vi=0; vi<keys.length;vi++) {
 		views[keys[vi]].container.visible = view==keys[vi];
+		if (view==keys[vi]) {cView = keys[vi]; views[keys[vi]].switchCallback();}
 	}
 }
 
@@ -127,21 +161,9 @@ function uiStaticInit() {
 // STIMULUS WINDOW
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let ui_stim_container;
-
 function uiStimInit() {
-	return
-	var width = app.renderer.width, height = app.renderer.height;
-
-	ui_stim_container = new DContainer();
-	ui_stim_container.visible = false;
-	ui_container.addChild(ui_stim_container);
-
 	// build the stimulus container
 	initStimulus();
-
-	// add mouse wheel trackers
-	window.addEventListener('mousewheel',stimScroll,false);
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //

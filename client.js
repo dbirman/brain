@@ -22,7 +22,8 @@ views.static.VISUAL_FIELD = 0.3; // just the width, but keep in mind the view is
 
 // the second view is the stimulus and electrodes view
 views.stim = {};
-views.stim.STIMULUS = 0.5; // just specify width
+views.stim.STIMULUS_W = 0.5; // just specify width
+views.stim.STIMULUS_H = 0.8; // just specify width
 views.stim.ELECTRODES = 0.25; // just specify width
 
 // the last view is the brain viewport
