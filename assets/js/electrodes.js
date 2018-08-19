@@ -212,7 +212,9 @@ function elecDown(event) {
   var pos = event.data.getLocalPosition(this.parent);
   this.offX = pos.x - this.x;
   this.offY = pos.y - this.y;
-  this.alpha = 0.5;
+  // this.alpha = 0.5;
+  // change alpha
+  views.brain.brainContainer_areas.alpha = 0.75;
 }
 
 function elecUp(event) {
@@ -220,7 +222,9 @@ function elecUp(event) {
 
   updateElectrodes('requestData');
   this.isdown = false;
-  this.alpha = 1;
+  // this.alpha = 1;
+  // change alpha
+  views.brain.brainContainer_areas.alpha = 0.50;
 }
 
 function elecMove(event) {

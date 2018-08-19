@@ -242,12 +242,14 @@ let brainViewport,
 
 function uiBrainInit() {
 	// Create the brain viewport
+	views.brain.initialWidth = views.brain.BRAIN_W*ORIGIN_WIDTH;
+	views.brain.initialHeight = views.brain.BRAIN_H*ORIGIN_HEIGHT;
 
 	// create viewport
 	let brainViewport = views.brain.container.addChild(new DContainer());
 
 	let offset = 0.5*(1-views.brain.BRAIN_H)*ORIGIN_HEIGHT;
-	brainViewport.x = ORIGIN_WIDTH-offset-views.brain.BRAIN_W*ORIGIN_WIDTH;
+	brainViewport.x = ORIGIN_WIDTH-offset-views.brain.initialWidth;
 	brainViewport.y = offset;
 
 	brainViewport.interactive = true;
@@ -268,12 +270,13 @@ function uiBrainInit() {
 
 	g.beginFill(0xFFFFFF,1);
 	g.lineStyle(1,0x000000,1);
-	g.drawRect(0,0,views.brain.BRAIN_W*ORIGIN_WIDTH,views.brain.BRAIN_H*ORIGIN_HEIGHT);
+	g.drawRect(0,0,views.brain.initialWidth,views.brain.initialHeight);
+
 
 	let mask = brainViewport.addChild(new PIXI.Graphics);
 
 	mask.beginFill(0xFFFFFF,1,0);
-	mask.drawRect(0,0,views.brain.BRAIN_W*ORIGIN_WIDTH,views.brain.BRAIN_H*ORIGIN_HEIGHT);
+	mask.drawRect(0,0,views.brain.initialWidth,views.brain.initialHeight);
 
 	// Create the actual brain viewport
 	let brainContainer = brainViewport.addChild(new DContainer());
@@ -299,6 +302,12 @@ function uiBrainInit() {
 	ui_brains = {};
 	let sides = ['l','r'], sides_pos;
 
+	views.brain.brainContainer_brains = views.brain.brainContainer.addChild(new DContainer());
+	views.brain.brainContainer_brains.zOrder=-2;
+	views.brain.brainContainer_areas = views.brain.brainContainer.addChild(new DContainer());
+	views.brain.brainContainer_areas.zOrder=-1;
+	views.brain.brainContainer_areas.alpha = 0.5;
+
 	for (let si=0;si<sides.length;si++) {
 		side = sides[si];
 		ui_brains[side] = {};
@@ -310,7 +319,7 @@ function uiBrainInit() {
 		for (let ii=0;ii<imgs.length;ii++) {
 		  // add the lateral brain image
 		  itype = imgs[ii];
-			let img = brainContainer.addChild(PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png'));
+			let img = views.brain.brainContainer_brains.addChild(PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png'));
 			img.anchor.set(0,0);
 			img.x = ii*iwidth+iwidth*si;
 			img.y = si*iheight;
@@ -318,16 +327,18 @@ function uiBrainInit() {
 
 			ui_brains[side][itype] = img;
 
-			// // add the invisible area image in front
-			// let aimg = PIXI.Sprite.fromImage('./assets/areas_'+itype+'.png');
-			// aimg.anchor.set(0,0);
-			// aimg.x = ii*iwidth+offset+iwidth*si;
-			// aimg.y = 0;
-			// aimg.scale.x = scale;
-
-			// brainContainer.addChild(aimg);
+			// // add the low-alpha image in front
+			let aimg = views.brain.brainContainer_areas.addChild(PIXI.Sprite.fromImage('./assets/areas_'+itype+'.png'));
+			aimg.anchor.set(0,0);
+			aimg.x = ii*iwidth+iwidth*si;
+			aimg.y = si*iheight;
+			aimg.scale.x = scale;
+			// aimg.alpha = 0.5;
+			// views.brain.areas.push(aimg);
 		}
 	}
+
+	brainContainer.sortChildren();
 
 	// set the scale so that the brains are entirely visible in the viewport (use the mask width/height)
 	let wScale = mask.width/(iwidth*2),
@@ -363,7 +374,6 @@ function brainDown(event) {
 }
 
 function brainUp(event) {
-	console.log('brainup');
 	if (electrodeMoving) {return;}
 
   this.isdown = false;
@@ -381,11 +391,11 @@ function brainMove(event) {
 }
 
 function checkBrainX(nx) {
-	return Math.max(-iwidth*views.brain.brainContainer.scale.x,Math.min(views.brain.brainContainer.width-iwidth*views.brain.brainContainer.scale.x,nx));
+	return Math.max(-iwidth*views.brain.brainContainer.scale.x,Math.min(views.brain.initialWidth-iwidth*views.brain.brainContainer.scale.x,nx));
 }
 
 function checkBrainY(ny) {
-	return Math.max(-iheight*views.brain.brainContainer.scale.y,Math.min(views.brain.brainContainer.height-iheight*views.brain.brainContainer.scale.y,ny));
+	return Math.max(-iheight*views.brain.brainContainer.scale.y,Math.min(views.brain.initialHeight-iheight*views.brain.brainContainer.scale.y,ny));
 }
 
 // --- Scrolling functionality 
@@ -409,6 +419,12 @@ function stimScroll(event) {
 		// scale
 		let nscale = Math.max(views.brain.initialScale/2,Math.min(views.brain.initialScale*4,scale-event.deltaY*0.01));
 		views.brain.brainContainer.scale.set(nscale);	
+		let cx = views.brain.brainContainer.x,
+			cy = views.brain.brainContainer.y;
+		// we need to adjust the positino based on px and py and the change in scale
+		let dscale = nscale-scale;
+		views.brain.brainContainer.position.set(checkBrainX(cx-dscale*p.x),checkBrainY(cy-dscale*p.y));
+
 		// de-pivot
 		// views.brain.brainContainer.pivot.set(0,0);
 		// views.brain.brainContainer.position(set,px,py);
