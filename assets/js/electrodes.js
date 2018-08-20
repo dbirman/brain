@@ -61,16 +61,21 @@ function Electrode(id) {
 	this.data = {};
 
 	this.requestData = function () {
-		if ((this.sprite.position.x!=this.data.x) || (this.sprite.position.y!=this.data.y)) {
-			this.data.x = this.sprite.position.x % 1183;
-			this.data.y = this.sprite.position.y+eheight;
+		let x = this.sprite.position.x,
+			y = this.sprite.position.y;
+		if ((x!=this.data.x) || (y!=this.data.y)) {
+			this.data.x = x % iwidth;
+			this.data.y = y+eheight;
 			let types = ['l','m','m','l'];
 			let hems = ['l','l','r','r'];
-			let idx = Math.floor(this.sprite.position.x/1183);
+			// figureo ut which hemisphere we are in
+			let col = Math.floor(x/iwidth),
+				row = Math.floor(y/iheight);
+			let idx = col*2+row;
 			this.data.hem = hems[idx];
 			this.data.type = types[idx];
 			if (idx>=2) {
-				this.data.x = 1183-this.data.x;
+				this.data.x = iwidth-this.data.x;
 			}
 			// Update needed
 			let info = this.data;
@@ -118,19 +123,20 @@ function Electrode(id) {
 		this.trace.silent = false;
 	}
 
+	let e_trace_width = ORIGIN_WIDTH*views.stim.ELECTRODES,
+		e_trace_height = ORIGIN_HEIGHT*0.8;
+
 	// setup the electrode window
-	// this.trace.tx = e_trace_left;
-	// this.trace.ty = e_trace_top+e_trace_height*this.id/4;
-	// this.trace.sx = this.trace.tx;
-	// this.trace.sy = this.trace.ty+e_trace_height*1.5/8;
-	// this.trace.color = this.color;
+	this.trace.tx = ORIGIN_WIDTH-ORIGIN_WIDTH*views.stim.ELECTRODES-10;
+	this.trace.ty = ORIGIN_HEIGHT*0.1 + id * e_trace_height/4;
+	this.trace.sx = this.trace.tx;
+	this.trace.sy = this.trace.ty+e_trace_height;
+	this.trace.color = this.color;
 
 	// draw black square (crush by 5 pixels)
-	// this.trace.graphic = new PIXI.Graphics();
-	// this.trace.graphic.beginFill(0x000000,1);
-	// this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
-
-	// ui_spike_container.addChild(this.trace.graphic);
+	this.trace.graphic = views.stim.spikeContainer.addChild(new PIXI.Graphics());
+	this.trace.graphic.beginFill(0x000000,1);
+	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
 
 	this.drawPos();
 
@@ -143,8 +149,8 @@ function Electrode(id) {
 let ticks = {};
 
 function spike(id) {
-	if (ui_spike_container.visible) {
-		let trace = electrodes[id].trace;
+	if (views.stim.visible) {
+		let trace = views.brain.electrodes[id].trace;
 		if (trace.g!=undefined) {trace.g.destroy();}
 		trace.g = drawTrace(trace,id);
 		ticks[id] = setTimeout(function() {spike(id);},10);
@@ -172,10 +178,12 @@ function drawTrace(trace,id) {
 // Receive data about electrodes
 socket.on('elecInfo', function(data) {
   // do something with this information
-  views.brain.electrodes[data.info.id].data.neuron = data.neuron;
-  if (data.info.hem=='r') {
-  	// flip the x axis location
-  	views.brain.electrodes[data.info.id].data.neuron[0] = -views.brain.electrodes[data.info.id].data.neuron[0];
+  if (data.neuron!=undefined) {
+	  views.brain.electrodes[data.info.id].data.neuron = data.neuron;
+	  if (data.info.hem=='r') {
+	  	// flip the x axis location
+	  	views.brain.electrodes[data.info.id].data.neuron[0] = -views.brain.electrodes[data.info.id].data.neuron[0];
+	  }
   }
 });
 
