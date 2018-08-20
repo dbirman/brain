@@ -63,9 +63,10 @@ function initStimulus() {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createMotionStimulus() {
-	let motion = views.stim.stimulusWindow.addChild(new Motion(0,0));
+	motion = views.stim.stimulusWindow.addChild(new Motion(0,0,50));
+	motion.start();
 
-
+	console.log(motion)
 // 	ui_stim_container.addChild(stim);
 
 
@@ -92,7 +93,7 @@ class Motion extends Stimulus {
 	constructor(x,y,radius) {
 		super('motion',computePartialSensitivity,x,y);
 
-		this.dots = new dots(50,radius*2,radius*2);
+		this.dots = new dots(50,radius*2,radius*2,1,0,swidth*5/51,2);
 		this.addChild(this.dots.g);
 
 		this._size = radius;
@@ -104,10 +105,10 @@ class Motion extends Stimulus {
 		this.dots.g.mask = this.mask;
 	}
 
-	draw() {
-		if (this.dots!=undefined) {
-			this.dots.update();
-			this.dots.draw();
+	draw(motion) {
+		if (motion.dots!=undefined) {
+			motion.dots.update();
+			motion.dots.draw();
 		}
 	}
 
@@ -189,7 +190,7 @@ function computePartialSensitivity() {
 	// For each electrode re-compute the sensitivity at the current parameters.
 	// This is used when the parameters are being directly adjusted (e.g. size
 	// contrast, coherence, etc)
-	let ekeys = Object.keys(electrodes);
+	let ekeys = Object.keys(views.brain.electrodes);
 
 	if (sensTest) {
 		if (tg!=undefined) {tg.destroy();}
@@ -198,7 +199,7 @@ function computePartialSensitivity() {
 	}
 
 	for (let ei = 0; ei < ekeys.length; ei++) {
-		let electrode = electrodes[ekeys[ei]];
+		let electrode = views.brain.electrodes[ekeys[ei]];
 
 		let einfo = getElectrodePosition(electrode);
 
@@ -230,7 +231,6 @@ function computePartialSensitivity() {
 
 function getElectrodePosition(elec) {
 	if (elec.data.neuron==undefined) {
-		console.log('neuron has no position - skip');
 		return undefined;
 	}
 	return {pos: new PIXI.Point(elec.data.neuron[0],elec.data.neuron[1]), rad: elec.data.neuron[2]};

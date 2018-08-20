@@ -2,6 +2,10 @@
 * A rare opportunity to document properly...
 * A Stimulus is a DContainer -- on its own it has no graphics, these need to be added. But by default
 * it includes all the necessary functions to be moved around, to call for re-compute, etc. 
+* @param {String} type e.g. gabor, motion
+* @param {Function} callback to be run each time the stimulus is moved
+* @param {Number} x position
+* @param {Number} y position
 */
 class Stimulus extends DContainer {
 	constructor (type,computeCallback,x=0,y=0) {
@@ -24,12 +28,19 @@ class Stimulus extends DContainer {
 			.on('pointerup',this.up)
 			.on('pointerupoutside',this.up)
 			.on('pointermove',this.move);
+	}
 
-		ticker.add(this.draw);
+	start() {
+		let stimulus = this;
+		ticker.add(function() {stimulus.draw(stimulus)});
 	}
 
 	draw() {
 		// pass (will be overloaded by children)
+	}
+
+	showParamView() {
+		// pass (will be overlaoded)
 	}
 
 	/**
@@ -56,11 +67,10 @@ class Stimulus extends DContainer {
 
 	move(event) {
 	  if (this.isdown) {
-			this.dots.isdown = true;
 			this.moved = true;
 	    var pos = event.data.getLocalPosition(this.parent);
-	  	let nx = Math.min(swidth-this.radius*2,Math.max(0,pos.x-this.offX)),
-	  		ny = Math.min(sheight-this.radius*2,Math.max(0,pos.y-this.offY));
+	  	let nx = Math.min(swidth-this.size*2,Math.max(0,pos.x-this.offX)),
+	  		ny = Math.min(sheight-this.size*2,Math.max(0,pos.y-this.offY));
 	    this.position.set(nx,ny);
 
 	    // compute the percentage scrolled and use that to light up the menu
