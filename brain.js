@@ -21,13 +21,18 @@ io.on('connection', function(socket){
   // test code
   // io.to(socket.id).emit('proc',DATA.proc);
 
+  // send area info
+  io.to(socket.id).emit('area',DATA.areas);
+
   socket.on('disconnect', function(){
   	console.log('disconnect');
   });
 
   socket.on('request', function(info){
     let data = {};
+    console.log(info);
     data.neuron = ((DATA.proc[info.type]!=undefined) && (DATA.proc[info.type][info.x]!=undefined) && (DATA.proc[info.type][info.x][info.y]!=undefined)) ? DATA.proc[info.type][info.x][info.y] : undefined;
+    console.log(data.neuron);
     data.info = info;
     io.to(socket.id).emit('elecInfo',data);
   });

@@ -1,6 +1,4 @@
 
-const socket = io();
-
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -71,11 +69,13 @@ function Electrode(id) {
 			// figureo ut which hemisphere we are in
 			let col = Math.floor(x/iwidth),
 				row = Math.floor(y/iheight);
-			let idx = col*2+row;
+			let idx = row*2+col;
+
 			this.data.hem = hems[idx];
 			this.data.type = types[idx];
 			if (idx>=2) {
 				this.data.x = iwidth-this.data.x;
+				this.data.y = this.data.y-iheight;
 			}
 			// Update needed
 			let info = this.data;
@@ -130,13 +130,22 @@ function Electrode(id) {
 	this.trace.tx = ORIGIN_WIDTH-ORIGIN_WIDTH*views.stim.ELECTRODES-10;
 	this.trace.ty = ORIGIN_HEIGHT*0.1 + id * e_trace_height/4;
 	this.trace.sx = this.trace.tx;
-	this.trace.sy = this.trace.ty+e_trace_height;
+	this.trace.sy = this.trace.ty+ id * e_trace_height/4 + e_trace_height/8;
 	this.trace.color = this.color;
 
 	// draw black square (crush by 5 pixels)
 	this.trace.graphic = views.stim.spikeContainer.addChild(new PIXI.Graphics());
 	this.trace.graphic.beginFill(0x000000,1);
 	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
+
+	// add text for location
+	let style = new PIXI.TextStyle({
+		fill: "black",
+		fontSize: views.static.TEXT_HEIGHT
+	});
+	this.trace.text = views.stim.spikeContainer.addChild(new PIXI.Text('Area: ',style));
+	this.trace.text.x = this.trace.tx;
+	this.trace.text.y = this.trace.ty-style.fontSize;
 
 	this.drawPos();
 
@@ -160,6 +169,7 @@ function spike(id) {
 }
 
 function drawTrace(trace,id) {
+	console.log('here');
 	// Draw a trace starting at sx and sy
 	g = new PIXI.Graphics();
 	g.lineStyle(1,trace.color,1);
@@ -178,12 +188,19 @@ function drawTrace(trace,id) {
 // Receive data about electrodes
 socket.on('elecInfo', function(data) {
   // do something with this information
+  console.log(data.neuron);
   if (data.neuron!=undefined) {
 	  views.brain.electrodes[data.info.id].data.neuron = data.neuron;
+	  let side;
 	  if (data.info.hem=='r') {
 	  	// flip the x axis location
+	  	side = 'Right';
 	  	views.brain.electrodes[data.info.id].data.neuron[0] = -views.brain.electrodes[data.info.id].data.neuron[0];
+	  } else {
+	  	side = 'Left';
 	  }
+	  // set trace text
+	  views.brain.electrodes[data.info.id].trace.text.setText('Area: ' + side + ' ' + areas[data.neuron[4]].name);
   }
 });
 

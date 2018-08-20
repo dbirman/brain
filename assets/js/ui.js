@@ -30,6 +30,8 @@
 function uiInit() {
 	initViews();
 
+	initHelp();
+
 	checkOpener();
 
 	// console.log('temp code');
@@ -221,7 +223,7 @@ function uiElecInit() {
 	views.brain.electrodes = [];
 
 	// Create the four electrodes
-	for (var ei=0;ei<4;ei++) {
+	for (var ei=0;ei<1;ei++) {
 		views.brain.electrodes.push(new Electrode(ei));
 	}
 }

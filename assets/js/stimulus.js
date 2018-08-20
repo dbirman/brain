@@ -18,7 +18,7 @@ function initStimulus() {
 	views.stim.container.addChild(views.stim.stimulusWindow);	
 	views.stim.stimulusWindow.pivot.set(0,sheight/2);
 	views.stim.stimulusWindow.position.set(10,ORIGIN_HEIGHT/2);
-	
+
 	// Allow flipping between views
 	views.stim.stimulusWindow.interactive = true
 	views.stim.stimulusWindow.on('pointertap',function() {checkDouble(this,getSwitchView('stim'));});
@@ -51,159 +51,83 @@ function initStimulus() {
   t.anchor.set(0.5,0);
   t.position.set(swidth*3/4,0);
   views.stim.stimulusWindow.addChild(t);
-
-	// Setup the event listener functions
-
-  document.body.onkeydown = function(e){checkKey(e);};
-
-  console.log('here');
 }
 
-function checkKey(e) {
-  if (any(equals([69,68,81,65,87,83,72,77,84],e.keyCode))) {e.preventDefault();}
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// GABORS
+// //////////////////////////// //////////////////////////// //////////////////////////// //
 
-  if (e.keyCode==77) {
-  	stimulus.push(createMotionStimulus());
-  	drawMotionStimulus(stimulus.length-1);
-  }
 
-  if (e.keyCode==72) {
-  	if (document.getElementById('help').style.display=='none') {
-  		document.getElementById('help').style.display='block';
-      document.getElementById("canvas").className = "blur";
-  	} else {
-  		document.getElementById('help').style.display='none';
-      document.getElementById("canvas").className = "";
-  	}
-  }
-
-  if (e.keyCode==84) {
-  	sensTest = !sensTest;
-  	if (!sensTest) {
-  		tg.destroy();
-  		tg = undefined;
-  	}
-  }
-
-  // PARAM WINDOW STUFF
-  for (let si=0;si<stimulus.length;si++) {
-  	if (stimulus[si].paramWindow.visible) {
-		  switch (e.keyCode) {
-		  	case 81:
-		  		stimulus[si].setTheta(stimulus[si].getTheta()+Math.PI/4);
-		  		break;
-		  	case 65:
-		  		stimulus[si].setTheta(stimulus[si].getTheta()-Math.PI/4);
-		  		break;
-		  	case 87:
-		  		stimulus[si].setContrast(stimulus[si].getContrast()+0.1);
-		  		break;
-		  	case 83:
-		  		stimulus[si].setContrast(stimulus[si].getContrast()-0.1);
-		  		break;
-		  	case 69:
-		  		stimulus[si].setCoherence(stimulus[si].getCoherence()+0.1);
-		  		break;
-		  	case 68:
-		  		stimulus[si].setCoherence(stimulus[si].getCoherence()-0.1);
-		  		break;
-		  }
-		  updateMotionParams(stimulus[si],stimulus[si].paramWindow.visible);
-		  computePartialSensitivity();
-  	}
-  }
-}
-
-//// stimulus drawings
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// MOTION
+// //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createMotionStimulus() {
-
-	let stim = new PIXI.Container();
-	// add the getter functions (for computeSensitivity and computePartialSensitivity)
-	stim.getSize = function() {
-		let x = this.position.x+this.radius,
-			y = this.position.y+this.radius;
-
-		let degx = x/swidth*50-25,
-			degy = -y/sheight*50+25;
-
-		// we return both the position and radius so that we can do overlap calculations
-		return {pos: new PIXI.Point(degx,degy), rad:this.radius*pix2deg};
-	}
-
-	stim.getContrast = function() {
-		return stim.contrast;
-	}
-
-	stim.getCoherence = function() {
-		return stim.coherence;
-	}
-
-	stim.getTheta = function() {
-		return stim.theta;
-	}
-
-	// add the setter functions
-	stim.setSize = function(nrad) {
-		stim.radius = nrad;
-	}
-
-	stim.setTheta = function(ntheta) {
-		stim.theta = (Math.PI*2 + ntheta) % (Math.PI*2);
-	}
-
-	stim.setContrast = function(ncon) {
-		stim.contrast = Math.max(0,Math.min(1,ncon));
-	}
-
-	stim.setCoherence = function(ncoh) {
-		stim.coherence = Math.max(0,Math.min(1,ncoh));
-	}
-
-	stim.type = 'rdm'; // random dot motion
-	// random dot motion has parameters:
-	// x
-	// y 
-	// sd
-	// contrast
-	// coherence
-	// theta
-
-	// parameter window
-	stim.moved = false // for tracking when to open the window
-	stim.contrast = 1;
-	stim.coherence = 1;
-	stim.theta = 0;
-	updateMotionParams(stim,false);
-	stim.radius = 50;
-
-	// setup stim interaction
-	stim.interactive = true;
-	stim
-		.on('click',stimClick)
-		.on('pointerdown', stimDown)
-		.on('pointermove', stimMove)
-		.on('pointerup', stimUp)
-		.on('pointerupoutside', stimUp);
-
-	ui_stim_container.addChild(stim);
+	let motion = views.stim.stimulusWindow.addChild(new Motion(0,0));
 
 
-	// create the mask
-	stim.circmask = new PIXI.Graphics();
-	stim.circmask.beginFill(0xFFFFFF,1);
-	stim.circmask.drawCircle(stim.radius,stim.radius,stim.radius);
-	stim.addChild(stim.circmask);
+// 	ui_stim_container.addChild(stim);
 
-	stim.g = new PIXI.Graphics();
-	stim.g.mask = stim.circmask;
-	stim.addChild(stim.g);
 
-	stim.dots = initDots(Math.PI*stim.radius**2/200,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
-	stim.position.set(150,150); // the true center is position+25/25
+// 	// create the mask
+// 	stim.circmask = new PIXI.Graphics();
+// 	stim.circmask.beginFill(0xFFFFFF,1);
+// 	stim.circmask.drawCircle(stim.radius,stim.radius,stim.radius);
+// 	stim.addChild(stim.circmask);
 
-	return stim;
+// 	stim.g = new PIXI.Graphics();
+// 	stim.g.mask = stim.circmask;
+// 	stim.addChild(stim.g);
+
+// 	stim.dots = initDots(Math.PI*stim.radius**2/200,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
+// 	stim.position.set(150,150); // the true center is position+25/25
+
+// 	return stim;
+// }
+
 }
+
+
+class Motion extends Stimulus {
+	constructor(x,y,radius) {
+		super('motion',computePartialSensitivity,x,y);
+
+		this.dots = new dots(50,radius*2,radius*2);
+		this.addChild(this.dots.g);
+
+		this._size = radius;
+
+		this.mask = this.addChild(new PIXI.Graphics());
+		this.mask.beginFill(0xFFFFFF,1);
+		this.mask.drawCircle(this.size,this.size,this.size);
+
+		this.dots.g.mask = this.mask;
+	}
+
+	draw() {
+		if (this.dots!=undefined) {
+			this.dots.update();
+			this.dots.draw();
+		}
+	}
+
+	get theta() {
+		return this.dots.theta;
+	}
+
+	set theta(_theta) {
+		this.dots.theta = _theta;
+	}
+
+	get coherence() {
+		return this.dots.coherence;
+	}
+
+	set coherence(_coherence) {
+		this.dots.coherence = _coherence;
+	}
+}
+
 
 
 // Create the parameter window for the motion stimulus
@@ -257,67 +181,6 @@ function updateMotionParams(stim,vis) {
 	return param_window;
 }
 
-function destroyMotionStimulus(idx) {
-	// pass: this isn't functional yet
-}
-
-function drawMotionStimulus(idx) {
-	stimulus[idx].dots = updateDots(stimulus[idx].dots,stimulus[idx].coherence,stimulus[idx].contrast,stimulus[idx].theta);
-	drawDots(stimulus[idx].dots,stimulus[idx].g);
-	setTimeout(function() {drawMotionStimulus(idx);},50);
-}
-
-//// stimulus interactivity controls
-
-function stimClick(event) {
-	if (!this.moved) {
-		this.paramWindow.visible = !this.paramWindow.visible;
-	}
-}
-
-function stimDown(event) {
-	this.moved = false;
-	this.isdown = true;
-  // calculate offset
-  var pos = event.data.getLocalPosition(this.parent);
-  this.offX = pos.x - this.x;
-  this.offY = pos.y - this.y;
-}
-
-function stimUp(event) {
-	this.dots.isdown = false;
-  this.isdown = false;
-}
-
-function stimMove(event) {
-
-  if (this.isdown) {
-		this.dots.isdown = true;
-		this.moved = true;
-    var pos = event.data.getLocalPosition(this.parent);
-  	let nx = Math.min(swidth-this.radius*2,Math.max(0,pos.x-this.offX)),
-  		ny = Math.min(sheight-this.radius*2,Math.max(0,pos.y-this.offY));
-    this.position.set(nx,ny);
-
-    // compute the percentage scrolled and use that to light up the menu
-    computePartialSensitivity();
-  }
-}
-
-//// parameter controls
-
-function stimScroll(event) {
-	if ((document.getElementById('help').style.display=='none') && (document.getElementById('opener').style.display=='none')) {
-		event.preventDefault();
-	}
-	if (!ui_stim_container.visible) {
-		brainScroll(event);
-	} else {
-		// Check if any parameter windows are open
-		console.log('todo: add parameter scrolling')
-	}
-}
-
 //// Sensitivity computation
 
 let sensTest = false, tg;
@@ -362,7 +225,6 @@ function computePartialSensitivity() {
 		}
 	}
 }
-
 
 // POSITION FUNCTIONS
 

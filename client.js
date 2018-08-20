@@ -2,6 +2,8 @@
 // INITIALIZATION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+const socket = io();
+
 var rendererOptions = {
   antialiasing: false,
   transparent: true,
@@ -17,6 +19,9 @@ let views = {};
 // the first view is the static viewer
 views.static = {};
 views.static.VISUAL_FIELD = 0.3; // just the width, but keep in mind the view is rotated
+
+// add constants
+views.static.TEXT_HEIGHT = 20; // we can resize based on origin_height or something?
 
 // use a 2D transform to approximate 3D  (see http://www.html5gamedevs.com/topic/24942-how-can-i-do-a-perspective-transform/ and https://github.com/pixijs/pixi-projection)
 
@@ -38,7 +43,6 @@ const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions),
 // can then insert into the DOM
 document.getElementById("canvas").appendChild(app.view);
 
-
 function launch() {
 	console.log('launched');
 
@@ -49,6 +53,9 @@ function launch() {
 
   // Local stuff
   spk_init();
+
+  // Setup ticker
+  ticker = PIXI.ticker.shared;
 
   // set renderer stuff
   app.renderer.plugins.interaction.cursorStyles.crosshair = 'crosshair';
