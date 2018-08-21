@@ -14,27 +14,37 @@ let ORIGIN_WIDTH = document.body.clientWidth,
     ORIGIN_HEIGHT = document.body.clientHeight;
 
 // setup the different views
-let views = {};
+let views = {
+  buffer: Math.round(ORIGIN_WIDTH/150),
+  static: {
+    STIM_W: 0.3,
+    ELEC_W: 0.3,
+    STIM_V: 0.6
+  },
+  stim: {
+    STIM_W: 0.5,
+    STATIC_V: 0.2
+  },
+  brain: {
+    STIM_W: 0.3,
+    STIM_V: 0.3,
+    STATIC_W: 0.4
+  },
+  spikes : {
+    // empty
+  }
+};
 
-// the first view is the static viewer
-views.static = {};
-views.static.VISUAL_FIELD = 0.3; // just the width, but keep in mind the view is rotated
+let ORIGIN_W = ORIGIN_WIDTH-(views.buffer*2),
+  ORIGIN_H = ORIGIN_HEIGHT-(views.buffer*2);
 
-// add constants
-views.static.TEXT_HEIGHT = 20; // we can resize based on origin_height or something?
-
-// use a 2D transform to approximate 3D  (see http://www.html5gamedevs.com/topic/24942-how-can-i-do-a-perspective-transform/ and https://github.com/pixijs/pixi-projection)
-
-// the second view is the stimulus and electrodes view
-views.stim = {};
-views.stim.STIMULUS_W = 0.5; // just specify width
-views.stim.STIMULUS_H = 0.8; // just specify width
-views.stim.ELECTRODES = 0.25; // just specify width
-
-// the last view is the brain viewport
-views.brain = {};
-views.brain.BRAIN_W = 0.75;
-views.brain.BRAIN_H = 0.90;
+// computed:
+views.static.ELEC_V = 1 - views.static.STIM_V;
+views.static.BRAIN = Math.round(10*(1-views.static.STIM_W))/10;
+// computed:
+views.stim.ELEC_V = 1 - views.stim.STATIC_V;
+// computed:
+views.brain.BRAIN_W = 1-views.brain.STIM_W;
 
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions),
   loader = PIXI.loader;
@@ -64,7 +74,7 @@ function launch() {
   app.renderer.plugins.interaction.cursorStyles.grabbing= 'grabbing';
 
   // asset loading -- do this at the start to have widths available immediately
-  var assetsToLoad = [ "./assets/brain_lateral.png"];
+  var assetsToLoad = [ "./assets/brain_lateral.png", "./assets/brain_eyes.png","./assets/brain_medial.png"];
   for (var ai=0; ai<assetsToLoad.length;ai++) {
     loader.add(assetsToLoad[ai]);
   }

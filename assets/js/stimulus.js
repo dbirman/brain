@@ -8,20 +8,25 @@
 let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg;
 
 function initStimulus() {
+	views.stim.container = app.stage.addChild(new DContainer());
+	// Allow flipping between views
+	views.stim.container.interactive = true;
+
+	views.stim.container.x = views.buffer;
+	views.stim.container.y = views.buffer;
+
+	views.stim.container.resetX = views.stim.container.x;
+	views.stim.container.resetY = views.stim.container.y;
+
 	// Calculate the space the stimulus viewer will take up 
-	swidth=views.stim.STIMULUS_W*ORIGIN_WIDTH, sheight=views.stim.STIMULUS_H*ORIGIN_HEIGHT;
+	swidth=views.stim.STIM_W*ORIGIN_W, sheight=views.stim.STIM_W*ORIGIN_H;
 
 	deg2pix = swidth/51;
 	pix2deg = 51/swidth;
 
-	views.stim.stimulusWindow = new DContainer();
-	views.stim.container.addChild(views.stim.stimulusWindow);	
+	views.stim.stimulusWindow = views.stim.container.addChild(new DContainer());
 	views.stim.stimulusWindow.pivot.set(0,sheight/2);
-	views.stim.stimulusWindow.position.set(10,ORIGIN_HEIGHT/2);
-
-	// Allow flipping between views
-	views.stim.stimulusWindow.interactive = true
-	views.stim.stimulusWindow.on('pointertap',function() {checkDouble(this,getSwitchView('stim'));});
+	views.stim.stimulusWindow.position.set(0,ORIGIN_H/2);
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons

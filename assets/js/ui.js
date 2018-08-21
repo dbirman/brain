@@ -28,14 +28,24 @@
 
 
 function uiInit() {
-	initViews();
+	// add a top-level DContainer()
+	views.container = app.stage.addChild(new DContainer());
 
 	initHelp();
 
+	// Setup the static UI 
+	uiStaticInit(); // views.static.container
+
+	// Setup the stim screen and spikes
+	uiStimInit(); // views.stim.container
+	uiSpikeInit(); // views.spike.container
+
+	uiBrainInit();
+	uiElecInit();
+
 	checkOpener();
 
-	// console.log('temp code');
-	// stimulusSwitch();
+	switchStatic();
 }
 
 function checkOpener() {
@@ -58,92 +68,106 @@ function showOpener() {
 		sessionStorage.opener = true;
 	}
 	document.getElementById('opener').style.display='block';
-      document.getElementById("canvas").className = "blur";
+  document.getElementById("canvas").className = "blur";
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // VIEWS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function initViews() {
-	initStatic();
-	initStim();
-	initBrain();
-	setView('static');
-}
+// The default locations for the four view containers are all 0,0 which makes it easy to reset them
 
-function initStatic() {
-	views.static.container = newViewContainer();
-	views.static.switchCallback = switchStatic;
-	uiStaticInit();
+function switchAny() {
+	doub.brain.clicked = false;
+	doub.view.clicked = false;
+	doub.static.clicked = false;
 }
 
 function switchStatic() {
-	// Move the stimulus viewport to this container and warp it
-	views.static.container.addChild(views.stim.stimulusWindow);
+	switchAny();
+
+	// Reset the static view
+	views.static.container.x = views.static.container.resetX, views.static.container.y = views.static.container.resetY;
+	views.static.container.scale.set(1);
+
+	// Scale down the stimulus window
 	views.stim.stimulusWindow.scale.set(0.5);
-	// need to set position to vertical center
-	// views.stim.stimulusWindow.position.set()
+	// Move the stimulus window up
 
-	// Get the brain back
-	views.static.container.addChild(views.static.brain);
-	views.static.brain.scale.set(views.static.brain.initialScale);
-	views.static.brain.position.set(views.static.brain.initialPosition.x,views.static.brain.initialPosition.y);
-}
+	// Move the brain window down into the corner
+	views.brain.container.scale.set(ORIGIN_W*(1-views.static.STIM_W-views.static.ELEC_W)/views.brain.container.initialWidth);
+	views.brain.container.x = views.buffer + ORIGIN_W*(views.static.STIM_W+views.static.ELEC_W);
+	views.brain.container.y = views.buffer + ORIGIN_H*views.static.STIM_V;
 
-function initStim() {
-	views.stim.container = newViewContainer();
-	views.stim.switchCallback = switchStim;
-	uiStimInit();
-	uiSpikeInit();
+	// Move the spike window
+	views.spikes.container.scale.set(0.95*ORIGIN_W*views.static.ELEC_W/(ORIGIN_W*(1-views.stim.STIM_W)));
+	views.spikes.container.x = views.buffer + ORIGIN_W*views.static.STIM_W;
+	views.spikes.container.y = views.buffer + ORIGIN_H*views.static.STIM_V;
+
+	views.container.sortChildren();
+
+	// Set the switchers
+	views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
+	views.stim.container.on('pointertap',function() {checkDouble('view',switchStim)});
+	views.static.container.removeAllListeners();
 }
 
 function switchStim() {
-	// Move the stimulus viewport to this container and de-warp it
-	views.stim.container.addChild(views.stim.stimulusWindow);
+	switchAny();
+	
+	views.stim.container.x = views.stim.container.resetX, views.stim.container.y = views.stim.container.resetY;
+	views.stim.container.scale.set(1);
+
+	views.spikes.container.x = views.spikes.container.resetX, views.spikes.container.y = views.spikes.container.resetY;
+	views.spikes.container.scale.set(1);
+	views.spikes.container.zOrder = 1;
+
+	// Reset the stimulus viewport
 	views.stim.stimulusWindow.scale.set(1);
 
-	// Move the stim brain to this container and de-warp it
-	views.stim.container.addChild(views.static.brain);
-	views.static.brain.scale.set(views.static.brain.initialScale*0.5);
-	views.static.brain.position.set(ORIGIN_WIDTH*views.stim.STIMULUS_W+10,0);
-}
+	// move the brain up into the top corner
+	views.brain.container.scale.set((ORIGIN_H*(1-views.stim.ELEC_V))/(views.brain.initialWidth));
+	views.brain.container.x = views.buffer + ORIGIN_W*(views.stim.STIM_W) + ORIGIN_W*0.5*(1-views.stim.STIM_W);
+	views.brain.container.y = views.buffer;
+	views.brain.container.zOrder = -1;
 
-function initBrain() {
-	views.brain.container = newViewContainer();
-	views.brain.switchCallback = switchBrain;
-	uiBrainInit();
-	uiElecInit();
+	// move the static brain up
+	views.static.container.scale.set(0.4);
+	views.static.container.x = views.buffer + ORIGIN_W*(views.stim.STIM_W);
+	views.static.container.y = views.buffer;
+
+	views.container.sortChildren();
+	
+	// Set the switchers
+	views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
+	views.stim.container.removeAllListeners();
+	views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
 }
 
 function switchBrain() {
-	// pass
-}
+	switchAny();
+	
+	views.brain.container.x = views.brain.container.resetX, views.brain.container.y = views.brain.container.resetY;
+	views.brain.container.scale.set(1);
 
-function getSwitchView(caller) {
-	if (caller=='stim') {
-		return cView=='stim' ? 'static' : 'stim';
-	}
-	if (caller=='brain') {
-		return cView=='brain' ? 'static' : 'brain';
-	}
-}
+	// move the stimulus window to the top left corner
+	views.stim.container.x = views.buffer; views.stim.container.y = views.buffer -ORIGIN_H/2.5;
+	views.stim.stimulusWindow.scale.set(0.4);
 
-let cView;
+	// move the electrodes to the left side
+	views.spikes.container.x = views.buffer;
+	views.spikes.container.y = views.buffer + ORIGIN_H * views.brain.STIM_V;
 
-function setView(view) {
-	let keys = Object.keys(views);
-	for (let vi=0; vi<keys.length;vi++) {
-		views[keys[vi]].container.visible = view==keys[vi];
-		if (view==keys[vi]) {cView = keys[vi]; views[keys[vi]].switchCallback();}
-	}
-}
+	// move the static brain up
+	views.static.container.scale.set(0.3);
+	views.static.container.x = views.buffer + ORIGIN_W*(views.brain.STIM_W) - ORIGIN_W*0.075;
+	views.static.container.y = views.buffer;
 
-function newViewContainer() {
-	let container = new DContainer();
-	container.visible = false;
-	app.stage.addChild(container);
-	return container;
+	views.container.sortChildren();
+	
+	views.brain.container.removeAllListeners();
+	views.stim.container.on('pointertap',function() {checkDouble('view',switchStim)});
+	views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -152,31 +176,50 @@ function newViewContainer() {
 
 function uiStaticInit() {
 	// Set the background to the brain (no eyes yet...)
-	let sprite = views.static.container.addChild(new PIXI.Sprite.fromImage('./assets/brain_lateral.png'));
-	let nsize = ORIGIN_WIDTH*0.8*(1-views.static.VISUAL_FIELD);
-	sprite.anchor.set(1,0);
-	sprite.x = ORIGIN_WIDTH;
-	sprite.y = 0;
-	sprite.scale.set(nsize/iwidth);
+	views.static.container = views.container.addChild(new DContainer());
+	views.static.container.interactive = true;
+
+	views.static.container.x = ORIGIN_W*views.static.STIM_W;
+
+	views.static.container.resetX = views.static.container.x;
+	views.static.container.resetY = views.static.container.y;
+
+	let sprite = views.static.container.addChild(new PIXI.Sprite.fromImage('./assets/brain_eyes.png'));
+	let nsize_w = ORIGIN_W*views.static.BRAIN;
+	let nsize_v = ORIGIN_H*views.static.STIM_V;
+
+	sprite.anchor.set(0,0);
+	sprite.scale.set(Math.min(nsize_w/sprite.width,nsize_v/sprite.height));
 	sprite.initialScale = sprite.scale.x;
 	sprite.initialPosition = new PIXI.Point(sprite.x,sprite.y);
 
-	// add event handler to switch views
-	sprite.interactive = true;
-	sprite.on('pointertap',function() {checkDouble(this,getSwitchView('brain'));});
-
-	views.static.brain = sprite;
+	views.static.brainSprite = sprite;
 }
 
-function checkDouble(caller,newView) {
-	if (caller.clickTick!=undefined) {clearTimeout(caller.clickTick);}
-	if (caller.clicked) {
+let doub = {
+	brain: {
+		clicked: false,
+		clickTick: -1
+	},
+	view: {
+		clicked: false,
+		clickTick: -1
+	},
+	static: {
+		clicked: false,
+		clickTick: -1
+	}
+};
+
+function checkDouble(callby,callback) {
+	if (doub[callby].clickTick!=undefined) {clearTimeout(doub[callby].clickTick);}
+	if (doub[callby].clicked) {
 		// this was a double tap
-		setView(newView);
-		caller.clicked = false;
+		doub[callby].clicked = false;
+		callback();
 	} else {
-		caller.clicked = true;
-		caller.clickTick = setTimeout(function() {caller.clicked=false;},500);
+		doub[callby].clicked = true;
+		doub[callby].clickTick = setTimeout(function() {doub[callby].clicked=false; console.log(doub[callby])},300);
 	}
 }
 
@@ -187,15 +230,6 @@ function checkDouble(caller,newView) {
 function uiStimInit() {
 	// build the stimulus container
 	initStimulus();
-
-	// put a little mini brain at the top -- which will flip us to the brain view
-	let sprite = views.stim.container.addChild(new PIXI.Sprite.fromImage('./assets/brain_lateral.png'));
-	let nsize = ORIGIN_WIDTH * (1-views.stim.STIMULUS-views.stim.ELECTRODES);
-	sprite.x = ORIGIN_WIDTH * views.stim.STIMULUS + 10;
-	sprite.scale.set(nsize/iwidth);
-
-	sprite.interactive = true;
-	sprite.on('pointertap',function() {checkDouble(this,'brain')});
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -203,8 +237,13 @@ function uiStimInit() {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function uiSpikeInit() {
-	views.stim.spikeContainer = views.stim.container.addChild(new DContainer());
-	//
+	views.spikes.container = views.container.addChild(new DContainer());
+
+	views.spikes.container.x  = 2 * views.buffer + ORIGIN_W * views.stim.STIM_W;
+	views.spikes.container.y = views.buffer + ORIGIN_H * views.stim.STATIC_V;
+
+	views.spikes.container.resetX = views.spikes.container.x;
+	views.spikes.container.resetY = views.spikes.container.y;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -251,34 +290,32 @@ function elecClick(id,sprite) {
 
 
 // brain_container is the one that actually moves, the others just hold the images and set the zOrder
-let brainViewport,
-	iwidth = 1183, iheight = 880;
+let iwidth = 1183, iheight = 880;
 
 function uiBrainInit() {
 	// Create the brain viewport
-	views.brain.initialWidth = views.brain.BRAIN_W*ORIGIN_WIDTH;
-	views.brain.initialHeight = views.brain.BRAIN_H*ORIGIN_HEIGHT;
+	views.brain.container = views.container.addChild(new DContainer());
+	views.brain.container.interactive = true;
+	// set to brain size
+	views.brain.initialWidth = ORIGIN_W*(1-views.brain.STIM_W);
+	views.brain.initialHeight = ORIGIN_H*(1-views.brain.STIM_V);
 
-	// create viewport
+	let offset = 0.5*(ORIGIN_H-views.brain.initialHeight);
+
+	views.brain.container.x = views.buffer + ORIGIN_W*views.brain.STIM_W;
+	views.brain.container.y = offset+views.buffer;
+
+	views.brain.container.resetX = views.brain.container.x;
+	views.brain.container.resetY = views.brain.container.y;
+
 	let brainViewport = views.brain.container.addChild(new DContainer());
 
-	let offset = 0.5*(1-views.brain.BRAIN_H)*ORIGIN_HEIGHT;
-	brainViewport.x = ORIGIN_WIDTH-offset-views.brain.initialWidth;
-	brainViewport.y = offset;
-
 	brainViewport.interactive = true;
-	// brainViewport.pointer = 'grab';
 	brainViewport
-		.on('pointertap',function() {checkDouble(this,getSwitchView('brain'));})
 		.on('pointerdown', brainDown)
 		.on('pointermove', brainMove)
 		.on('pointerup', brainUp)
 		.on('pointerupoutside', brainUp);
-
-
-	// For pinch and zoom events we need to track events
-	views.brain.evCache = [],
-		views.brain.evDiff = -1;
 
 	let g = brainViewport.addChild(new PIXI.Graphics);
 
@@ -357,7 +394,7 @@ function uiBrainInit() {
 	// set the scale so that the brains are entirely visible in the viewport (use the mask width/height)
 	let wScale = mask.width/(iwidth*2),
 		hScale = mask.height/(iheight*2);
-	let brainScale = Math.min(wScale,);
+	let brainScale = Math.min(wScale);
 	brainContainer.scale.set(brainScale);
 	views.brain.initialScale = brainScale;
 	// shift x/y location 
@@ -366,6 +403,8 @@ function uiBrainInit() {
 	} else {
 		brainContainer.x = (mask.width-brainContainer.width)/2;
 	}
+
+	views.brain.container.initialWidth = views.brain.container.width;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //

@@ -30,7 +30,7 @@ function Electrode(id) {
 		.on('pointerup', elecUp)
 		.on('pointerupoutside', elecUp);
 
-	views.brain.elecContainer.addChild(this.sprite);
+	views.brain.brainContainer.addChild(this.sprite);
 
 	// // create the mini electrode
 	// this.mini_sprite = PIXI.Sprite.fromImage('./assets/mini.png');
@@ -123,18 +123,18 @@ function Electrode(id) {
 		this.trace.silent = false;
 	}
 
-	let e_trace_width = ORIGIN_WIDTH*views.stim.ELECTRODES,
-		e_trace_height = ORIGIN_HEIGHT*0.8;
+	let e_trace_width = ORIGIN_W*(1-views.stim.STIM_W)-views.buffer,
+		e_trace_height = ORIGIN_H*views.stim.ELEC_V;
 
 	// setup the electrode window
-	this.trace.tx = ORIGIN_WIDTH-ORIGIN_WIDTH*views.stim.ELECTRODES-10;
-	this.trace.ty = ORIGIN_HEIGHT*0.1 + id * e_trace_height/4;
+	this.trace.tx = 0;
+	this.trace.ty = id * e_trace_height/4;
 	this.trace.sx = this.trace.tx;
 	this.trace.sy = this.trace.ty+ id * e_trace_height/4 + e_trace_height/8;
 	this.trace.color = this.color;
 
 	// draw black square (crush by 5 pixels)
-	this.trace.graphic = views.stim.spikeContainer.addChild(new PIXI.Graphics());
+	this.trace.graphic = views.spikes.container.addChild(new PIXI.Graphics());
 	this.trace.graphic.beginFill(0x000000,1);
 	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
 
@@ -143,7 +143,7 @@ function Electrode(id) {
 		fill: "black",
 		fontSize: views.static.TEXT_HEIGHT
 	});
-	this.trace.text = views.stim.spikeContainer.addChild(new PIXI.Text('Area: ',style));
+	this.trace.text = views.spikes.container.addChild(new PIXI.Text('Area: ',style));
 	this.trace.text.x = this.trace.tx;
 	this.trace.text.y = this.trace.ty-style.fontSize;
 

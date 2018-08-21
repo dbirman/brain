@@ -1,5 +1,33 @@
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
+// ANIMATION
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+// // Interpolate between 
+// function inOutSine(x,totalX) {
+//   return Math.sin(x*Math.PI/totalX/2);
+// }
+
+// function easeOutExpo(x,totalX) {
+//   return 1 - Math.exp(-x*5/totalX);
+// }
+
+// /**
+// *
+// * Time is in seconds
+// */
+// function animate(param,end,time) {
+//   let temp = this;
+//   animate_.call(this,param,1,time*200,this[param],end);
+// }
+
+// function animate_(param,x,totalX,start,end) {
+//   if (num<=0) {this[param] = end; return;}
+//   let temp = this;
+//   this[param] = start + easeOutExpo(x,totalX)*(end-start);
+//   setTimeout(function() {animate_.call(temp,param,++x,totalX,start,end)},5);
+// }
+// //////////////////////////// //////////////////////////// //////////////////////////// //
 // HELPERS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
