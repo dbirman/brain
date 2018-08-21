@@ -81,6 +81,9 @@ function switchAny() {
 	doub.brain.clicked = false;
 	doub.view.clicked = false;
 	doub.static.clicked = false;
+	views.static.container.removeAllListeners();
+	views.stim.container.removeAllListeners();
+	views.brain.container.removeAllListeners();
 }
 
 function switchStatic() {
@@ -92,6 +95,7 @@ function switchStatic() {
 
 	// Scale down the stimulus window
 	views.stim.stimulusWindow.scale.set(0.5);
+	views.stim.container.x = views.stim.container.resetX, views.stim.container.y = views.stim.container.resetY;
 	// Move the stimulus window up
 
 	// Move the brain window down into the corner
@@ -109,7 +113,6 @@ function switchStatic() {
 	// Set the switchers
 	views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
 	views.stim.container.on('pointertap',function() {checkDouble('view',switchStim)});
-	views.static.container.removeAllListeners();
 }
 
 function switchStim() {
@@ -140,7 +143,6 @@ function switchStim() {
 	
 	// Set the switchers
 	views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
-	views.stim.container.removeAllListeners();
 	views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
 }
 
@@ -164,8 +166,6 @@ function switchBrain() {
 	views.static.container.y = views.buffer;
 
 	views.container.sortChildren();
-	
-	views.brain.container.removeAllListeners();
 	views.stim.container.on('pointertap',function() {checkDouble('view',switchStim)});
 	views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
 }
