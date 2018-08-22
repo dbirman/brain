@@ -33,24 +33,25 @@ const areas =  {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function responseMT(elec,stim) {
+	console.log(elec)
+	console.log(stim.pos)
 	// An MT neuron cares slightly about things that have contrast, but mostly
 	// about things that have motion
 	let response = maxFire;
 
 	// Compute the overlap
-	esz = elec.getSize();
-		ssz = stim.getSize();
-	overlap = computeOverlap(esz,ssz) / (Math.PI * esz.rad**2);
+	overlap = computeOverlap(elec,stim.pos) / (Math.PI * elec.rad**2);
 
 	response *= overlap;
 
 	// compute the selectivity, contrast, coherence
 
-	let sens = normpdf(elec.getTheta()-stim.getTheta(),0,areas[1].theta_sd)/areas[1].pdf_max;
+	let sens = normpdf(elec.theta-stim.theta,0,areas[1].theta_sd)/areas[1].pdf_max;
 	let coh = areas[1].coherence.func(stim.coherence);
 	let con = areas[1].contrast.func(stim.contrast);
 
-	if (stim.type=='rdm') {
+	console.log(response);
+	if (stim.type=='motion') {
 		// Multiply this by all factors
 		response *= sens * coh * con;
 	} else {
@@ -65,8 +66,8 @@ function responseV1(elec,stim) {
 	let response = maxFire;
 
 	// Compute the overlap
-	esz = elec.getSize();
-		ssz = stim.getSize();
+	esz = elec.rad;
+		ssz = stim.pos.rad;
 	overlap = computeOverlap(esz,ssz) / (Math.PI * esz.rad**2);
 
 	response *= overlap;
@@ -80,7 +81,7 @@ function responseV1(elec,stim) {
 }
 
 function computeOverlap(p1,p2) {
-	return circIntersect(p1.pos.x,p1.pos.y,p1.rad,p2.pos.x,p2.pos.y,p2.rad);
+	return circIntersect(p1.x,p1.y,p1.rad,p2.x,p2.y,p2.rad);
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //

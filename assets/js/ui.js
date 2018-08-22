@@ -99,14 +99,15 @@ function switchStatic() {
 	// Move the stimulus window up
 
 	// Move the brain window down into the corner
-	views.brain.container.scale.set(ORIGIN_W*(1-views.static.STIM_W-views.static.ELEC_W)/views.brain.container.initialWidth);
-	views.brain.container.x = views.buffer + ORIGIN_W*(views.static.STIM_W+views.static.ELEC_W);
-	views.brain.container.y = views.buffer + ORIGIN_H*views.static.STIM_V;
+	views.brain.container.scale.set(0.75*ORIGIN_W*(1-views.static.STIM_W-views.static.ELEC_W)/views.brain.container.initialWidth);
+	views.brain.container.x = views.buffer + 1.2*ORIGIN_W*(views.static.STIM_W+views.static.ELEC_W);
+	views.brain.container.y = views.buffer;
 
 	// Move the spike window
 	views.spikes.container.scale.set(0.95*ORIGIN_W*views.static.ELEC_W/(ORIGIN_W*(1-views.stim.STIM_W)));
 	views.spikes.container.x = views.buffer + ORIGIN_W*views.static.STIM_W;
 	views.spikes.container.y = views.buffer + ORIGIN_H*views.static.STIM_V;
+	makeAllElectrodesVisible(true);
 
 	views.container.sortChildren();
 
@@ -124,6 +125,7 @@ function switchStim() {
 	views.spikes.container.x = views.spikes.container.resetX, views.spikes.container.y = views.spikes.container.resetY;
 	views.spikes.container.scale.set(1);
 	views.spikes.container.zOrder = 1;
+	makeAllElectrodesVisible(true);
 
 	// Reset the stimulus viewport
 	views.stim.stimulusWindow.scale.set(1);
@@ -159,6 +161,7 @@ function switchBrain() {
 	// move the electrodes to the left side
 	views.spikes.container.x = views.buffer;
 	views.spikes.container.y = views.buffer + ORIGIN_H * views.brain.STIM_V;
+	makeAllElectrodesVisible(false);
 
 	// move the static brain up
 	views.static.container.scale.set(0.3);
@@ -250,6 +253,7 @@ function uiSpikeInit() {
 // ELECTRODE PICKER
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+let electrodes;
 
 function uiElecInit() {
 	// Electrodes start in the top of the brain container. They can be dragged inside of this to different
@@ -259,28 +263,11 @@ function uiElecInit() {
 	// Initialize container
 	views.brain.elecContainer = views.brain.brainContainer.addChild(new DContainer());
 	views.brain.elecContainer.zOrder = 4;
-	views.brain.electrodes = [];
+	electrodes = [];
 
 	// Create the four electrodes
 	for (var ei=0;ei<1;ei++) {
-		views.brain.electrodes.push(new Electrode(ei));
-	}
-}
-
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-// ELECTRODE PICKER CALLBACKS
-// //////////////////////////// //////////////////////////// //////////////////////////// //
-
-function elecClick(id,sprite) {
-	if (electrodes[id]!=undefined) {
-		electrodes[id].destroy();
-		delete electrodes[id];
-		sprite.tint = 0xFFFFFF;
-	} else {
-		console.log('creating new electrode with id: ' + id);
-		electrodes[id] = new Electrode(id);
-		electrodes[id].spike();
-		sprite.tint = electrodes[id].color;
+		electrodes.push(new Electrode(ei));
 	}
 }
 
@@ -298,7 +285,7 @@ function uiBrainInit() {
 	views.brain.container.interactive = true;
 	// set to brain size
 	views.brain.initialWidth = ORIGIN_W*(1-views.brain.STIM_W);
-	views.brain.initialHeight = ORIGIN_H*(1-views.brain.STIM_V);
+	views.brain.initialHeight = ORIGIN_H*views.brain.BRAIN_V;
 
 	let offset = 0.5*(ORIGIN_H-views.brain.initialHeight);
 

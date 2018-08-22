@@ -28,6 +28,7 @@ let views = {
   brain: {
     STIM_W: 0.3,
     STIM_V: 0.3,
+    BRAIN_V: 0.9,
     STATIC_W: 0.4
   },
   spikes : {

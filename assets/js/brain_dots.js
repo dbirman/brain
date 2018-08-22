@@ -61,11 +61,12 @@ function dots(n,maxx,maxy,coherence=1,dir=0,spd=1,sz=1) {
 	this.draw = function() {
 		if (this.g!=undefined) {this.g.clear();}
 
-		this.g.beginFill(0x7F7F7F,1);
+		// this.g.beginFill(0x7F7F7F,1);
 
-		if (this.isdown) {this.g.lineStyle(1,0xFFFFFF,1);}
-		this.g.drawCircle(this.maxx/2,this.maxy/2,this.maxx/2-1);
-		this.g.endFill();
+		if (this.isdown) {
+			this.g.lineStyle(1,0xFFFFFF,1);
+			this.g.drawCircle(this.maxx/2,this.maxy/2,this.maxx/2-1);
+		}
 
 		this.g.lineStyle(1,0xFFFFFF,0);
 

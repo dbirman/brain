@@ -71,26 +71,7 @@ function createMotionStimulus() {
 	motion = views.stim.stimulusWindow.addChild(new Motion(0,0,50));
 	motion.start();
 
-	console.log(motion)
-// 	ui_stim_container.addChild(stim);
-
-
-// 	// create the mask
-// 	stim.circmask = new PIXI.Graphics();
-// 	stim.circmask.beginFill(0xFFFFFF,1);
-// 	stim.circmask.drawCircle(stim.radius,stim.radius,stim.radius);
-// 	stim.addChild(stim.circmask);
-
-// 	stim.g = new PIXI.Graphics();
-// 	stim.g.mask = stim.circmask;
-// 	stim.addChild(stim.g);
-
-// 	stim.dots = initDots(Math.PI*stim.radius**2/200,stim.radius*2,stim.radius*2,1,1,stim.theta,app.renderer.width/15,2);
-// 	stim.position.set(150,150); // the true center is position+25/25
-
-// 	return stim;
-// }
-
+	stimulus.push(motion);
 }
 
 
@@ -101,6 +82,9 @@ class Motion extends Stimulus {
 		this.dots = new dots(50,radius*2,radius*2,1,0,swidth*5/51,2);
 		this.addChild(this.dots.g);
 
+		this.interactive = true;
+		this.on('pointertap',this.motionControls);
+
 		this._size = radius;
 
 		this.mask = this.addChild(new PIXI.Graphics());
@@ -108,6 +92,10 @@ class Motion extends Stimulus {
 		this.mask.drawCircle(this.size,this.size,this.size);
 
 		this.dots.g.mask = this.mask;
+	}
+
+	motionControls() {
+		console.log('controls pop-up!');
 	}
 
 	draw(motion) {
@@ -132,89 +120,43 @@ class Motion extends Stimulus {
 	set coherence(_coherence) {
 		this.dots.coherence = _coherence;
 	}
-}
 
-
-
-// Create the parameter window for the motion stimulus
-// - this can be toggled on/off, but allows us to edit
-// the properties of the stimulus, e.g. contrast/coherence etc
-function updateMotionParams(stim,vis) {
-	if (stim.paramWindow!=undefined) {stim.paramWindow.destroy();}
-
-	let param_window = new PIXI.Container();
-	stim.paramWindow = param_window;
-	param_window.visible = vis;
-	stim.addChild(param_window);
-
-	// Create an actual window
-	param_window.g = new PIXI.Graphics();
-	param_window.g.beginFill(0xD3D3D3,1);
-	param_window.g.lineStyle(1,0x000000,1);
-	param_window.g.drawRect(75,0,100,150);
-	param_window.g.moveTo(75,50);
-	param_window.g.lineTo(175,50);
-	param_window.g.moveTo(75,100);
-	param_window.g.lineTo(175,100);
-	param_window.addChild(param_window.g);
-
-  var style = new PIXI.TextStyle({fill:'#000000',fontSize:15});
-  var styleBig = new PIXI.TextStyle({fill:'#000000',fontSize:30});
-
-	// Add theta/con/coh text
-  var t = new PIXI.Text('Rotation (q/a)',style);
-  t.position.set(75,0);
-  param_window.addChild(t);
-  var t = new PIXI.Text(Math.round(100*stim.getTheta())/100,styleBig);
-  t.anchor.set(0.5,1);
-  t.position.set(125,50);
-  param_window.addChild(t);
-  var t = new PIXI.Text('Contrast (w/s)',style);
-  t.position.set(75,50);
-  param_window.addChild(t);
-  var t = new PIXI.Text(Math.round(100*stim.getContrast())+'%',styleBig);
-  t.anchor.set(0.5,1);
-  t.position.set(125,100);
-  param_window.addChild(t);
-  var t = new PIXI.Text('Coherence (e/d)',style);
-  t.position.set(75,100);
-  param_window.addChild(t);
-  var t = new PIXI.Text(Math.round(100*stim.getCoherence())+'%',styleBig);
-  t.anchor.set(0.5,1);
-  t.position.set(125,150);
-  param_window.addChild(t);
-
-	return param_window;
+	get pos() {
+		// get position
+		return {
+			x:this.x*51/views.stim.container.width-25,
+			y:this.y*51/views.stim.container.height-25,
+			rad:this.size*51/views.stim.container.width
+		}
+	}
 }
 
 //// Sensitivity computation
 
-let sensTest = false, tg;
+let sensTest = true, tg;
 
 function computePartialSensitivity() {
 	// For each electrode re-compute the sensitivity at the current parameters.
 	// This is used when the parameters are being directly adjusted (e.g. size
 	// contrast, coherence, etc)
-	let ekeys = Object.keys(views.brain.electrodes);
 
 	if (sensTest) {
 		if (tg!=undefined) {tg.destroy();}
-		tg = new PIXI.Graphics();
-		ui_stim_container.addChild(tg);
+		tg = views.stim.container.addChild(new PIXI.Graphics());
 	}
 
-	for (let ei = 0; ei < ekeys.length; ei++) {
-		let electrode = views.brain.electrodes[ekeys[ei]];
+	for (let ei = 0; ei < electrodes.length; ei++) {
+		let electrode = electrodes[ei];
+		let e_pos = electrode.pos();
 
-		let einfo = getElectrodePosition(electrode);
+		if (e_pos!=undefined) {	
 
-		if (einfo!=undefined) {	
 			// Draw the x/y and radius for this electrode (testing)
 			if (sensTest) {
-				let vf_pos = getVisualFieldPosition(einfo.pos);
+				let vf_pos = getVisualFieldPosition(e_pos);
 
 				tg.beginFill(0xFFFFFF,0.3);
-				tg.drawCircle(vf_pos.x,vf_pos.y,deg2pix*einfo.rad);
+				tg.drawCircle(vf_pos.x,vf_pos.y,deg2pix*e_pos.rad);
 			}
 
 			// Get the area
@@ -223,7 +165,7 @@ function computePartialSensitivity() {
 			// Compute response to each stimulus
 			let response = 0;
 			for (let si = 0; si < stimulus.length; si++) {
-				response += areas[area].func(electrode,stimulus[si]);
+				response += areas[area].func(e_pos,stimulus[si]);
 			}
 
 			// Set the spike rate
@@ -233,13 +175,6 @@ function computePartialSensitivity() {
 }
 
 // POSITION FUNCTIONS
-
-function getElectrodePosition(elec) {
-	if (elec.data.neuron==undefined) {
-		return undefined;
-	}
-	return {pos: new PIXI.Point(elec.data.neuron[0],elec.data.neuron[1]), rad: elec.data.neuron[2]};
-}
 
 function getVisualFieldPosition(point) {
 	let degx = point.x, degy = point.y;
