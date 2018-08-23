@@ -106,11 +106,11 @@ class Motion extends Stimulus {
 	}
 
 	get theta() {
-		return this.dots.theta;
+		return this.dots.dir;
 	}
 
 	set theta(_theta) {
-		this.dots.theta = _theta;
+		this.dots.dir = _theta;
 	}
 
 	get coherence() {
@@ -165,7 +165,7 @@ function computePartialSensitivity() {
 			// Compute response to each stimulus
 			let response = 0;
 			for (let si = 0; si < stimulus.length; si++) {
-				response += areas[area].func(e_pos,stimulus[si]);
+				response += areas[area].func(electrode,stimulus[si]);
 			}
 
 			// Set the spike rate

@@ -152,7 +152,7 @@ function Electrode(id) {
 	this.trace.tx = 0;
 	this.trace.ty = id * e_trace_height/4;
 	this.trace.sx = this.trace.tx;
-	this.trace.sy = this.trace.ty+ id * e_trace_height/4 + e_trace_height/8;
+	this.trace.sy = this.trace.ty + e_trace_height/8;
 	this.trace.color = this.color;
 
 	// draw black square (crush by 5 pixels)
@@ -162,12 +162,12 @@ function Electrode(id) {
 
 	// add text for location
 	let style = new PIXI.TextStyle({
-		fill: "black",
+		fill: "white",
 		fontSize: views.static.TEXT_HEIGHT
 	});
 	this.trace.text = views.spikes.container.addChild(new PIXI.Text('Area: ',style));
 	this.trace.text.x = this.trace.tx;
-	this.trace.text.y = this.trace.ty-style.fontSize;
+	this.trace.text.y = this.trace.ty;
 
 	return this;
 }
@@ -178,18 +178,13 @@ function Electrode(id) {
 let ticks = {};
 
 function spike(id) {
-	if (views.stim.visible) {
-		let trace = electrodes[id].trace;
-		if (trace.g!=undefined) {trace.g.destroy();}
-		trace.g = drawTrace(trace,id);
-		ticks[id] = setTimeout(function() {spike(id);},10);
-	} else {
-		clearTimeout(ticks[id]);
-	}
+	let trace = electrodes[id].trace;
+	if (trace.g!=undefined) {trace.g.destroy();}
+	trace.g = drawTrace(trace,id);
+	ticks[id] = setTimeout(function() {spike(id);},10);
 }
 
 function drawTrace(trace,id) {
-	console.log('here');
 	// Draw a trace starting at sx and sy
 	g = new PIXI.Graphics();
 	g.lineStyle(1,trace.color,1);
@@ -208,7 +203,6 @@ function drawTrace(trace,id) {
 // Receive data about electrodes
 socket.on('elecInfo', function(data) {
   // do something with this information
-  console.log(data.neuron);
   if (data.neuron!=undefined) {
 	  electrodes[data.info.id].data.neuron = data.neuron;
 	  let side;

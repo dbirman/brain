@@ -19,7 +19,8 @@ let views = {
   static: {
     STIM_W: 0.3,
     ELEC_W: 0.3,
-    STIM_V: 0.6
+    STIM_V: 0.6,
+    TEXT_HEIGHT: 20
   },
   stim: {
     STIM_W: 0.5,

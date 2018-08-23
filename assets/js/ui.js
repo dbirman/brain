@@ -100,8 +100,8 @@ function switchStatic() {
 
 	// Move the brain window down into the corner
 	views.brain.container.scale.set(0.75*ORIGIN_W*(1-views.static.STIM_W-views.static.ELEC_W)/views.brain.container.initialWidth);
-	views.brain.container.x = views.buffer + 1.2*ORIGIN_W*(views.static.STIM_W+views.static.ELEC_W);
-	views.brain.container.y = views.buffer;
+	views.brain.container.x = ORIGIN_WIDTH - views.buffer - ORIGIN_W*(views.static.STIM_W);
+	views.brain.container.y = ORIGIN_HEIGHT - views.buffer - ORIGIN_H*views.static.ELEC_V;
 
 	// Move the spike window
 	views.spikes.container.scale.set(0.95*ORIGIN_W*views.static.ELEC_W/(ORIGIN_W*(1-views.stim.STIM_W)));
@@ -132,7 +132,7 @@ function switchStim() {
 
 	// move the brain up into the top corner
 	views.brain.container.scale.set((ORIGIN_H*(1-views.stim.ELEC_V))/(views.brain.initialWidth));
-	views.brain.container.x = views.buffer + ORIGIN_W*(views.stim.STIM_W) + ORIGIN_W*0.5*(1-views.stim.STIM_W);
+	views.brain.container.x = ORIGIN_WIDTH - views.buffer - ORIGIN_W * views.stim.STIM_W * 0.5;
 	views.brain.container.y = views.buffer;
 	views.brain.container.zOrder = -1;
 
@@ -161,6 +161,7 @@ function switchBrain() {
 	// move the electrodes to the left side
 	views.spikes.container.x = views.buffer;
 	views.spikes.container.y = views.buffer + ORIGIN_H * views.brain.STIM_V;
+	views.spikes.container.scale.set(0.95*ORIGIN_W*views.brain.STIM_W/(ORIGIN_W*(1-views.stim.STIM_W)));
 	makeAllElectrodesVisible(false);
 
 	// move the static brain up
@@ -222,7 +223,7 @@ function checkDouble(callby,callback) {
 		callback();
 	} else {
 		doub[callby].clicked = true;
-		doub[callby].clickTick = setTimeout(function() {doub[callby].clicked=false; console.log(doub[callby])},300);
+		doub[callby].clickTick = setTimeout(function() {doub[callby].clicked=false;},300);
 	}
 }
 
@@ -266,8 +267,9 @@ function uiElecInit() {
 	electrodes = [];
 
 	// Create the four electrodes
-	for (var ei=0;ei<1;ei++) {
+	for (var ei=0;ei<4;ei++) {
 		electrodes.push(new Electrode(ei));
+		electrodes[ei].spike();
 	}
 }
 

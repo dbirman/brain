@@ -4,18 +4,20 @@ var stick,
     spike_false = [0,0,0,0,0],
     spike_true = [5,50,-10,-5,-2],
     cur_spk = 0,
-    spk_max = 50;
+    spk_max = 50,
+    cspk;
 
 function spk_init() {
-  var cspk;
   if (browser=="Firefox") {
     cspk = new Audio("./assets/snd/spike_16.wav");
   } else {
     cspk = new Audio("./assets/snd/spike.wav");
   }
   cspk.load();
-  for (var i=0;i<50;i++) {
-    spikes.push(cspk.cloneNode());
+  cspk.onloadeddata = function () {
+    for (var i=0;i<50;i++) {
+      spikes.push(cspk.cloneNode());
+    }
   }
 }
 
@@ -23,7 +25,7 @@ function spk_init() {
 function spk_addTrace() {
   trace = {};
   trace.rate = 0; // average firing rate per second
-  trace.spk = zeros(200);//zeros((ELEC_SCALEH-0.05)*app.renderer.width);
+  trace.spk = zeros(ORIGIN_W*(1-views.stim.STIM_W)-views.buffer);
   trace.tick;
   trace.dying = 0;
   trace.silent = false;
@@ -67,6 +69,6 @@ function _spk_spike(trace) {
 }
 
 function _spk_play() {
-  spikes[cur_spk].play();
-  cur_spk += 1; if(cur_spk>=spikes.length) {cur_spk=0;}
+  spikes[cur_spk++].play();
+  cur_spk = cur_spk>=spikes.length ? 0 : cur_spk;
 }
