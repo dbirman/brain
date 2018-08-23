@@ -272,6 +272,7 @@ function elecMove(event) {
   	let nx = pos.x-this.offX,
   		ny = pos.y-this.offY;
     this.position.set(nx,ny);
+    computePartialSensitivity();
   }
 }
 

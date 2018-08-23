@@ -269,7 +269,8 @@ function uiElecInit() {
 	// Create the four electrodes
 	for (var ei=0;ei<4;ei++) {
 		electrodes.push(new Electrode(ei));
-		electrodes[ei].spike();
+		console.log('TODO: turn spiking back on!');
+		// electrodes[ei].spike();
 	}
 }
 

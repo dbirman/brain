@@ -76,7 +76,7 @@ function launch() {
   app.renderer.plugins.interaction.cursorStyles.grabbing= 'grabbing';
 
   // asset loading -- do this at the start to have widths available immediately
-  var assetsToLoad = [ "./assets/brain_lateral.png", "./assets/brain_eyes.png","./assets/brain_medial.png"];
+  var assetsToLoad = [ "./assets/brain_lateral.png", "./assets/brain_eyes.png","./assets/brain_medial.png","./assets/stim_ex/motion.png","./assets/stim_Ex/gabor.png"];
   for (var ai=0; ai<assetsToLoad.length;ai++) {
     loader.add(assetsToLoad[ai]);
   }

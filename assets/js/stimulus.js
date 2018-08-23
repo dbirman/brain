@@ -28,13 +28,20 @@ function initStimulus() {
 	views.stim.stimulusWindow.pivot.set(0,sheight/2);
 	views.stim.stimulusWindow.position.set(0,ORIGIN_H/2);
 
+	// add interactino for adding new stimuli
+	views.stim.stimulusWindow.interactive = true;
+	views.stim.stimulusWindow
+		.on('pointerdown',addStimCallback)
+		.on('pointerup',addStimUp)
+		.on('pointerupoutside',addStimUp);
+
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
 	// and a third box for the parameters
 
 	// Because the stimulus region has its own graphics objects for each of tehse we'll draw
 	// them all at once
-	g = new PIXI.Graphics();
+	let g = new PIXI.Graphics();
 
 	g.lineStyle(1,0x000000,1);
 	g.beginFill(0x7F7F7F,1);
@@ -46,6 +53,14 @@ function initStimulus() {
 	views.stim.stimulusWindow.addChild(g);
 	views.stim.graphics = g;
 
+	// Set up a mask to cut off the edges of any stimulus
+
+	let mask = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
+	mask.beginFill(0xFFFFFF,1);
+	mask.drawRect(0,0,swidth,sheight);
+
+	views.stim.stimulusWindow.mask = mask;
+
 	// Add some text to the stimulus window
   var style = new PIXI.TextStyle({fill:'#000000',fontSize:20});
   var t = new PIXI.Text('Left visual field',style);
@@ -56,6 +71,94 @@ function initStimulus() {
   t.anchor.set(0.5,0);
   t.position.set(swidth*3/4,0);
   views.stim.stimulusWindow.addChild(t);
+
+
+  var t = new PIXI.Text('Touch and hold to add',style);
+  t.anchor.set(0.5,0.5);
+  t.position.set(swidth/2,sheight/2);
+  views.stim.stimulusWindow.addChild(t);
+  views.stim.touchText = t; // we want to delete this later
+
+
+  // create the adding view and make it invisible
+  views.stim.addContainer = views.stim.container.addChild(new DContainer());
+  views.stim.addContainer.zOrder = 5;
+
+  // for testing:
+
+  views.stim.addContainer.addMotion = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/motion.png'));
+  views.stim.addContainer.addMotion.width = swidth/8
+  views.stim.addContainer.addMotion.height = swidth/8;
+  views.stim.addContainer.addMotion.interactive = false;
+  views.stim.addContainer.addMotion
+  	.on('pointertap',pickMotion);
+  // views.stim.addContainer.addGabor = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/gabor.png'));
+  // views.stim.addContainer.addGabor.scale.set(swidth/8 / views.stim.addContainer.addGabor.width);
+
+  views.stim.addContainer.visible = false;
+
+  // make sure to sort
+  views.stim.container.sortChildren();
+}
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// ADDING NEW STIMULI
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+let cancelTouch = false;
+
+function addStimCallback(event) {
+	this.isdown = true;
+
+  var pos = event.data.getLocalPosition(this.parent);
+  this.offX = pos.x - this.x;
+  this.offY = pos.y - this.y;
+
+	setTimeout(addStimulusWindow,600);
+}
+
+function addStimUp() {
+	this.isdown = false;
+	cancelTouch = false;
+}
+
+function addStimulusWindow() {
+	if (views.stim.stimulusWindow.isdown && !cancelTouch) {
+		if (!views.stim.touchText._destroyed) {views.stim.touchText.destroy();}
+		
+		// temporarily blank out the stimulus window and remove interaction
+		views.stim.stimulusWindow.alpha = 0.1;
+		views.stim.stimulusWindow.interactive = false;
+
+		if (stimulus.length>=4) {
+			alert('No more than four stimuli can be on screen -- delete one!');
+			return;
+		}
+
+	}
+}
+
+function pickMotion() {
+	createMotionStimulus(views.stim.stimulusWindow.offX*views.stim.stimulusWindow.scale.x,views.stim.stimulusWindow.offY*views.stim.stimulusWindow.scale.y);
+	resolveStimulusWindow();
+}
+
+function addStimulusWindow_() {
+		// show the add view
+		views.stim.addContainer.x = views.stim.stimulusWindow.x + views.stim.stimulusWindow.offX;
+		views.stim.addContainer.y = views.stim.stimulusWindow.y + views.stim.stimulusWindow.offY;
+		views.stim.addContainer.visible = true;
+
+		// for (let ci=0;ci<views.stim.addContainer.children.length;ci++) {
+		// 	views.stim.addContainer.children[ci].interactive = true;
+		// }
+		// console.log('here')
+}
+
+function resolveStimulusWindow() {
+	views.stim.addContainer.visible = false;
+	views.stim.stimulusWindow.alpha = 1;
+	views.stim.stimulusWindow.interactive = true;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -67,8 +170,8 @@ function initStimulus() {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus() {
-	motion = views.stim.stimulusWindow.addChild(new Motion(0,0,50));
+function createMotionStimulus(x=0,y=0,rad=50) {
+	motion = views.stim.stimulusWindow.addChild(new Motion(x,y,rad));
 	motion.start();
 
 	stimulus.push(motion);
@@ -124,8 +227,8 @@ class Motion extends Stimulus {
 	get pos() {
 		// get position
 		return {
-			x:this.x*51/views.stim.container.width-25,
-			y:this.y*51/views.stim.container.height-25,
+			x:(this.x+this.size)*51/swidth-25,
+			y:-((this.y+this.size)*51/sheight-25),
 			rad:this.size*51/views.stim.container.width
 		}
 	}
@@ -142,7 +245,7 @@ function computePartialSensitivity() {
 
 	if (sensTest) {
 		if (tg!=undefined) {tg.destroy();}
-		tg = views.stim.container.addChild(new PIXI.Graphics());
+		tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
 	}
 
 	for (let ei = 0; ei < electrodes.length; ei++) {

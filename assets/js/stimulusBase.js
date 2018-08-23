@@ -59,6 +59,8 @@ class Stimulus extends DContainer {
 		let pos = event.data.getLocalPosition(this.parent);
 		this.offX = pos.x - this.x;
 		this.offY = pos.y - this.y;
+		// disable new stimulus creatino:
+		cancelTouch=true;
 	}
 
 	up(event) {
@@ -69,8 +71,8 @@ class Stimulus extends DContainer {
 	  if (this.isdown) {
 			this.moved = true;
 	    var pos = event.data.getLocalPosition(this.parent);
-	  	let nx = Math.min(swidth-this.size*2,Math.max(0,pos.x-this.offX)),
-	  		ny = Math.min(sheight-this.size*2,Math.max(0,pos.y-this.offY));
+	  	let nx = Math.min(swidth-this.size,Math.max(-this.size,pos.x-this.offX)),
+	  		ny = Math.min(sheight-this.size,Math.max(-this.size,pos.y-this.offY));
 	    this.position.set(nx,ny);
 
 	    // compute the percentage scrolled and use that to light up the menu
