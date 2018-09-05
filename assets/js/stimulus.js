@@ -9,6 +9,7 @@ let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg;
 
 function initStimulus() {
 	views.stim.container = app.stage.addChild(new DContainer());
+	views.stim.container.zOrder = 0;
 	// Allow flipping between views
 	views.stim.container.interactive = true;
 
@@ -25,8 +26,8 @@ function initStimulus() {
 	pix2deg = 51/swidth;
 
 	views.stim.stimulusWindow = views.stim.container.addChild(new DContainer());
-	views.stim.stimulusWindow.pivot.set(0,sheight/2);
-	views.stim.stimulusWindow.position.set(0,ORIGIN_H/2);
+	views.stim.stimulusWindow.pivot.set(0,0);
+	views.stim.stimulusWindow.position.set(0,0);
 
 	// add interactino for adding new stimuli
 	views.stim.stimulusWindow.interactive = true;
@@ -82,16 +83,17 @@ function initStimulus() {
 
   // create the adding view and make it invisible
   views.stim.addContainer = views.stim.container.addChild(new DContainer());
-  views.stim.addContainer.zOrder = 5;
-
-  // for testing:
+  views.stim.addContainer.zOrder = 99;
 
   views.stim.addContainer.addMotion = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/motion.png'));
+  views.stim.addContainer.addMotion.x = -50;
+  views.stim.addContainer.addMotion.y = -50;
   views.stim.addContainer.addMotion.width = swidth/8
   views.stim.addContainer.addMotion.height = swidth/8;
-  views.stim.addContainer.addMotion.interactive = false;
+  views.stim.addContainer.addMotion.interactive = true;
   views.stim.addContainer.addMotion
   	.on('pointertap',pickMotion);
+
   // views.stim.addContainer.addGabor = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/gabor.png'));
   // views.stim.addContainer.addGabor.scale.set(swidth/8 / views.stim.addContainer.addGabor.width);
 
@@ -108,13 +110,20 @@ function initStimulus() {
 let cancelTouch = false;
 
 function addStimCallback(event) {
+	// check if the pointer is down on a stimulus
+	if (globalStimulusDown) {return;}
+
+	if (spikes.length==0) {
+		uiElecInitSpikes();
+	}
+
 	this.isdown = true;
 
   var pos = event.data.getLocalPosition(this.parent);
   this.offX = pos.x - this.x;
   this.offY = pos.y - this.y;
 
-	setTimeout(addStimulusWindow,600);
+	setTimeout(function() {addStimulusWindow(pos.x,pos.y)},600);
 }
 
 function addStimUp() {
@@ -122,19 +131,22 @@ function addStimUp() {
 	cancelTouch = false;
 }
 
-function addStimulusWindow() {
+function addStimulusWindow(x,y) {
 	if (views.stim.stimulusWindow.isdown && !cancelTouch) {
 		if (!views.stim.touchText._destroyed) {views.stim.touchText.destroy();}
 		
+		if (stimulus.length>=4) {
+			return;
+		}
+
 		// temporarily blank out the stimulus window and remove interaction
 		views.stim.stimulusWindow.alpha = 0.1;
 		views.stim.stimulusWindow.interactive = false;
 
-		if (stimulus.length>=4) {
-			alert('No more than four stimuli can be on screen -- delete one!');
-			return;
-		}
-
+		// open up the add window
+		views.stim.addContainer.visible = true;
+		views.stim.addContainer.x = x-views.stim.addContainer.width/2;
+		views.stim.addContainer.y = y-views.stim.addContainer.height/2;
 	}
 }
 
@@ -148,11 +160,6 @@ function addStimulusWindow_() {
 		views.stim.addContainer.x = views.stim.stimulusWindow.x + views.stim.stimulusWindow.offX;
 		views.stim.addContainer.y = views.stim.stimulusWindow.y + views.stim.stimulusWindow.offY;
 		views.stim.addContainer.visible = true;
-
-		// for (let ci=0;ci<views.stim.addContainer.children.length;ci++) {
-		// 	views.stim.addContainer.children[ci].interactive = true;
-		// }
-		// console.log('here')
 }
 
 function resolveStimulusWindow() {
@@ -171,12 +178,11 @@ function resolveStimulusWindow() {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createMotionStimulus(x=0,y=0,rad=50) {
-	motion = views.stim.stimulusWindow.addChild(new Motion(x,y,rad));
+	motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 
 	stimulus.push(motion);
 }
-
 
 class Motion extends Stimulus {
 	constructor(x,y,radius) {
@@ -186,7 +192,7 @@ class Motion extends Stimulus {
 		this.addChild(this.dots.g);
 
 		this.interactive = true;
-		this.on('pointertap',this.motionControls);
+		this.on('pointerup',this.motionControls);
 
 		this._size = radius;
 
@@ -195,10 +201,27 @@ class Motion extends Stimulus {
 		this.mask.drawCircle(this.size,this.size,this.size);
 
 		this.dots.g.mask = this.mask;
+
+		this.controls = this.addChild(new DContainer());
+		this.controls.zOrder = 100;
+		this.controls.visible = false;
+		this.controls.graphics = this.controls.addChild(new PIXI.Graphics());
+		this.controls.graphics.beginFill(0xFF0000,1);
+		this.controls.graphics.drawCircle(5,5,5);
 	}
 
 	motionControls() {
-		console.log('controls pop-up!');
+		if (!this.isdown && !this.moved) {
+			this.controls.visible = !this.controls.visible;
+			console.log(this.controls.visible);
+			// disable or re-enable interactivity on the stimulus container and other stimuli
+			views.stim.container.interactive = !this.controls.visible; 
+			for (var si=0;si<stimulus.length;si++) {
+				if (stimulus[si]!=this) {
+					stimulus[si].interactive = !this.controls.visible;
+				}
+			}
+		}
 	}
 
 	draw(motion) {
@@ -288,3 +311,4 @@ function getVisualFieldPosition(point) {
 		y = (25-degy)/50*sheight; // invert y position
 	return new PIXI.Point(x,y);
 }
+

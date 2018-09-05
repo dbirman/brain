@@ -1,3 +1,5 @@
+let globalStimulusDown = false;
+
 /**
 * A rare opportunity to document properly...
 * A Stimulus is a DContainer -- on its own it has no graphics, these need to be added. But by default
@@ -53,6 +55,7 @@ class Stimulus extends DContainer {
 	}
 
 	down(event) {
+		globalStimulusDown = true;
 		this.moved = false;
 		this.isdown = true;
 		// track offset
@@ -64,6 +67,7 @@ class Stimulus extends DContainer {
 	}
 
 	up(event) {
+		globalStimulusDown = false;
 		this.isdown = false;
 	}
 
@@ -80,18 +84,10 @@ class Stimulus extends DContainer {
 	  }
 	}
 
-	spawnChild() {
-		// Creates a copy at the same location *ONLY IF TOTAL STIMULUS < # ELECTRODES!!*
-		if (stimulus.length<views.brain.electrodes.length) {
-			console.log('TODO: Implement child spawning');
-		}
-	}
-
 	destroy() {
 		console.log('TODO: Implement destroy -- remove from stimulus array');
-		ticker.remove(this.draw);
-		spawnChild();
-
+		let temp = this;
+		ticker.remove(function() {stimulus.draw(temp);});
 		super.destroy();
 	}
 

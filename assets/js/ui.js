@@ -92,21 +92,24 @@ function switchStatic() {
 	// Reset the static view
 	views.static.container.x = views.static.container.resetX, views.static.container.y = views.static.container.resetY;
 	views.static.container.scale.set(1);
+	views.static.container.visible = true;
 
 	// Scale down the stimulus window
-	views.stim.stimulusWindow.scale.set(0.5);
+	views.stim.stimulusWindow.scale.set(1);
 	views.stim.container.x = views.stim.container.resetX, views.stim.container.y = views.stim.container.resetY;
+	views.stim.container.visible = true;
 	// Move the stimulus window up
 
 	// Move the brain window down into the corner
-	views.brain.container.scale.set(0.75*ORIGIN_W*(1-views.static.STIM_W-views.static.ELEC_W)/views.brain.container.initialWidth);
+	views.brain.container.scale.set(ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth);
 	views.brain.container.x = ORIGIN_WIDTH - views.buffer - ORIGIN_W*(views.static.STIM_W);
 	views.brain.container.y = ORIGIN_HEIGHT - views.buffer - ORIGIN_H*views.static.ELEC_V;
 
 	// Move the spike window
 	views.spikes.container.scale.set(0.95*ORIGIN_W*views.static.ELEC_W/(ORIGIN_W*(1-views.stim.STIM_W)));
-	views.spikes.container.x = views.buffer + ORIGIN_W*views.static.STIM_W;
-	views.spikes.container.y = views.buffer + ORIGIN_H*views.static.STIM_V;
+	views.spikes.container.x = views.buffer;
+	views.spikes.container.y = views.buffer*2 + ORIGIN_H * views.static.STIM_V;
+	views.spikes.container.visible = true;
 	makeAllElectrodesVisible(true);
 
 	views.container.sortChildren();
@@ -117,35 +120,35 @@ function switchStatic() {
 }
 
 function switchStim() {
-	switchAny();
+	// switchAny();
 	
-	views.stim.container.x = views.stim.container.resetX, views.stim.container.y = views.stim.container.resetY;
-	views.stim.container.scale.set(1);
+	// views.stim.container.x = views.stim.container.resetX, views.stim.container.y = views.stim.container.resetY;
+	// views.stim.container.scale.set(1);
 
-	views.spikes.container.x = views.spikes.container.resetX, views.spikes.container.y = views.spikes.container.resetY;
-	views.spikes.container.scale.set(1);
-	views.spikes.container.zOrder = 1;
-	makeAllElectrodesVisible(true);
+	// views.spikes.container.x = views.spikes.container.resetX, views.spikes.container.y = views.spikes.container.resetY;
+	// views.spikes.container.scale.set(1);
+	// views.spikes.container.zOrder = 1;
+	// makeAllElectrodesVisible(true);
 
-	// Reset the stimulus viewport
-	views.stim.stimulusWindow.scale.set(1);
+	// // Reset the stimulus viewport
+	// views.stim.stimulusWindow.scale.set(1);
 
-	// move the brain up into the top corner
-	views.brain.container.scale.set((ORIGIN_H*(1-views.stim.ELEC_V))/(views.brain.initialWidth));
-	views.brain.container.x = ORIGIN_WIDTH - views.buffer - ORIGIN_W * views.stim.STIM_W * 0.5;
-	views.brain.container.y = views.buffer;
-	views.brain.container.zOrder = -1;
+	// // move the brain up into the top corner
+	// views.brain.container.scale.set((ORIGIN_H*(1-views.stim.ELEC_V))/(views.brain.initialWidth));
+	// views.brain.container.x = ORIGIN_WIDTH - views.buffer - ORIGIN_W * views.stim.STIM_W * 0.5;
+	// views.brain.container.y = views.buffer;
+	// views.brain.container.zOrder = -1;
 
-	// move the static brain up
-	views.static.container.scale.set(0.4);
-	views.static.container.x = views.buffer + ORIGIN_W*(views.stim.STIM_W);
-	views.static.container.y = views.buffer;
+	// // move the static brain up
+	// views.static.container.scale.set(0.4);
+	// views.static.container.x = views.buffer + ORIGIN_W*(views.stim.STIM_W);
+	// views.static.container.y = views.buffer;
 
-	views.container.sortChildren();
+	// views.container.sortChildren();
 	
-	// Set the switchers
-	views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
-	views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
+	// // Set the switchers
+	// views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
+	// views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
 }
 
 function switchBrain() {
@@ -155,22 +158,26 @@ function switchBrain() {
 	views.brain.container.scale.set(1);
 
 	// move the stimulus window to the top left corner
-	views.stim.container.x = views.buffer; views.stim.container.y = views.buffer -ORIGIN_H/2.5;
-	views.stim.stimulusWindow.scale.set(0.4);
+	views.stim.container.visible = false;
+	// views.stim.container.x = views.buffer; views.stim.container.y = views.buffer -ORIGIN_H/2.5;
+	// views.stim.stimulusWindow.scale.set(0.4);
 
 	// move the electrodes to the left side
-	views.spikes.container.x = views.buffer;
-	views.spikes.container.y = views.buffer + ORIGIN_H * views.brain.STIM_V;
-	views.spikes.container.scale.set(0.95*ORIGIN_W*views.brain.STIM_W/(ORIGIN_W*(1-views.stim.STIM_W)));
+	views.spikes.container.visible = false;
+	// views.spikes.container.x = views.buffer;
+	// views.spikes.container.y = views.buffer + ORIGIN_H * views.brain.STIM_V;
+	// views.spikes.container.scale.set(0.95*ORIGIN_W*views.brain.STIM_W/(ORIGIN_W*(1-views.stim.STIM_W)));
 	makeAllElectrodesVisible(false);
 
 	// move the static brain up
-	views.static.container.scale.set(0.3);
-	views.static.container.x = views.buffer + ORIGIN_W*(views.brain.STIM_W) - ORIGIN_W*0.075;
-	views.static.container.y = views.buffer;
+	views.static.container.visible = false;
+	// views.static.container.scale.set(0.3);
+	// views.static.container.x = views.buffer + ORIGIN_W*(views.brain.STIM_W) - ORIGIN_W*0.075;
+	// views.static.container.y = views.buffer;
 
 	views.container.sortChildren();
-	views.stim.container.on('pointertap',function() {checkDouble('view',switchStim)});
+	views.brain.container.on('pointertap',function() {checkDouble('brain',switchStatic)});
+	// views.stim.container.on('pointertap',function() {checkDouble('view',switchStim)});
 	views.static.container.on('pointertap',function() {checkDouble('static',switchStatic)});
 }
 
@@ -262,15 +269,26 @@ function uiElecInit() {
 	// a brain region that we have data for.
 
 	// Initialize container
-	views.brain.elecContainer = views.brain.brainContainer.addChild(new DContainer());
-	views.brain.elecContainer.zOrder = 4;
+
+	// Used to use this to enable spiking but now we just wait for a stimulus
+	// views.spikes.container.interactive = true;
+	// views.spikes.container.
+	// 	on('pointertap',uiElecInitSpikes);
+
 	electrodes = [];
 
 	// Create the four electrodes
 	for (var ei=0;ei<4;ei++) {
 		electrodes.push(new Electrode(ei));
-		console.log('TODO: turn spiking back on!');
-		// electrodes[ei].spike();
+	}
+}
+
+function uiElecInitSpikes() {
+	views.spikes.container.interactive = false;
+	spk_init();
+
+	for (var ei=0;ei<electrodes.length;ei++) {
+		electrodes[ei].spike();
 	}
 }
 
@@ -287,13 +305,13 @@ function uiBrainInit() {
 	views.brain.container = views.container.addChild(new DContainer());
 	views.brain.container.interactive = true;
 	// set to brain size
-	views.brain.initialWidth = ORIGIN_W*(1-views.brain.STIM_W);
+	views.brain.initialWidth = ORIGIN_W;
 	views.brain.initialHeight = ORIGIN_H*views.brain.BRAIN_V;
 
 	let offset = 0.5*(ORIGIN_H-views.brain.initialHeight);
 
-	views.brain.container.x = views.buffer + ORIGIN_W*views.brain.STIM_W;
-	views.brain.container.y = offset+views.buffer;
+	views.brain.container.x = views.buffer;
+	views.brain.container.y = views.buffer;
 
 	views.brain.container.resetX = views.brain.container.x;
 	views.brain.container.resetY = views.brain.container.y;

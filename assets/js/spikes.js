@@ -6,8 +6,9 @@ var stick,
     cur_spk = 0,
     spk_max = 50,
     cspk;
-
+    
 function spk_init() {
+  console.log('initializing spikes');
   if (browser=="Firefox") {
     cspk = new Audio("./assets/snd/spike_16.wav");
   } else {

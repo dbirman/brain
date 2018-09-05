@@ -17,9 +17,10 @@ let ORIGIN_WIDTH = document.body.clientWidth,
 let views = {
   buffer: Math.round(ORIGIN_WIDTH/150),
   static: {
-    STIM_W: 0.3,
-    ELEC_W: 0.3,
-    STIM_V: 0.6,
+    STIM_W: 0.5,
+    ELEC_W: 0.5,
+    BRAIN_W: 0.5,
+    STIM_V: 0.5,
     TEXT_HEIGHT: 20
   },
   stim: {
@@ -29,7 +30,7 @@ let views = {
   brain: {
     STIM_W: 0.3,
     STIM_V: 0.3,
-    BRAIN_V: 0.9,
+    BRAIN_V: 1.0,
     STATIC_W: 0.4
   },
   spikes : {
@@ -62,9 +63,6 @@ function launch() {
 
   // ensure any browser dependencies run
   checkBrowser();
-
-  // Local stuff
-  spk_init();
 
   // Setup ticker
   ticker = PIXI.ticker.shared;
