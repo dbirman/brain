@@ -119,6 +119,9 @@ function initStimulus() {
   // create the adding view and make it invisible
   views.stim.addContainer = app.stage.addChild(new DContainer());
   views.stim.addContainer.zOrder = 99;
+  views.stim.addContainer.interactive = true;
+  views.stim.addContainer
+  	.on('pointertap',resolveStimulusWindow);
 
   views.stim.addContainer.addMotion = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/motion.png'));
   views.stim.addContainer.addMotion.anchor.set(0.5,0.5);
@@ -185,18 +188,17 @@ function addStimulusWindow(x,y) {
 }
 
 function pickMotion() {
-	createMotionStimulus(views.stim.stimulusWindow.offX*views.stim.stimulusWindow.scale.x,views.stim.stimulusWindow.offY*views.stim.stimulusWindow.scale.y);
+	createMotionStimulus(views.stim.stimulusBackground.offX,views.stim.stimulusBackground.offY);
 	resolveStimulusWindow();
 }
 
 function addStimulusWindow_() {
 	// show the add view
-	// views.stim.addContainer.x = views.stim.stimulusWindow.x + views.stim.stimulusWindow.offX;
-	// views.stim.addContainer.y = views.stim.stimulusWindow.y + views.stim.stimulusWindow.offY;
 	views.stim.addContainer.visible = true;
 }
 
 function resolveStimulusWindow() {
+	console.log('here')
 	views.stim.addContainer.visible = false;
 	views.container.alpha = 1;
 	views.container.interactive = true;
@@ -212,6 +214,7 @@ function resolveStimulusWindow() {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createMotionStimulus(x=0,y=0,rad=50) {
+	console.log('here')
 	motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 
@@ -222,39 +225,84 @@ class Motion extends Stimulus {
 	constructor(x,y,radius) {
 		super('motion',computePartialSensitivity,x,y);
 
-		this.dots = new dots(50,radius*2,radius*2,1,0,swidth*5/51,2);
+		this.dots = new dots(25,radius*2,radius*2,0,0,swidth*5/51,5);
 		this.addChild(this.dots.g);
 
-		this.interactive = true;
-		this.on('pointerup',this.motionControls);
+		this.pivot.set(radius,radius);
 
 		this._size = radius;
+		this._ecc = this._size+this._size/5 
 
-		this.mask = this.addChild(new PIXI.Graphics());
-		this.mask.beginFill(0xFFFFFF,1);
-		this.mask.drawCircle(this.size,this.size,this.size);
+		this.mask_ = this.addChild(new PIXI.Graphics());
+		this.mask_.beginFill(0xFFFFFF,1);
+		this.mask_.drawCircle(this.size,this.size,this.size);
 
-		this.dots.g.mask = this.mask;
+		this.dots.g.mask = this.mask_;
 
-		this.controls = this.addChild(new DContainer());
-		this.controls.zOrder = 100;
-		this.controls.visible = false;
-		this.controls.graphics = this.controls.addChild(new PIXI.Graphics());
-		this.controls.graphics.beginFill(0xFF0000,1);
-		this.controls.graphics.drawCircle(5,5,5);
+		this.controls.motionControl = this.controls.addChild(new PIXI.Graphics());
+		this.drawMotionControlCircle(this.dots.dir,this._ecc);
+		this.controls.motionControl.interactive = true;
+		this.controls.motionControl
+			.on('pointerdown',this.motionControlDown)
+			.on('pointerup',this.motionControlUp)
+			.on('pointerupoutside',this.motionControlUp)
+			.on('pointermove',this.motionControlMove);
+
+		this.sortChildren();
+	}
+
+	drawMotionControlCircle(angle,dist) {
+		this.controls.motionControl.clear();
+		// compute position
+		let xang = Math.cos(angle),
+			yang = Math.sin(angle);
+		let x = this._size + dist * xang,
+			y = this._size + dist * yang;
+		this.controls.motionControl.lineStyle(1,0x000000,1);
+		this.controls.motionControl.moveTo(this._size+this._ecc*xang,this._size+this._ecc*yang);
+		this.controls.motionControl.lineTo(this._size+this._ecc*2*xang,this._size+this._ecc*2*yang);
+		this.controls.motionControl.beginFill(0xFF0000,1);
+		this.controls.motionControl.drawCircle(x,y,this._size/5);
+	}
+
+	motionControlDown(event) {
+		this.isdown = true;
+		this.moved = false;
+	}
+
+	motionControlUp() {
+		this.isdown = false
+		// set a timeout on the movement flag, otherwise we can't close out the controls
+		// from the main object which is really annoying
+		// (might be a better way to do this... not sure)
+		let temp = this;
+		setTimeout(function() {temp.moved=false;},100);
+	}
+
+	motionControlMove(event) {
+	  if (this.isdown) {
+			this.moved = true;
+			var pPos = this.parent.parent.getGlobalPosition();
+	    var pos = event.data.global;
+
+	    // *USE ANGLE FOR MOTION DIRECTION
+	    // check the angle, then rotate the stimulus to match the angle
+	    let theta = Math.atan2(pos.y-pPos.y,pos.x-pPos.x);
+	    this.parent.parent.dots.dir = theta;
+
+			// *USE HYPOTENUSE FOR MOTION COHERENCE
+			let hypot = Math.hypot(pos.y-pPos.y,pos.x-pPos.x);
+			hypot = Math.max(this.parent.parent._ecc,Math.min(this.parent.parent._ecc*2,hypot));
+			this.parent.parent.dots.coherence = (hypot-this.parent.parent._ecc)/this.parent.parent._ecc;
+
+	    // re-draw the circle
+			this.parent.parent.drawMotionControlCircle(theta,hypot);
+	  }
 	}
 
 	motionControls() {
-		if (!this.isdown && !this.moved) {
-			this.controls.visible = !this.controls.visible;
-			console.log(this.controls.visible);
-			// disable or re-enable interactivity on the stimulus container and other stimuli
-			views.stim.container.interactive = !this.controls.visible; 
-			for (var si=0;si<stimulus.length;si++) {
-				if (stimulus[si]!=this) {
-					stimulus[si].interactive = !this.controls.visible;
-				}
-			}
+		if (!this.isdown && !this.moved && !this.controls.motionControl.moved) {
+			
 		}
 	}
 
