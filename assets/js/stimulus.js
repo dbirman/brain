@@ -8,30 +8,35 @@
 let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg;
 
 function initStimulus() {
-	views.stim.container = app.stage.addChild(new DContainer());
+	views.stim.container = views.container.addChild(new DContainer());
 	views.stim.container.zOrder = 0;
 	// Allow flipping between views
 	views.stim.container.interactive = true;
 
+	// Calculate the space the stimulus viewer will take up 
+	swidth=views.stim.STIM_W*ORIGIN_W, sheight=views.stim.STIM_W*ORIGIN_H;
+
+	// set up the default starting location of the projector screen
 	views.stim.container.x = views.buffer;
-	views.stim.container.y = views.buffer;
+	views.stim.container.y = views.buffer+ORIGIN_H/2-sheight/2-sheight*0.2;
+	views.stim.standHeight = sheight*0.4; // 30% above, 70% below
+	views.stim.fullHeight = sheight*0.5;
 
 	views.stim.container.resetX = views.stim.container.x;
 	views.stim.container.resetY = views.stim.container.y;
 
-	// Calculate the space the stimulus viewer will take up 
-	swidth=views.stim.STIM_W*ORIGIN_W, sheight=views.stim.STIM_W*ORIGIN_H;
-
 	deg2pix = swidth/51;
 	pix2deg = 51/swidth;
 
-	views.stim.stimulusWindow = views.stim.container.addChild(new DContainer());
-	views.stim.stimulusWindow.pivot.set(0,0);
-	views.stim.stimulusWindow.position.set(0,0);
+	// initialize stimulusBackground
+	views.stim.stimulusBackground = views.stim.container.addChild(new DContainer());
+	views.stim.stimulusBackground.pivot.set(0,0);
+	views.stim.stimulusBackground.position.set(0,0);
+	views.stim.stimulusBackground.zOrder = -1;
 
 	// add interactino for adding new stimuli
-	views.stim.stimulusWindow.interactive = true;
-	views.stim.stimulusWindow
+	views.stim.stimulusBackground.interactive = true;
+	views.stim.stimulusBackground
 		.on('pointerdown',addStimCallback)
 		.on('pointerup',addStimUp)
 		.on('pointerupoutside',addStimUp);
@@ -44,15 +49,45 @@ function initStimulus() {
 	// them all at once
 	let g = new PIXI.Graphics();
 
-	g.lineStyle(1,0x000000,1);
-	g.beginFill(0x7F7F7F,1);
-	g.drawRect(0,0,swidth,sheight);
+	// draw the vertical stand
+	g.lineStyle(10,0x000000,1);
 	g.moveTo(swidth/2,0);
-	g.lineTo(swidth/2,sheight);
+	g.lineTo(swidth/2,sheight+views.stim.standHeight);
+	// add the legs
+	g.lineStyle(8,0x000000,1);
+	g.moveTo(swidth/2,sheight+views.stim.standHeight*0.5);
+	g.lineTo(swidth/2-swidth*0.2,sheight+views.stim.fullHeight);
+	g.moveTo(swidth/2,sheight+views.stim.standHeight*0.5);
+	g.lineTo(swidth/2+swidth*0.2,sheight+views.stim.fullHeight);
+	// add the little supports
+	g.lineStyle(2,0x000000,1);
+	g.moveTo(swidth/2,sheight+views.stim.standHeight*0.95);
+	g.lineTo(swidth/2-swidth*0.1,sheight+views.stim.fullHeight/1.5);
+	g.moveTo(swidth/2,sheight+views.stim.standHeight*0.95);
+	g.lineTo(swidth/2+swidth*0.1,sheight+views.stim.fullHeight/1.5);
 
-	// Save graphics
-	views.stim.stimulusWindow.addChild(g);
+	// draw a grey background
+	g.lineStyle(1,0x000000,1);
+	g.beginFill(0xD3D3D3,1);
+	g.drawRect(0,views.stim.standHeight*0.3,swidth,sheight);
+	// draw a black line across the top (like a projector screen dropout)
+	// g.lineStyle(15,0x000000,1);
+	// g.moveTo(0,views.stim.standHeight*0.3-8);
+	// g.lineTo(swidth+1,views.stim.standHeight*0.3-8);
+	// draw a dashed line down the center
+	g.lineStyle(1,0x000000,1);
+	for (let i=views.stim.standHeight*0.3+5;i<(views.stim.standHeight*0.3+sheight);i+=sheight/20) {
+		g.moveTo(swidth/2,i);
+		g.lineTo(swidth/2,i+10);
+	}
+	// // Save graphics
+	views.stim.stimulusBackground.addChild(g);
 	views.stim.graphics = g;
+
+	views.stim.stimulusWindow = views.stim.container.addChild(new DContainer());
+	views.stim.stimulusWindow.pivot.set(0,0);
+	views.stim.stimulusWindow.position.set(0,views.stim.standHeight*0.3);
+	views.stim.stimulusWindow.zOrder = 1;
 
 	// Set up a mask to cut off the edges of any stimulus
 
@@ -82,14 +117,15 @@ function initStimulus() {
 
 
   // create the adding view and make it invisible
-  views.stim.addContainer = views.stim.container.addChild(new DContainer());
+  views.stim.addContainer = app.stage.addChild(new DContainer());
   views.stim.addContainer.zOrder = 99;
 
   views.stim.addContainer.addMotion = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/motion.png'));
-  views.stim.addContainer.addMotion.x = -50;
-  views.stim.addContainer.addMotion.y = -50;
-  views.stim.addContainer.addMotion.width = swidth/8
-  views.stim.addContainer.addMotion.height = swidth/8;
+  views.stim.addContainer.addMotion.anchor.set(0.5,0.5);
+  views.stim.addContainer.addMotion.x = views.buffer + ORIGIN_W/2;
+  views.stim.addContainer.addMotion.y = views.buffer + ORIGIN_H/2;
+  views.stim.addContainer.addMotion.width = swidth/4;
+  views.stim.addContainer.addMotion.height = swidth/4;
   views.stim.addContainer.addMotion.interactive = true;
   views.stim.addContainer.addMotion
   	.on('pointertap',pickMotion);
@@ -132,7 +168,7 @@ function addStimUp() {
 }
 
 function addStimulusWindow(x,y) {
-	if (views.stim.stimulusWindow.isdown && !cancelTouch) {
+	if (views.stim.stimulusBackground.isdown && !cancelTouch) {
 		if (!views.stim.touchText._destroyed) {views.stim.touchText.destroy();}
 		
 		if (stimulus.length>=4) {
@@ -140,13 +176,11 @@ function addStimulusWindow(x,y) {
 		}
 
 		// temporarily blank out the stimulus window and remove interaction
-		views.stim.stimulusWindow.alpha = 0.1;
-		views.stim.stimulusWindow.interactive = false;
+		views.container.alpha = 0.1;
+		views.container.interactive = false;
 
 		// open up the add window
 		views.stim.addContainer.visible = true;
-		views.stim.addContainer.x = x-views.stim.addContainer.width/2;
-		views.stim.addContainer.y = y-views.stim.addContainer.height/2;
 	}
 }
 
@@ -156,16 +190,16 @@ function pickMotion() {
 }
 
 function addStimulusWindow_() {
-		// show the add view
-		views.stim.addContainer.x = views.stim.stimulusWindow.x + views.stim.stimulusWindow.offX;
-		views.stim.addContainer.y = views.stim.stimulusWindow.y + views.stim.stimulusWindow.offY;
-		views.stim.addContainer.visible = true;
+	// show the add view
+	// views.stim.addContainer.x = views.stim.stimulusWindow.x + views.stim.stimulusWindow.offX;
+	// views.stim.addContainer.y = views.stim.stimulusWindow.y + views.stim.stimulusWindow.offY;
+	views.stim.addContainer.visible = true;
 }
 
 function resolveStimulusWindow() {
 	views.stim.addContainer.visible = false;
-	views.stim.stimulusWindow.alpha = 1;
-	views.stim.stimulusWindow.interactive = true;
+	views.container.alpha = 1;
+	views.container.interactive = true;
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //

@@ -13,8 +13,6 @@ app.get( '/*' , function( req, res ) {
     res.sendFile(__dirname + '/' + file);
 }); 
 
-var connectionList = {};
-
 io.on('connection', function(socket){
   console.log('Connection: ID ' + socket.id);
 

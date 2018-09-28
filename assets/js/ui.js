@@ -102,13 +102,12 @@ function switchStatic() {
 
 	// Move the brain window down into the corner
 	views.brain.container.scale.set(ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth);
-	views.brain.container.x = ORIGIN_WIDTH - views.buffer - ORIGIN_W*(views.static.STIM_W);
-	views.brain.container.y = ORIGIN_HEIGHT - views.buffer - ORIGIN_H*views.static.ELEC_V;
+	views.brain.container.x = views.static.container.x + ORIGIN_W*views.static.BRAIN/2;
+	views.brain.container.y = views.static.container.y + views.static.brainSprite.height/2;
 
 	// Move the spike window
-	views.spikes.container.scale.set(0.95*ORIGIN_W*views.static.ELEC_W/(ORIGIN_W*(1-views.stim.STIM_W)));
-	views.spikes.container.x = views.buffer;
-	views.spikes.container.y = views.buffer*2 + ORIGIN_H * views.static.STIM_V;
+	views.spikes.container.x = views.spikes.container.resetX;
+	views.spikes.container.y = views.spikes.container.resetY;
 	views.spikes.container.visible = true;
 	makeAllElectrodesVisible(true);
 
@@ -190,7 +189,8 @@ function uiStaticInit() {
 	views.static.container = views.container.addChild(new DContainer());
 	views.static.container.interactive = true;
 
-	views.static.container.x = ORIGIN_W*views.static.STIM_W;
+	views.static.container.x = views.buffer + ORIGIN_W*(views.static.STIM_W+0.15);
+	views.static.container.y = views.buffer;
 
 	views.static.container.resetX = views.static.container.x;
 	views.static.container.resetY = views.static.container.y;
@@ -250,8 +250,8 @@ function uiStimInit() {
 function uiSpikeInit() {
 	views.spikes.container = views.container.addChild(new DContainer());
 
-	views.spikes.container.x  = 2 * views.buffer + ORIGIN_W * views.stim.STIM_W;
-	views.spikes.container.y = views.buffer + ORIGIN_H * views.stim.STATIC_V;
+	views.spikes.container.x = 4*views.buffer + ORIGIN_W * views.stim.STIM_W;
+	views.spikes.container.y = views.buffer + ORIGIN_H - (ORIGIN_H*views.stim.ELEC_V);
 
 	views.spikes.container.resetX = views.spikes.container.x;
 	views.spikes.container.resetY = views.spikes.container.y;
@@ -316,33 +316,46 @@ function uiBrainInit() {
 	views.brain.container.resetX = views.brain.container.x;
 	views.brain.container.resetY = views.brain.container.y;
 
-	let brainViewport = views.brain.container.addChild(new DContainer());
+	// Add a frame in front of the brains
+	views.brain.brainFrame = views.brain.container.addChild(new DContainer());
+	views.brain.brainFrame.zOrder = 11;
 
-	brainViewport.interactive = true;
-	brainViewport
+	let g = views.brain.brainFrame.addChild(new PIXI.Graphics);
+
+	// g.beginFill(0x000000,0);
+	let lw = 5;
+	g.lineStyle(lw,0x000000,1);
+	g.drawRect(0,0,views.brain.initialWidth,views.brain.initialHeight);
+
+	// Add a viewport
+	views.brain.container.interactive = true;
+
+	let brainBackground = views.brain.container.addChild(new DContainer());
+	brainBackground.zOrder = 1;
+
+	let g3 = brainBackground.addChild(new PIXI.Graphics);
+	g.beginFill(0xFFFFFF,1);
+	g.drawRect(0,0,views.brain.initialWidth,views.brain.initialHeight);
+
+	let brainViewport = views.brain.container.addChild(new DContainer());
+	brainViewport.zOrder = 12;
+	let mask = brainViewport.addChild(new PIXI.Graphics);
+
+	mask.beginFill(0xFFFFFF,1,0);
+	mask.drawRect(lw/2,lw/2,views.brain.initialWidth-lw/2,views.brain.initialHeight-lw/2);
+	// Set a mask which is the size of the original viewer
+	brainViewport.mask = mask;
+
+	// Create the actual brain container
+	let brainContainer = brainViewport.addChild(new DContainer());
+
+
+	brainContainer.interactive = true;
+	brainContainer
 		.on('pointerdown', brainDown)
 		.on('pointermove', brainMove)
 		.on('pointerup', brainUp)
 		.on('pointerupoutside', brainUp);
-
-	let g = brainViewport.addChild(new PIXI.Graphics);
-
-	g.beginFill(0xFFFFFF,1);
-	g.lineStyle(1,0x000000,1);
-	g.drawRect(0,0,views.brain.initialWidth,views.brain.initialHeight);
-
-
-	let mask = brainViewport.addChild(new PIXI.Graphics);
-
-	mask.beginFill(0xFFFFFF,1,0);
-	mask.drawRect(0,0,views.brain.initialWidth,views.brain.initialHeight);
-
-	// Create the actual brain viewport
-	let brainContainer = brainViewport.addChild(new DContainer());
-	brainContainer.zOrder = -1;
-
-	// Set a mask which is the size of the original viewer
-	brainViewport.mask = mask;
 
 	let g2 = brainContainer.addChild(new PIXI.Graphics);
 	// draw a red square
@@ -350,7 +363,7 @@ function uiBrainInit() {
 	g2.drawRect(300,300,100,100);
 
 	// track containers
-	views.brain.viewport = brainViewport;
+	views.brain.viewport = brainBackground;
 	views.brain.brainContainer = brainContainer;
 
 	// add the scroll watcher
@@ -400,19 +413,20 @@ function uiBrainInit() {
 	brainContainer.sortChildren();
 
 	// set the scale so that the brains are entirely visible in the viewport (use the mask width/height)
-	let wScale = mask.width/(iwidth*2),
-		hScale = mask.height/(iheight*2);
+	let wScale = views.brain.initialWidth/(iwidth*2),
+		hScale = views.brain.initialHeight/(iheight*2);
 	let brainScale = Math.min(wScale);
 	brainContainer.scale.set(brainScale);
 	views.brain.initialScale = brainScale;
 	// shift x/y location 
 	if (wScale < hScale) {
-		brainContainer.y = (mask.height-brainContainer.height)/2;
+		brainContainer.y = (views.brain.initialHeight-brainContainer.height)/2;
 	} else {
-		brainContainer.x = (mask.width-brainContainer.width)/2;
+		brainContainer.x = (views.brain.initialWidth-brainContainer.width)/2;
 	}
 
 	views.brain.container.initialWidth = views.brain.container.width;
+	views.brain.container.sortChildren();
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //

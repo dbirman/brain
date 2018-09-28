@@ -145,24 +145,32 @@ function Electrode(id) {
 		this.trace.silent = false;
 	}
 
-	let e_trace_width = ORIGIN_W*(1-views.stim.STIM_W)-views.buffer,
+	let e_trace_width = ORIGIN_W*(1-views.stim.STIM_W)-4*views.buffer,
 		e_trace_height = ORIGIN_H*views.stim.ELEC_V;
 
 	// setup the electrode window
+	let buffer = ORIGIN_W*.025;
+
 	this.trace.tx = 0;
 	this.trace.ty = id * e_trace_height/4;
-	this.trace.sx = this.trace.tx;
+	this.trace.sx = this.trace.tx+buffer;
 	this.trace.sy = this.trace.ty + e_trace_height/8;
 	this.trace.color = this.color;
 
-	// draw black square (crush by 5 pixels)
-	this.trace.graphic = views.spikes.container.addChild(new PIXI.Graphics());
-	this.trace.graphic.beginFill(0x000000,1);
-	this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
+	// draw the axes
+	let g = views.spikes.container.addChild(new PIXI.Graphics());
+	g.lineStyle(1,0x000000,1);
+	g.moveTo(this.trace.tx,this.trace.ty+buffer);
+	g.lineTo(this.trace.tx+buffer/4,this.trace.ty+buffer);
+	g.lineTo(this.trace.tx+buffer/4,this.trace.ty+e_trace_height/4-buffer);
+	g.lineTo(this.trace.tx,this.trace.ty+e_trace_height/4-buffer);
+	// this.trace.graphic.beginFill(0x000000,1);
+	// this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
+	this.trace.graphic = g;
 
 	// add text for location
 	let style = new PIXI.TextStyle({
-		fill: "white",
+		fill: "black",
 		fontSize: views.static.TEXT_HEIGHT
 	});
 	this.trace.text = views.spikes.container.addChild(new PIXI.Text('Area: ',style));

@@ -1,9 +1,35 @@
 function initHelp() {
+  views.brainSprite = views.container.addChild(new PIXI.Sprite.fromImage('./assets/brain_opener.png'));
+  views.brainSprite.scale.set(Math.min(ORIGIN_W*0.3/views.brainSprite.width,ORIGIN_H*0.1/views.brainSprite.height));
+  views.brainSprite.x = views.buffer;
+  views.brainSprite.y = views.buffer;
+  views.brainSprite.interactive = true;
+  views.brainSprite
+    .on('click',showHelp);
+
+  // add text for help
+  let style = new PIXI.TextStyle({
+    fill: "black",
+    fontSize: views.static.TEXT_HEIGHT*3
+  });
+  views.brainSprite.text = views.brainSprite.addChild(new PIXI.Text('Click for help',style));
+  views.brainSprite.text.anchor.set(0.5,0);
+  views.brainSprite.text.x = views.brainSprite.width/views.brainSprite.scale._x/2;
+  views.brainSprite.text.y = views.brainSprite.height/views.brainSprite.scale._x;
 
   document.body.onkeydown = function(e){checkHelpKey(e);};
-
 }
 
+function showHelp() {
+  views.brainSprite.text.visible = false;
+  document.getElementById('help').style.display='block';
+  document.getElementById("canvas").className = "blur";
+}
+
+function hideHelp() {
+  document.getElementById('help').style.display='none';
+  document.getElementById("canvas").className = ""; 
+}
 
 function checkHelpKey(e) {
   if (any(equals([69,68,81,65,87,83,72,77,84],e.keyCode))) {e.preventDefault();}
@@ -15,11 +41,9 @@ function checkHelpKey(e) {
 
   if (e.keyCode==72) {
   	if (document.getElementById('help').style.display=='none') {
-  		document.getElementById('help').style.display='block';
-      document.getElementById("canvas").className = "blur";
+      showHelp();
   	} else {
-  		document.getElementById('help').style.display='none';
-      document.getElementById("canvas").className = "";
+      hideHelp();
   	}
   }
 
