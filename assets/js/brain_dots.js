@@ -13,6 +13,7 @@ function dots(n,maxx,maxy,coherence=1,dir=0,spd=1,sz=1) {
 	this.maxy = maxy;
 	this.x = zeros(n);
 	this.y = zeros(n);
+	this.alpha = 1;
 	this.coherence = coherence;
 	this.coherent = [];
 	this.contrast = [];
@@ -70,7 +71,8 @@ function dots(n,maxx,maxy,coherence=1,dir=0,spd=1,sz=1) {
 
 		this.g.lineStyle(1,0xFFFFFF,0);
 
-		this.g.beginFill(Number('0x'+rgb2hex_(255),1));
+		console.log(Math.round(127.5+this.alpha*127.5))
+		this.g.beginFill(Number('0x'+rgb2hex_(Math.round(127.5+this.alpha*127.5)),1));
 		for (var i=0;i<this.n;i++) {
 			if (this.contrast[i]) {
 				this.g.drawCircle(Math.round(this.x[i])-this.szoff,Math.round(this.y[i])-this.szoff,this.size);
@@ -78,7 +80,7 @@ function dots(n,maxx,maxy,coherence=1,dir=0,spd=1,sz=1) {
 		}
 		this.g.endFill();
 
-		this.g.beginFill(Number('0x'+rgb2hex_(0),1));
+		this.g.beginFill(Number('0x'+rgb2hex_(Math.round(127.5-this.alpha*127.5)),1));
 		for (var i=0;i<this.n;i++) {
 			if (!this.contrast[i]) {
 				this.g.drawCircle(Math.round(this.x[i])-this.szoff,Math.round(this.y[i])-this.szoff,this.size);

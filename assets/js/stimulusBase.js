@@ -10,13 +10,14 @@ let globalStimulusDown = false;
 * @param {Number} y position
 */
 class Stimulus extends DContainer {
-	constructor (type,computeCallback,x=0,y=0) {
+	constructor (type,computeCallback,x=0,y=0,width=0) {
 		super();
 
 		this.type = type;
 		this.callback = computeCallback;
 		this.x = x;
 		this.y = y;
+		this.zOrder = 0;
 
 		// internal tracking
 		this.neverMoved = true;
@@ -40,23 +41,35 @@ class Stimulus extends DContainer {
 
 		// add contrast control (which just adjusts the alpha... derp)
 		this.controls.contrastControl = this.controls.addChild(new PIXI.Graphics());
-		this.drawContrastControlCircle(this.alpha);
 		this.controls.contrastControl.interactive = true;
 		this.controls.contrastControl
 			.on('pointerdown',this.contrastControlDown)
 			.on('pointerup',this.contrastControlUp)
 			.on('pointerupoutside',this.contrastControlUp)
-			.on('pointermove',this.contrastControlDown);
+			.on('pointermove',this.contrastControlMove);
+
+		this.controls.callbacks = [];
+		this.controls.callbacks.push(this.drawContrastControlCircle);
+
+		this.drawControls();
+
+		// sort
+		this.sortChildren();
 	}
 
-	drawContrastControlCircle(alpha) {
-		console.log(alpha)
-		this.controls.contrastControl.clear();
-		this.controls.contrastControl.lineStyle(1,0x000000,1);
-		this.controls.contrastControl.moveTo(0,this._size);
-		this.controls.contrastControl.lineTo(this._size*2,this._size);
-		this.controls.contrastControl.beginFill(0x000000,1);
-		this.controls.contrastControl.drawCircle(this._size*2*alpha,this._size,this._size/5);
+	drawControls() {
+		for (var i=0;i<this.controls.callbacks.length;i++) {
+			this.controls.callbacks[i](this);
+		}
+	}
+
+	drawContrastControlCircle(object) {
+		object.controls.contrastControl.clear();
+		object.controls.contrastControl.lineStyle(1,0x000000,1);
+		object.controls.contrastControl.moveTo(0,object.width/2);
+		object.controls.contrastControl.lineTo(object.width,object.width/2);
+		object.controls.contrastControl.beginFill(0x000000,1);
+		object.controls.contrastControl.drawCircle(object.width*object.alpha,object.width/2,object.width/5);
 	}
 
 	contrastControlDown(event) {
@@ -76,22 +89,25 @@ class Stimulus extends DContainer {
 	contrastControlMove(event) {
 	  if (this.isdown) {
 			this.moved = true;
+			this.parent.parent.controlFlag = true;
 			var pPos = this.parent.parent.getGlobalPosition();
 	    var pos = event.data.global;
 
-	    // *USE ANGLE FOR MOTION DIRECTION
-	    // check the angle, then rotate the stimulus to match the angle
-	    let theta = Math.atan2(pos.y-pPos.y,pos.x-pPos.x);
-	    this.parent.parent.dots.dir = theta;
+	    // *USE X-POS FOR CONTRAST
+	    let x = pos.x-pPos.x;
+	    console.log(x);
+	    let con = x/this.width;
 
-			// *USE HYPOTENUSE FOR MOTION COHERENCE
-			let hypot = Math.hypot(pos.y-pPos.y,pos.x-pPos.x);
-			hypot = Math.max(this.parent.parent._ecc,Math.min(this.parent.parent._ecc*2,hypot));
-			this.parent.parent.dots.coherence = (hypot-this.parent.parent._ecc)/this.parent.parent._ecc;
+	    this.updateAlpha(con);
 
-	    // re-draw the circle
-			this.parent.parent.drawMotionControlCircle(theta,hypot);
+			this.parent.parent.drawControls();
+			// recompute
+			computePartialSensitivity();
 	  }
+	}
+
+	updateAlpha(alpha) {
+		// pass (will be overloaded)
 	}
 
 	start() {
@@ -104,18 +120,22 @@ class Stimulus extends DContainer {
 	}
 
 	showParamView() {
-	  // if (this.isdown) {
-			this.controls.visible = !this.controls.visible;
-			// block sliding motion 
-			this.localPreventMotion = this.controls.visible;
-			// disable or re-enable interactivity on the stimulus container and other stimuli
-			views.stim.container.interactive = !this.controls.visible; 
-			for (var si=0;si<stimulus.length;si++) {
-				if (stimulus[si]!=this) {
-					stimulus[si].interactive = !this.controls.visible;
-				}
+		// check the moveFlag. This gets set by any of the control functions
+		if (this.controlFlag) {return;}
+
+
+		this.controls.visible = !this.controls.visible;
+		// block sliding motion 
+		this.localPreventMotion = this.controls.visible;
+		// disable or re-enable interactivity on the stimulus container and other stimuli
+		views.stim.container.interactive = !this.controls.visible; 
+		for (var si=0;si<stimulus.length;si++) {
+			if (stimulus[si]!=this) {
+				stimulus[si].interactive = !this.controls.visible;
 			}
-	  // }
+		}
+
+		this.drawControls();
 	}
 
 	/**
@@ -130,6 +150,7 @@ class Stimulus extends DContainer {
 	down(event) {
 		globalStimulusDown = true;
 		this.moved = false;
+		this.controlFlag = false;
 		this.isdown = true;
 		// track offset
 		let pos = event.data.getLocalPosition(this.parent);

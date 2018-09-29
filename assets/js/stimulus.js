@@ -240,29 +240,34 @@ class Motion extends Stimulus {
 		this.dots.g.mask = this.mask_;
 
 		this.controls.motionControl = this.controls.addChild(new PIXI.Graphics());
-		this.drawMotionControlCircle(this.dots.dir,this._ecc);
+		// this.drawMotionControlCircle(this.dots.dir,this._ecc);
 		this.controls.motionControl.interactive = true;
 		this.controls.motionControl
 			.on('pointerdown',this.motionControlDown)
 			.on('pointerup',this.motionControlUp)
 			.on('pointerupoutside',this.motionControlUp)
 			.on('pointermove',this.motionControlMove);
+		this.controls.callbacks.push(this.drawMotionControlCircle);
 
 		this.sortChildren();
 	}
 
-	drawMotionControlCircle(angle,dist) {
-		this.controls.motionControl.clear();
+	drawMotionControlCircle(object) {
+		let angle = object.dots.dir,
+			dist = object._size+object.dots.coherence*object._ecc;
+
+		object.controls.motionControl.clear();
 		// compute position
 		let xang = Math.cos(angle),
 			yang = Math.sin(angle);
-		let x = this._size + dist * xang,
-			y = this._size + dist * yang;
-		this.controls.motionControl.lineStyle(1,0x000000,1);
-		this.controls.motionControl.moveTo(this._size+this._ecc*xang,this._size+this._ecc*yang);
-		this.controls.motionControl.lineTo(this._size+this._ecc*2*xang,this._size+this._ecc*2*yang);
-		this.controls.motionControl.beginFill(0xFF0000,1);
-		this.controls.motionControl.drawCircle(x,y,this._size/5);
+		let x = object._size + dist * xang,
+			y = object._size + dist * yang;
+		object.controls.motionControl.lineStyle(1,0x000000,1);
+		object.controls.motionControl.moveTo(object._size+object._ecc*xang,object._size+object._ecc*yang);
+		object.controls.motionControl.lineTo(object._size+object._ecc*2*xang,object._size+object._ecc*2*yang);
+		object.controls.motionControl.lineStyle(1,0x000000,0);
+		object.controls.motionControl.beginFill(0xFF0000,1);
+		object.controls.motionControl.drawCircle(x,y,object._size/5);
 	}
 
 	motionControlDown(event) {
@@ -282,6 +287,7 @@ class Motion extends Stimulus {
 	motionControlMove(event) {
 	  if (this.isdown) {
 			this.moved = true;
+			this.parent.parent.controlFlag = true;
 			var pPos = this.parent.parent.getGlobalPosition();
 	    var pos = event.data.global;
 
@@ -296,7 +302,10 @@ class Motion extends Stimulus {
 			this.parent.parent.dots.coherence = (hypot-this.parent.parent._ecc)/this.parent.parent._ecc;
 
 	    // re-draw the circle
-			this.parent.parent.drawMotionControlCircle(theta,hypot);
+			this.parent.parent.drawControls();
+
+			// recompute
+			computePartialSensitivity();
 	  }
 	}
 
@@ -304,6 +313,10 @@ class Motion extends Stimulus {
 		if (!this.isdown && !this.moved && !this.controls.motionControl.moved) {
 			
 		}
+	}
+
+	updateAlpha(alpha) {
+		this.dots.alpha = alpha;
 	}
 
 	draw(motion) {
