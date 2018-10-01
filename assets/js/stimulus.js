@@ -346,6 +346,14 @@ class Motion extends Stimulus {
 		this.dots.coherence = _coherence;
 	}
 
+	get contrast() {
+		return this.dots.alpha;
+	}
+
+	set contrast(_contrast) {
+		this.dots.alpha = _contrast;
+	}
+
 	get pos() {
 		// get position
 		return {
