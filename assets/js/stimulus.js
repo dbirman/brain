@@ -315,14 +315,6 @@ class Motion extends Stimulus {
 		}
 	}
 
-	updateAlpha(alpha) {
-		this.dots.alpha = alpha;
-	}
-
-	getAlpha() {
-		return this.dots ? this.dots.alpha : this.alpha;
-	}
-
 	draw(motion) {
 		if (motion.dots!=undefined) {
 			motion.dots.update();
@@ -347,7 +339,7 @@ class Motion extends Stimulus {
 	}
 
 	get contrast() {
-		return this.dots.alpha;
+		return this.dots ? this.dots.alpha : this.alpha;
 	}
 
 	set contrast(_contrast) {
@@ -357,8 +349,8 @@ class Motion extends Stimulus {
 	get pos() {
 		// get position
 		return {
-			x:(this.x+this.size)*51/swidth-25,
-			y:-((this.y+this.size)*51/sheight-25),
+			x:(this.x)*51/swidth-25,
+			y:-((this.y)*51/sheight-25),
 			rad:this.size*51/views.stim.container.width
 		}
 	}
@@ -374,8 +366,11 @@ function computePartialSensitivity() {
 	// contrast, coherence, etc)
 
 	if (sensTest) {
-		if (tg!=undefined) {tg.destroy();}
-		tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
+		if (tg!=undefined) {
+			tg.clear();
+		} else {
+			tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
+		}
 	}
 
 	for (let ei = 0; ei < electrodes.length; ei++) {

@@ -73,7 +73,7 @@ class Stimulus extends DContainer {
 		object.controls.contrastControl.moveTo(0,object.stimWidth/2);
 		object.controls.contrastControl.lineTo(object.stimWidth,object.stimWidth/2);
 		object.controls.contrastControl.beginFill(16776960,1);
-		object.controls.contrastControl.drawCircle(object.stimWidth*object.getAlpha(),object.stimWidth/2,object.stimWidth/10);
+		object.controls.contrastControl.drawCircle(object.stimWidth*object.contrast,object.stimWidth/2,object.stimWidth/10);
 	}
 
 	contrastControlDown(event) {
@@ -99,20 +99,11 @@ class Stimulus extends DContainer {
 
 	    // *USE X-POS FOR CONTRAST
 	    let x = pos.x-pPos.x+this.parent.parent.stimWidth/2;	
-	    let con = Math.max(0,Math.min(1,x/this.parent.parent.stimWidth));
-	    this.parent.parent.updateAlpha(con);
+	    this.parent.parent.contrast = Math.max(0,Math.min(1,x/this.parent.parent.stimWidth));
 			this.parent.parent.drawControls();
 			// recompute
 			computePartialSensitivity();
 	  }
-	}
-
-	updateAlpha(alpha) {
-		this.alpha = alpha;
-	}
-
-	getAlpha() {
-		return this.alpha;
 	}
 
 	start() {
@@ -204,6 +195,14 @@ class Stimulus extends DContainer {
 
 	get size() {
 		return this._size;
+	}
+
+	get pos() {
+		return {
+			x:0,
+			y:0,
+			rad:0
+		}
 	}
 
 	updateSize() {
