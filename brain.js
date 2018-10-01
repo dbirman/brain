@@ -1,7 +1,9 @@
 // Setup express and socket.io
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const compression = require('compression');
+app.use(compression());
 
 // Return files that are requested (we could filter if needed)
 app.get( '/*' , function( req, res ) {

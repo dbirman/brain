@@ -16,6 +16,7 @@
   "author": "Daniel Birman",
   "license": "N/A",
   "dependencies": {
+    "compression": "^1.7.3",
     "express": "^4.16.3",
     "pngjs": "^3.3.2",
     "socket.io": "^2.1.0",
