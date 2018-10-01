@@ -159,13 +159,44 @@ function Electrode(id) {
 
 	// draw the axes
 	let g = views.spikes.container.addChild(new PIXI.Graphics());
-	g.lineStyle(1,0x000000,1);
-	g.moveTo(this.trace.tx,this.trace.ty+buffer);
-	g.lineTo(this.trace.tx+buffer/4,this.trace.ty+buffer);
-	g.lineTo(this.trace.tx+buffer/4,this.trace.ty+e_trace_height/4-buffer);
-	g.lineTo(this.trace.tx,this.trace.ty+e_trace_height/4-buffer);
+	// g.lineStyle(1,0x000000,1);
+	// g.moveTo(this.trace.tx,this.trace.ty+buffer);
+	// g.lineTo(this.trace.tx+buffer/4,this.trace.ty+buffer);
+	// g.lineTo(this.trace.tx+buffer/4,this.trace.ty+e_trace_height/4-buffer);
+	// g.lineTo(this.trace.tx,this.trace.ty+e_trace_height/4-buffer);
 	// this.trace.graphic.beginFill(0x000000,1);
 	// this.trace.graphic.drawRect(this.trace.tx,this.trace.ty,e_trace_width,e_trace_height/4-1);
+
+	// draw the circuits
+	g.lineStyle(1,this.color,1);
+
+	// get the brain container position and height
+	let bc_pos = views.brain.container.getGlobalPosition(),
+		bc_height = views.brain.container.height;
+
+	let my_pos = g.getGlobalPosition();
+
+	console.log(g.x)
+
+	let brainx = views.static.container.x + ORIGIN_W*views.static.BRAIN/2,
+		brainy = views.static.container.y + views.static.brainSprite.height/2;
+
+	let offset = ORIGIN_H*.03;
+	let line_off = (4-id)*offset;
+	let mini_off = (4-id)*offset/4;
+
+	g.moveTo(brainx-my_pos.x,brainy-my_pos.y+bc_height*ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth*0.7+mini_off);
+	// arc start
+	let as = brainy-my_pos.y+bc_height*ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth*0.7+mini_off;
+	g.lineTo(mini_off,as);
+	g.arcTo(mini_off-offset,as,mini_off-offset,as+offset,offset/2);
+	g.lineTo(mini_off-offset,this.trace.sy-offset);
+	g.arcTo(mini_off-offset,this.trace.sy,mini_off,this.trace.sy,offset/2);
+	g.lineTo(this.trace.sx-offset,this.trace.sy);
+	// g.arcTo(0,brainy-my_pos.y+bc_height*ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth*0.7+line_off,-offset,brainy-my_pos.y+bc_height*ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth*0.7+offset*2,offset);
+	// g.lineTo(this.trace.tx,my_pos.y-20+line_off);
+
+
 	this.trace.graphic = g;
 
 	// add text for location
@@ -174,7 +205,7 @@ function Electrode(id) {
 		fontSize: views.static.TEXT_HEIGHT
 	});
 	this.trace.text = views.spikes.container.addChild(new PIXI.Text('Area: ',style));
-	this.trace.text.x = this.trace.tx;
+	this.trace.text.x = this.trace.tx+offset;
 	this.trace.text.y = this.trace.ty;
 
 	return this;
