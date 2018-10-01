@@ -69,10 +69,9 @@ function dots(n,maxx,maxy,coherence=1,dir=0,spd=1,sz=1) {
 			this.g.drawCircle(this.maxx/2,this.maxy/2,this.maxx/2-1);
 		}
 
-		this.g.lineStyle(1,0xFFFFFF,0);
+		let temp_alpha = Math.max(this.alpha/2,0.04);
 
-		console.log(Math.round(127.5+this.alpha*127.5))
-		this.g.beginFill(Number('0x'+rgb2hex_(Math.round(127.5+this.alpha*127.5)),1));
+		this.g.beginFill(con2bin_gamma(0.5+temp_alpha),1);
 		for (var i=0;i<this.n;i++) {
 			if (this.contrast[i]) {
 				this.g.drawCircle(Math.round(this.x[i])-this.szoff,Math.round(this.y[i])-this.szoff,this.size);
@@ -80,7 +79,7 @@ function dots(n,maxx,maxy,coherence=1,dir=0,spd=1,sz=1) {
 		}
 		this.g.endFill();
 
-		this.g.beginFill(Number('0x'+rgb2hex_(Math.round(127.5-this.alpha*127.5)),1));
+		this.g.beginFill(con2bin_gamma(0.5-temp_alpha),1);
 		for (var i=0;i<this.n;i++) {
 			if (!this.contrast[i]) {
 				this.g.drawCircle(Math.round(this.x[i])-this.szoff,Math.round(this.y[i])-this.szoff,this.size);

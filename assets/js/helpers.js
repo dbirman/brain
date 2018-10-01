@@ -74,6 +74,15 @@ function equals(array, val) {
   return temp;
 }
 
+function con2bin_gamma(con) {
+  // Return a gamma corrected binary of the contrast, assumming gamma curve of 2.2
+  return Number('0x'+rgb2hex_(Math.round(255*Math.exp(Math.log(con)/2.2))));
+}
+
+function log(base, val) {
+  return Math.log(val) / Math.log(base);
+}
+
 function rgb2hex(r, g, b) {
   return '#'+rgb2hex_(r,g,b);
 }
