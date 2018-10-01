@@ -10,7 +10,7 @@ let globalStimulusDown = false;
 * @param {Number} y position
 */
 class Stimulus extends DContainer {
-	constructor (type,computeCallback,x=0,y=0,width=0) {
+	constructor (type,computeCallback,x=0,y=0,width=0,height=0) {
 		super();
 
 		this.type = type;
@@ -23,6 +23,10 @@ class Stimulus extends DContainer {
 		this.neverMoved = true;
 		this.moved = false;
 		this.isdown = false;
+
+		// settings that have to overloaded
+		this.stimWidth=width;
+		this.stimHeight=height;
 
 		this.interactive = true;
 		// this is an override to prevent moving around the stimulus when, e.g. a control
@@ -66,10 +70,10 @@ class Stimulus extends DContainer {
 	drawContrastControlCircle(object) {
 		object.controls.contrastControl.clear();
 		object.controls.contrastControl.lineStyle(1,0x000000,1);
-		object.controls.contrastControl.moveTo(0,object.width/2);
-		object.controls.contrastControl.lineTo(object.width,object.width/2);
+		object.controls.contrastControl.moveTo(0,object.stimWidth/2);
+		object.controls.contrastControl.lineTo(object.stimWidth,object.stimWidth/2);
 		object.controls.contrastControl.beginFill(0x000000,1);
-		object.controls.contrastControl.drawCircle(object.width*object.alpha,object.width/2,object.width/5);
+		object.controls.contrastControl.drawCircle(object.stimWidth*object.getAlpha(),object.stimWidth/2,object.stimWidth/5);
 	}
 
 	contrastControlDown(event) {
@@ -94,12 +98,9 @@ class Stimulus extends DContainer {
 	    var pos = event.data.global;
 
 	    // *USE X-POS FOR CONTRAST
-	    let x = pos.x-pPos.x;
-	    console.log(x);
-	    let con = x/this.width;
-
-	    this.updateAlpha(con);
-
+	    let x = pos.x-pPos.x;	
+	    let con = Math.max(0,Math.min(1,x/this.parent.parent.stimWidth));
+	    this.parent.parent.updateAlpha(con);
 			this.parent.parent.drawControls();
 			// recompute
 			computePartialSensitivity();
@@ -107,7 +108,11 @@ class Stimulus extends DContainer {
 	}
 
 	updateAlpha(alpha) {
-		// pass (will be overloaded)
+		this.alpha = alpha;
+	}
+
+	getAlpha() {
+		return this.alpha;
 	}
 
 	start() {

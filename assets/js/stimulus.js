@@ -68,7 +68,7 @@ function initStimulus() {
 
 	// draw a grey background
 	g.lineStyle(1,0x000000,1);
-	g.beginFill(0xD3D3D3,1);
+	g.beginFill(con2bin_gamma(0.5),1);
 	g.drawRect(0,views.stim.standHeight*0.3,swidth,sheight);
 	// draw a black line across the top (like a projector screen dropout)
 	// g.lineStyle(15,0x000000,1);
@@ -223,7 +223,7 @@ function createMotionStimulus(x=0,y=0,rad=50) {
 
 class Motion extends Stimulus {
 	constructor(x,y,radius) {
-		super('motion',computePartialSensitivity,x,y);
+		super('motion',computePartialSensitivity,x,y,radius*2,radius*2);
 
 		this.dots = new dots(25,radius*2,radius*2,0,0,swidth*5/51,5);
 		this.addChild(this.dots.g);
@@ -317,6 +317,10 @@ class Motion extends Stimulus {
 
 	updateAlpha(alpha) {
 		this.dots.alpha = alpha;
+	}
+
+	getAlpha() {
+		return this.dots ? this.dots.alpha : this.alpha;
 	}
 
 	draw(motion) {

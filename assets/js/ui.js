@@ -433,11 +433,6 @@ function uiBrainInit() {
 // BRAIN MOVEMENT
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function windowDown(event) {
-	console.log(event.target);
-
-
-}
 function brainDown(event) {
 	if (electrodeMoving) {return;}
 
@@ -483,13 +478,9 @@ function stimScroll(event) {
 	if (event.ctrlKey) {
 		let scale = views.brain.brainContainer.scale.x;
 		//pivot to the location
+
 		let x = event.x, y = event.y;
 		let p = views.brain.brainContainer.toLocal(new PIXI.Point(x,y));
-		// scale p by the current scale
-		// let px = views.brain.brainContainer.position.x,
-		// 	py = views.brain.brainContainer.position.y;
-		// views.brain.brainContainer.position.set(0,0);
-		// views.brain.brainContainer.pivot.set(p.x,p.y);
 		// scale
 		let nscale = Math.max(views.brain.initialScale/2,Math.min(views.brain.initialScale*4,scale-event.deltaY*0.01));
 		views.brain.brainContainer.scale.set(nscale);	
@@ -499,10 +490,6 @@ function stimScroll(event) {
 		let dscale = nscale-scale;
 		views.brain.brainContainer.position.set(checkBrainX(cx-dscale*p.x),checkBrainY(cy-dscale*p.y));
 
-		// de-pivot
-		// views.brain.brainContainer.pivot.set(0,0);
-		// views.brain.brainContainer.position(set,px,py);
-		// views.brain.brainContainer.position.set(views.brain.brainContainer.position.x+p.x,views.brain.brainContainer.position.y+p.y);
   } else {
 		// console.log(event.wheelDeltaZ);
 		if (views.brain.container.visible) {
