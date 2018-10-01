@@ -225,7 +225,7 @@ class Motion extends Stimulus {
 	constructor(x,y,radius) {
 		super('motion',computePartialSensitivity,x,y,radius*2,radius*2);
 
-		this.dots = new dots(25,radius*2,radius*2,0,0,swidth*5/51,5);
+		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/51,5);
 		this.addChild(this.dots.g);
 
 		this.pivot.set(radius,radius);

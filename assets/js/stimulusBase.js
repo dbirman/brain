@@ -73,7 +73,7 @@ class Stimulus extends DContainer {
 		object.controls.contrastControl.moveTo(0,object.stimWidth/2);
 		object.controls.contrastControl.lineTo(object.stimWidth,object.stimWidth/2);
 		object.controls.contrastControl.beginFill(0x000000,1);
-		object.controls.contrastControl.drawCircle(object.stimWidth*object.getAlpha(),object.stimWidth/2,object.stimWidth/5);
+		object.controls.contrastControl.drawCircle(object.stimWidth*object.getAlpha(),object.stimWidth/2,object.stimWidth/10);
 	}
 
 	contrastControlDown(event) {
@@ -98,7 +98,7 @@ class Stimulus extends DContainer {
 	    var pos = event.data.global;
 
 	    // *USE X-POS FOR CONTRAST
-	    let x = pos.x-pPos.x;	
+	    let x = pos.x-pPos.x+this.parent.parent.stimWidth/2;	
 	    let con = Math.max(0,Math.min(1,x/this.parent.parent.stimWidth));
 	    this.parent.parent.updateAlpha(con);
 			this.parent.parent.drawControls();
@@ -127,7 +127,6 @@ class Stimulus extends DContainer {
 	showParamView() {
 		// check the moveFlag. This gets set by any of the control functions
 		if (this.controlFlag) {return;}
-
 
 		this.controls.visible = !this.controls.visible;
 		// block sliding motion 
