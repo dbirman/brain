@@ -67,8 +67,6 @@ function Electrode(id) {
 	views.brain.brainContainer.addChild(this.sprite);
 
 	this.destroy = function () {
-		clearTimeout(ticks[this.id]);
-		delete ticks[this.id];
 		spk_destroy(this.trace);
 		this.sprite.destroy();
 		this.trace.graphic.destroy();
@@ -131,10 +129,6 @@ function Electrode(id) {
 
 	this.setRate = function (rate) {
 		spk_setRate(this.trace,rate);
-	}
-
-	this.spike = function() {
-		spike(this.id);
 	}
 
 	this.silence = function() {
@@ -214,18 +208,19 @@ function Electrode(id) {
 // ELECTRODE FUNCTIONS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let ticks = {};
+let ticks;
 
-function spike(id) {
-	let trace = electrodes[id].trace;
-	if (trace.g!=undefined) {trace.g.destroy();}
-	trace.g = drawTrace(trace,id);
-	ticks[id] = setTimeout(function() {spike(id);},10);
+function spikeElectrodes() {
+
+	for (var ei=0;ei<electrodes.length;ei++) {
+		electrodes[ei].trace.g = drawTrace(electrodes[ei].trace,ei);
+	}
+	ticks = setTimeout(spikeElectrodes,10);
 }
 
 function drawTrace(trace,id) {
 	// Draw a trace starting at sx and sy
-	g = new PIXI.Graphics();
+	if (trace.g==undefined) {g = new PIXI.Graphics();} else {g = trace.g; g.clear();}
 	g.lineStyle(1,trace.color,1);
 	g.moveTo(trace.sx,trace.sy-trace.spk[0]);
 	for (let ii=1;ii<trace.spk.length;ii++) {

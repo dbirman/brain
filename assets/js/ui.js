@@ -287,6 +287,8 @@ function uiElecInitSpikes() {
 	views.spikes.container.interactive = false;
 	spk_init();
 
+	spikeElectrodes();
+
 	for (var ei=0;ei<electrodes.length;ei++) {
 		electrodes[ei].spike();
 	}
