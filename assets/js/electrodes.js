@@ -49,10 +49,10 @@ function Electrode(id) {
 
 	this.blob = this.sprite.addChild(new PIXI.Graphics());
 
-	this.blob.beginFill(opts[id]);
-	let radius = ewidth*0.50;
-	this.blob.drawCircle(radius,radius,radius);
-	this.blob.position.set(-radius,eheight-radius);
+	// this.blob.beginFill(opts[id]);
+	// let radius = ewidth*0.50;
+	// this.blob.drawCircle(radius,radius,radius/4);
+	// this.blob.position.set(-radius,eheight-radius);
 	// this.blob.position.set(iwidth-ewidth+ewidth*(id%2)-radius,iheight-eheight+(id<2?0:eheight)+radius);
 
 	this.blob.visible = false;
