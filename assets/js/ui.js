@@ -348,17 +348,17 @@ function uiBrainInit() {
 	let brainContainer = brainViewport.addChild(new DContainer());
 
 
-	brainContainer.interactive = true;
+	brainContainer.interactive = false;
 	brainContainer
 		.on('pointerdown', brainDown)
 		.on('pointermove', brainMove)
 		.on('pointerup', brainUp)
 		.on('pointerupoutside', brainUp);
 
-	let g2 = brainContainer.addChild(new PIXI.Graphics);
-	// draw a red square
-	g2.beginFill(0xFF0000,1);
-	g2.drawRect(300,300,100,100);
+	// let g2 = brainContainer.addChild(new PIXI.Graphics);
+	// // draw a red square
+	// g2.beginFill(0xFF0000,1);
+	// g2.drawRect(300,300,100,100);
 
 	// track containers
 	views.brain.viewport = brainBackground;
@@ -390,6 +390,7 @@ function uiBrainInit() {
 		  // add the lateral brain image
 		  itype = imgs[ii];
 			let img = views.brain.brainContainer_brains.addChild(PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png'));
+			img.alpha = 0.9;
 			img.anchor.set(0,0);
 			img.x = ii*iwidth+iwidth*si;
 			img.y = si*iheight;
