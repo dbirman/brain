@@ -10,7 +10,8 @@ function initHelp() {
   // add text for help
   let style = new PIXI.TextStyle({
     fill: "black",
-    fontSize: views.static.TEXT_HEIGHT*3
+    fontSize: views.static.TEXT_HEIGHT*3,
+    fontFamily: views.static.FAMILY
   });
   views.brainSprite.text = views.brainSprite.addChild(new PIXI.Text('Click for help',style));
   views.brainSprite.text.anchor.set(0.5,0);

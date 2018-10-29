@@ -166,7 +166,9 @@ function Electrode(id) {
 	// add text for location
 	let style = new PIXI.TextStyle({
 		fill: "black",
-		fontSize: views.static.TEXT_HEIGHT
+		fontSize: views.static.TEXT_HEIGHT,
+		fontFamily: views.static.FAMILY,
+		// fontWeight: 'thin'
 	});
 	this.trace.text = views.spikes.container.addChild(new PIXI.Text('Area: ',style));
 	this.trace.text.x = this.trace.tx+offset;

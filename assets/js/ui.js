@@ -105,7 +105,7 @@ function switchStatic() {
 	views.container.sortChildren();
 
 	// Set the switchers
-	views.brain.container.on('pointertap',function() {checkDouble('brain',switchBrain)});
+	views.brain.container.on('pointertap',function() {checkDouble('brain',resolveBrainSwitch)});
 }
 
 function switchBrain() {
@@ -121,7 +121,19 @@ function switchBrain() {
 	views.spikes.container.visible = false;
 	
 	views.container.sortChildren();
-	views.brain.container.on('pointertap',function() {checkDouble('brain',switchStatic)});
+	views.brain.container.on('pointertap',function() {checkDouble('brain',resolveBrainSwitch)});
+}
+
+let isBrain = false;
+
+function resolveBrainSwitch() {
+	if (isBrain) {
+		switchStatic();
+		isBrain=false;
+	} else {
+		switchBrain();
+		isBrain=true;
+	}
 }
 
 let doub = {
@@ -247,9 +259,6 @@ function uiBrainInit() {
 	views.brain.container.resetX = views.brain.container.x;
 	views.brain.container.resetY = views.brain.container.y;
 
-	// Add the zoom sprite
-	// views.brain.zoom = views.brain.container.addChild(PIXI.Sprite.fromImage('./assets/mag_glass.png'));
-
 	// Add a frame in front of the brains
 	views.brain.brainFrame = views.brain.container.addChild(new DContainer());
 	views.brain.brainFrame.zOrder = 11;
@@ -333,6 +342,15 @@ function uiBrainInit() {
 			// views.brain.areas.push(aimg);
 		}
 	}
+
+	// Add the zoom sprite
+	views.brain.zoom = views.brain.container.addChild(PIXI.Sprite.fromImage('./assets/mag_glass.png'));
+	views.brain.zoom.x = views.buffer;
+	views.brain.zoom.y = views.buffer;
+	views.brain.zoom.scale.set(ORIGIN_W*.1/views.brain.zoom.width);
+	views.brain.zoom.interactive = true;
+	views.brain.zoom
+		.on('click',resolveBrainSwitch);
 
 	brainContainer.sortChildren();
 

@@ -21,7 +21,8 @@ let views = {
     ELEC_W: 0.3,
     BRAIN_W: 0.5,
     BRAIN_V: 0.5,
-    TEXT_HEIGHT: 20
+    TEXT_HEIGHT: 20,
+    FAMILY: 'Josefin Sans'
   },
   stim: {
     STIM_W: 0.5,
@@ -63,7 +64,7 @@ function launch() {
   app.renderer.plugins.interaction.cursorStyles.grabbing= 'grabbing';
 
   // asset loading -- do this at the start to have widths available immediately
-  var assetsToLoad = [ "./assets/brain_lateral.png","./assets/brain_medial.png","./assets/stim_ex/motion.png","./assets/stim_Ex/gabor.png","./assets/brain_opener.png"];
+  var assetsToLoad = [ "./assets/brain_lateral.png","./assets/mag_glass.png","./assets/brain_medial.png","./assets/stim_ex/motion.png","./assets/stim_Ex/gabor.png","./assets/brain_opener.png"];
   for (var ai=0; ai<assetsToLoad.length;ai++) {
     loader.add(assetsToLoad[ai]);
   }

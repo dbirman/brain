@@ -98,7 +98,7 @@ function initStimulus() {
 	views.stim.stimulusWindow.mask = mask;
 
 	// Add some text to the stimulus window
-  var style = new PIXI.TextStyle({fill:'#000000',fontSize:20});
+  var style = new PIXI.TextStyle({fill:'#000000',fontSize:20,fontFamily:views.static.FAMILY});
   var t = new PIXI.Text('Left visual field',style);
   t.anchor.set(0.5,0);
   t.position.set(swidth/4,0);
