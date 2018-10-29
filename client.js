@@ -22,7 +22,7 @@ let views = {
     BRAIN_W: 0.5,
     BRAIN_V: 0.5,
     TEXT_HEIGHT: 20,
-    FAMILY: 'Josefin Sans'
+    FAMILY: 'Helvetica'
   },
   stim: {
     STIM_W: 0.5,

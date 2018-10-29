@@ -43,6 +43,13 @@ class Stimulus extends DContainer {
 		this.controls.zOrder = 100;
 		this.controls.visible = false;
 
+		this.controls.close = this.controls.addChild(new PIXI.Graphics());
+		this.controls.close.interactive = true;
+		// let tempid = this.id;
+		this.controls.close
+			.on('click',function() {stimulus[0].destroy();});
+		this.drawClose(this.controls.close,this.stimWidth);
+
 		// add contrast control (which just adjusts the alpha... derp)
 		this.controls.contrastControl = this.controls.addChild(new PIXI.Graphics());
 		this.controls.contrastControl.interactive = true;
@@ -59,6 +66,10 @@ class Stimulus extends DContainer {
 
 		// sort
 		this.sortChildren();
+
+		// add to stimulus list
+		this.id = stimulus.length;
+		stimulus.push(this);
 	}
 
 	drawControls() {
@@ -67,11 +78,24 @@ class Stimulus extends DContainer {
 		}
 	}
 
+	drawClose(g,w) {
+	  let rad = w*.1;
+	  console.log(rad/3)
+	  g.lineStyle(Math.min(1,rad/3),0xFF0000,1);
+	  g.beginFill(0x000000,0);
+	  g.drawCircle(w+rad,0,rad);
+	  g.moveTo(w+rad*.3,rad*.3-rad);
+	  g.lineTo(w+rad*1.7,rad*1.7-rad);
+	  g.moveTo(w+2*rad-rad*.3,rad*.3-rad);
+	  g.lineTo(w+2*rad-rad*1.7,rad*1.7-rad);
+	}
+
 	drawContrastControlCircle(object) {
 		object.controls.contrastControl.clear();
-		object.controls.contrastControl.lineStyle(1,16776960,1);
+		object.controls.contrastControl.lineStyle(1,0x000000,1);
 		object.controls.contrastControl.moveTo(0,object.stimWidth/2);
 		object.controls.contrastControl.lineTo(object.stimWidth,object.stimWidth/2);
+		object.controls.contrastControl.lineStyle(1,16776960,1);
 		object.controls.contrastControl.beginFill(16776960,1);
 		object.controls.contrastControl.drawCircle(object.stimWidth*object.contrast,object.stimWidth/2,object.stimWidth/10);
 	}
@@ -125,7 +149,7 @@ class Stimulus extends DContainer {
 		// disable or re-enable interactivity on the stimulus container and other stimuli
 		views.stim.container.interactive = !this.controls.visible; 
 		for (var si=0;si<stimulus.length;si++) {
-			if (stimulus[si]!=this) {
+			if (stimulus[si]!=undefined && stimulus[si]!=this) {
 				stimulus[si].interactive = !this.controls.visible;
 			}
 		}
@@ -151,8 +175,6 @@ class Stimulus extends DContainer {
 		let pos = event.data.getLocalPosition(this.parent);
 		this.offX = pos.x - this.x;
 		this.offY = pos.y - this.y;
-		// disable new stimulus creatino:
-		cancelTouch=true;
 	}
 
 	up(event) {
@@ -174,10 +196,11 @@ class Stimulus extends DContainer {
 	}
 
 	destroy() {
-		console.log('TODO: Implement destroy -- remove from stimulus array');
 		let temp = this;
 		ticker.remove(function() {stimulus.draw(temp);});
 		super.destroy();
+		delete stimulus[this.id];
+		computePartialSensitivity();
 	}
 
 	get contrast() {

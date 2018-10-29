@@ -34,13 +34,6 @@ function initStimulus() {
 	views.stim.stimulusBackground.position.set(0,0);
 	views.stim.stimulusBackground.zOrder = -1;
 
-	// add interactino for adding new stimuli
-	views.stim.stimulusBackground.interactive = true;
-	views.stim.stimulusBackground
-		.on('pointerdown',addStimCallback)
-		.on('pointerup',addStimUp)
-		.on('pointerupoutside',addStimUp);
-
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
 	// and a third box for the parameters
@@ -108,12 +101,28 @@ function initStimulus() {
   t.position.set(swidth*3/4,0);
   views.stim.stimulusWindow.addChild(t);
 
+  // add graphic (+ sign in a circle)
 
-  var t = new PIXI.Text('Touch and hold to add',style);
-  t.anchor.set(0.5,0.5);
-  t.position.set(swidth/2,sheight/2);
-  views.stim.stimulusWindow.addChild(t);
-  views.stim.touchText = t; // we want to delete this later
+  views.stim.addGraphic = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
+  // views.stim.addGraphic
+  let rad = ORIGIN_W*.015;
+  let off = rad*.2;
+  views.stim.addGraphic.lineStyle(rad/8,0x000000,1);
+  views.stim.addGraphic.beginFill(0x000000,0);
+  views.stim.addGraphic.drawCircle(off+rad,off+rad,rad);
+  views.stim.addGraphic.interactive = true;
+  views.stim.addGraphic.moveTo(off+rad*.3,off+rad);
+  views.stim.addGraphic.lineTo(off+rad*1.7,off+rad);
+  views.stim.addGraphic.moveTo(off+rad,off+rad*.3);
+  views.stim.addGraphic.lineTo(off+rad,off+rad*1.7);
+  views.stim.addGraphic
+  	.on('click',function() {addStimulusWindow(swidth/2,sheight/2)});	
+
+  // var t = new PIXI.Text('Touch and hold to add',style);
+  // t.anchor.set(0.5,0.5);
+  // t.position.set(swidth/2,sheight/2);
+  // views.stim.stimulusWindow.addChild(t);
+  // views.stim.touchText = t; // we want to delete this later
 
 
   // create the adding view and make it invisible
@@ -146,49 +155,30 @@ function initStimulus() {
 // ADDING NEW STIMULI
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-let cancelTouch = false;
+let newStimX,newStimY;
 
-function addStimCallback(event) {
-	// check if the pointer is down on a stimulus
-	if (globalStimulusDown) {return;}
+function addStimulusWindow(x,y) {
+	newStimX = x,
+	newStimY = y;
 
 	if (spikes.length==0) {
 		uiElecInitSpikes();
 	}
 
-	this.isdown = true;
-
-  var pos = event.data.getLocalPosition(this.parent);
-  this.offX = pos.x - this.x;
-  this.offY = pos.y - this.y;
-
-	setTimeout(function() {addStimulusWindow(pos.x,pos.y)},600);
-}
-
-function addStimUp() {
-	this.isdown = false;
-	cancelTouch = false;
-}
-
-function addStimulusWindow(x,y) {
-	if (views.stim.stimulusBackground.isdown && !cancelTouch) {
-		if (!views.stim.touchText._destroyed) {views.stim.touchText.destroy();}
-		
-		if (stimulus.length>=4) {
-			return;
-		}
-
-		// temporarily blank out the stimulus window and remove interaction
-		views.container.alpha = 0.1;
-		views.container.interactive = false;
-
-		// open up the add window
-		views.stim.addContainer.visible = true;
+	if (stimulus.length>=4) {
+		return;
 	}
+
+	// temporarily blank out the stimulus window and remove interaction
+	views.container.alpha = 0.1;
+	views.container.interactive = false;
+
+	// open up the add window
+	views.stim.addContainer.visible = true;
 }
 
 function pickMotion() {
-	createMotionStimulus(views.stim.stimulusBackground.offX,views.stim.stimulusBackground.offY);
+	createMotionStimulus(newStimX,newStimY);
 	resolveStimulusWindow();
 }
 
@@ -198,7 +188,6 @@ function addStimulusWindow_() {
 }
 
 function resolveStimulusWindow() {
-	console.log('here')
 	views.stim.addContainer.visible = false;
 	views.container.alpha = 1;
 	views.container.interactive = true;
@@ -213,19 +202,18 @@ function resolveStimulusWindow() {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=50) {
-	console.log('here')
+function createMotionStimulus(x=0,y=0,rad=25) {
 	motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 
-	stimulus.push(motion);
+	// stimulus.push(motion);
 }
 
 class Motion extends Stimulus {
 	constructor(x,y,radius) {
 		super('motion',computePartialSensitivity,x,y,radius*2,radius*2);
 
-		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/51,5);
+		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/51,2);
 		this.addChild(this.dots.g);
 
 		this.pivot.set(radius,radius);
@@ -393,7 +381,9 @@ function computePartialSensitivity() {
 			// Compute response to each stimulus
 			let response = 0;
 			for (let si = 0; si < stimulus.length; si++) {
-				response += areas[area].func(electrode,stimulus[si]);
+				if (stimulus[si]!=undefined) {
+					response += areas[area].func(electrode,stimulus[si]);
+				}
 			}
 
 			// Set the spike rate
