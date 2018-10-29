@@ -2,12 +2,6 @@
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
-function makeAllElectrodesVisible(blobs) {
-	for (var ei=0;ei<electrodes.length;ei++) {
-		// electrodes[ei].sprite.visible = !blobs;
-		electrodes[ei].blob.visible = blobs;
-	}
-}
 
 function Electrode(id) {
 	// create a new GUI element for the lectrode
@@ -40,25 +34,6 @@ function Electrode(id) {
 	this.sprite.alpha = 1;
 	this.sprite.interactive = true;
 	this.sprite
-		.on('pointerdown', elecDown)
-		.on('pointermove', elecMove)
-		.on('pointerup', elecUp)
-		.on('pointerupoutside', elecUp);
-
-	// attach to the electrode sprite a "blob" of the same color 
-
-	this.blob = this.sprite.addChild(new PIXI.Graphics());
-
-	// this.blob.beginFill(opts[id]);
-	// let radius = ewidth*0.50;
-	// this.blob.drawCircle(radius,radius,radius/4);
-	// this.blob.position.set(-radius,eheight-radius);
-	// this.blob.position.set(iwidth-ewidth+ewidth*(id%2)-radius,iheight-eheight+(id<2?0:eheight)+radius);
-
-	this.blob.visible = false;
-
-	this.blob.interactive = true;
-	this.blob
 		.on('pointerdown', elecDown)
 		.on('pointermove', elecMove)
 		.on('pointerup', elecUp)
@@ -170,10 +145,8 @@ function Electrode(id) {
 
 	let my_pos = g.getGlobalPosition();
 
-	console.log(g.x)
-
-	let brainx = views.static.container.x + ORIGIN_W*views.static.BRAIN/2,
-		brainy = views.static.container.y + views.static.brainSprite.height/2;
+	let brainx = views.buffer*2 + ORIGIN_W*0.5,
+		brainy = views.buffer;
 
 	let offset = ORIGIN_H*.03;
 	let line_off = (4-id)*offset;
@@ -187,9 +160,6 @@ function Electrode(id) {
 	g.lineTo(mini_off-offset,this.trace.sy-offset);
 	g.arcTo(mini_off-offset,this.trace.sy,mini_off,this.trace.sy,offset/2);
 	g.lineTo(this.trace.sx-offset,this.trace.sy);
-	// g.arcTo(0,brainy-my_pos.y+bc_height*ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth*0.7+line_off,-offset,brainy-my_pos.y+bc_height*ORIGIN_W*views.static.BRAIN_W/views.brain.container.initialWidth*0.7+offset*2,offset);
-	// g.lineTo(this.trace.tx,my_pos.y-20+line_off);
-
 
 	this.trace.graphic = g;
 
@@ -298,6 +268,7 @@ function elecUp(event) {
   // this.alpha = 1;
   // change alpha
   views.brain.brainContainer_areas.alpha = 0.50;
+  computePartialSensitivity();
 }
 
 function elecMove(event) {

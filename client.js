@@ -18,15 +18,14 @@ let views = {
   buffer: Math.round(ORIGIN_WIDTH/150),
   static: {
     BRAIN: 0.3,
-    STIM_W: 0.4,
-    STIM_V: 0.3,
     ELEC_W: 0.3,
-    BRAIN_W: 0.3,
+    BRAIN_W: 0.5,
+    BRAIN_V: 0.5,
     TEXT_HEIGHT: 20
   },
   stim: {
     STIM_W: 0.5,
-    STATIC_V: 0.2
+    ELEC_V: 0.5
   },
   brain: {
     BRAIN_V: 1.0
@@ -38,13 +37,6 @@ let views = {
 
 let ORIGIN_W = ORIGIN_WIDTH-(views.buffer*2),
   ORIGIN_H = ORIGIN_HEIGHT-(views.buffer*2);
-
-// computed:
-views.static.ELEC_V = 1 - (views.static.STIM_V + views.static.BRAIN/2);
-// computed:
-views.stim.ELEC_V = 1 - (views.static.STIM_V + views.static.BRAIN/2);
-// computed:
-views.brain.BRAIN_W = 1-views.brain.STIM_W;
 
 const app = new PIXI.Application(ORIGIN_WIDTH,ORIGIN_HEIGHT, rendererOptions),
   loader = PIXI.loader;
@@ -71,7 +63,7 @@ function launch() {
   app.renderer.plugins.interaction.cursorStyles.grabbing= 'grabbing';
 
   // asset loading -- do this at the start to have widths available immediately
-  var assetsToLoad = [ "./assets/brain_lateral.png", "./assets/brain_eyes.png","./assets/brain_medial.png","./assets/stim_ex/motion.png","./assets/stim_Ex/gabor.png","./assets/brain_opener.png"];
+  var assetsToLoad = [ "./assets/brain_lateral.png","./assets/brain_medial.png","./assets/stim_ex/motion.png","./assets/stim_Ex/gabor.png","./assets/brain_opener.png"];
   for (var ai=0; ai<assetsToLoad.length;ai++) {
     loader.add(assetsToLoad[ai]);
   }
@@ -79,6 +71,10 @@ function launch() {
 
   // Init User Interface
   loader.onComplete.add(uiInit);
+
+  if (browser!='Chrome') {
+    alert('The demo is only fully functional in Chrome. Sorry!');
+  }
 }
 
 function resize() {
