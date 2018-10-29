@@ -202,7 +202,7 @@ function resolveStimulusWindow() {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=25) {
+function createMotionStimulus(x=0,y=0,rad=35) {
 	motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 
@@ -346,7 +346,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = true, tg;
+let sensTest = false, tg;
 
 function computePartialSensitivity() {
 	// For each electrode re-compute the sensitivity at the current parameters.
