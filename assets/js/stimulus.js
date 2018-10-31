@@ -41,6 +41,9 @@ function initStimulus() {
 	// Because the stimulus region has its own graphics objects for each of tehse we'll draw
 	// them all at once
 	let g = new PIXI.Graphics();
+	// // Save graphics
+	views.stim.stimulusBackground.addChild(g);
+	views.stim.graphics = g;
 
 	// draw the vertical stand
 	g.lineStyle(10,0x000000,1);
@@ -59,23 +62,20 @@ function initStimulus() {
 	g.moveTo(swidth/2,sheight+views.stim.standHeight*0.95);
 	g.lineTo(swidth/2+swidth*0.1,sheight+views.stim.fullHeight/1.5);
 
-	// draw a grey background
-	g.lineStyle(1,0x000000,1);
-	g.beginFill(con2bin_gamma(0.5),1);
-	g.drawRect(0,views.stim.standHeight*0.3,swidth,sheight);
-	// draw a black line across the top (like a projector screen dropout)
-	// g.lineStyle(15,0x000000,1);
-	// g.moveTo(0,views.stim.standHeight*0.3-8);
-	// g.lineTo(swidth+1,views.stim.standHeight*0.3-8);
-	// draw a dashed line down the center
-	g.lineStyle(1,0x000000,1);
-	for (let i=views.stim.standHeight*0.3+5;i<(views.stim.standHeight*0.3+sheight);i+=sheight/20) {
-		g.moveTo(swidth/2,i);
-		g.lineTo(swidth/2,i+10);
-	}
-	// // Save graphics
-	views.stim.stimulusBackground.addChild(g);
-	views.stim.graphics = g;
+	drawStimulusBackground();
+
+	// tack on the bucket to enable/disable flagging
+	let sprite = views.stim.stimulusBackground.addChild(new PIXI.Sprite.fromImage('./assets/bucket.png'));
+	sprite.anchor.set(0,1);
+	sprite.x = swidth * 0.75;
+	sprite.y = views.stim.fullHeight+sheight;
+	sprite.scale.set(sprite.width/ORIGIN_W*1);
+	sprite.alpha = 0.2;
+	sprite.interactive = true;
+	sprite
+		.on('pointertap',flipFlagging);
+
+	views.stim.bucket = sprite;
 
 	views.stim.stimulusWindow = views.stim.container.addChild(new DContainer());
 	views.stim.stimulusWindow.pivot.set(0,0);
@@ -163,6 +163,19 @@ function initStimulus() {
 
   // make sure to sort
   views.stim.container.sortChildren();
+}
+
+function drawStimulusBackground() {
+	// draw a grey background
+	views.stim.graphics.lineStyle(1,0x000000,1);
+	views.stim.graphics.beginFill(con2bin_gamma(0.5),1);
+	views.stim.graphics.drawRect(0,views.stim.standHeight*0.3,swidth,sheight);
+	// draw a dashed line down the center
+	views.stim.graphics.lineStyle(1,0x000000,1);
+	for (let i=views.stim.standHeight*0.3+5;i<(views.stim.standHeight*0.3+sheight);i+=sheight/20) {
+		views.stim.graphics.moveTo(swidth/2,i);
+		views.stim.graphics.lineTo(swidth/2,i+10);
+	}
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -386,6 +399,15 @@ class Motion extends Stimulus {
 //// Sensitivity computation
 
 let sensTest = false, tg;
+let flagging = false;
+
+function flipFlagging() {
+	flagging = !flagging;
+	views.stim.bucket.alpha = flagging ? 1 : 0.2;
+	if (!flagging) {
+		drawStimulusBackground();
+	}
+}
 
 function computePartialSensitivity() {
 	// For each electrode re-compute the sensitivity at the current parameters.
@@ -423,11 +445,12 @@ function computePartialSensitivity() {
 				if (stimulus[si]!=undefined) {
 					let sResp = areas[area].func(electrode,stimulus[si]);
 					// check if we should tag this region
-					// if (sResp > 1) {
-					// 	views.stim.graphics.beginFill(electrode.color,sResp/50);
-					// 	let stimPos = stimulus[si].pixPos;
-					// 	views.stim.graphics.drawRect(0+stimPos.x,views.stim.standHeight*0.3+stimPos.y,1,1);
-					// }
+					if (flagging && sResp > 1) {
+						views.stim.graphics.lineStyle(0,0x000000,1);
+						views.stim.graphics.beginFill(electrode.color,sResp/50);
+						let stimPos = stimulus[si].pixPos;
+						views.stim.graphics.drawRect(0+stimPos.x,views.stim.standHeight*0.3+stimPos.y,1,1);
+					}
 					response += sResp;
 				}
 			}

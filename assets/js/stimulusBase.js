@@ -130,7 +130,7 @@ class Stimulus extends DContainer {
 
 	    // *USE X-POS FOR CONTRAST
 	    let x = pos.x-pPos.x+this.parent.parent.stimWidth/2;	
-	    this.parent.parent.contrast = Math.max(0,Math.min(1,x/this.parent.parent.stimWidth));
+	    this.parent.parent.contrast = Math.max(0.04,Math.min(1,x/this.parent.parent.stimWidth));
 			this.parent.parent.drawControls();
 			// recompute
 			computePartialSensitivity();
@@ -216,11 +216,11 @@ class Stimulus extends DContainer {
 	}
 
 	get contrast() {
-		return this.alpha;
+		return this.stimulus.alpha;
 	}
 
 	set contrast(_contrast) {
-		this.alpha = _contrast;
+		this.stimulus.alpha = _contrast;
 	}
 
 	set size(size) {
