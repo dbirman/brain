@@ -3,6 +3,13 @@
 // ELECTRODE FUNCTIONALITY
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+// NEURONS HAVE 4 PIECES OF DATA
+// 0: x
+// 1: y
+// 2: sd
+// 3: orientation
+// 4: area [V1, MT, ...]
+
 function Electrode(id) {
 	// create a new GUI element for the lectrode
 	// hard code w/h
