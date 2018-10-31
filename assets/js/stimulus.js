@@ -421,10 +421,16 @@ function computePartialSensitivity() {
 			let response = 0;
 			for (let si = 0; si < stimulus.length; si++) {
 				if (stimulus[si]!=undefined) {
-					response += areas[area].func(electrode,stimulus[si]);
+					let sResp = areas[area].func(electrode,stimulus[si]);
+					// check if we should tag this region
+					// if (sResp > 1) {
+					// 	views.stim.graphics.beginFill(electrode.color,sResp/50);
+					// 	let stimPos = stimulus[si].pixPos;
+					// 	views.stim.graphics.drawRect(0+stimPos.x,views.stim.standHeight*0.3+stimPos.y,1,1);
+					// }
+					response += sResp;
 				}
 			}
-
 			// Set the spike rate
 			electrode.setRate(response);
 		}

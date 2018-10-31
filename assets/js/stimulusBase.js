@@ -241,6 +241,13 @@ class Stimulus extends DContainer {
 		}
 	}
 
+	get pixPos() {
+		return {
+			x:this.x,
+			y:this.y
+		}
+	}
+
 	updateSize() {
 		// Implement as children
 	}
