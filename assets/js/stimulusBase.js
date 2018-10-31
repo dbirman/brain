@@ -19,6 +19,11 @@ class Stimulus extends DContainer {
 		this.y = y;
 		this.zOrder = 0;
 
+		this.pivot.set(width/2,height/2);
+
+		// set id
+		this.id = stimulus.length;
+
 		// internal tracking
 		this.neverMoved = true;
 		this.moved = false;
@@ -39,15 +44,19 @@ class Stimulus extends DContainer {
 			.on('pointerupoutside',this.up)
 			.on('pointermove',this.move);
 
+		this.stimulus = this.addChild(new DContainer());
+		this.stimulus.zOrder = 99;
+
 		this.controls = this.addChild(new DContainer());
 		this.controls.zOrder = 100;
 		this.controls.visible = false;
 
 		this.controls.close = this.controls.addChild(new PIXI.Graphics());
 		this.controls.close.interactive = true;
-		// let tempid = this.id;
+		let tempid = this.id;
 		this.controls.close
-			.on('click',function() {stimulus[0].destroy();});
+			.on('click',function() {stimulus[tempid].destroy();});
+
 		this.drawClose(this.controls.close,this.stimWidth);
 
 		// add contrast control (which just adjusts the alpha... derp)
@@ -67,8 +76,6 @@ class Stimulus extends DContainer {
 		// sort
 		this.sortChildren();
 
-		// add to stimulus list
-		this.id = stimulus.length;
 		stimulus.push(this);
 	}
 
@@ -200,6 +207,11 @@ class Stimulus extends DContainer {
 		ticker.remove(function() {stimulus.draw(temp);});
 		super.destroy();
 		delete stimulus[this.id];
+		// check if we need to re-enable interaction
+		for (var si=0;si<stimulus.length;si++) {
+			if (stimulus[si]!=undefined) {stimulus[si].interactive = true;}
+		}
+		// re-compute firing after removing this stimulus
 		computePartialSensitivity();
 	}
 
@@ -221,10 +233,11 @@ class Stimulus extends DContainer {
 	}
 
 	get pos() {
+		// get position
 		return {
-			x:0,
-			y:0,
-			rad:0
+			x:(this.x)*51/swidth-25,
+			y:-((this.y)*51/sheight-25),
+			rad:this.size*51/views.stim.container.width
 		}
 	}
 

@@ -54,7 +54,7 @@ function responseMT(elec,stim) {
 		response *= sens * coh * con;
 	} else {
 		// Multiply by the response to contrast, but reduce to 10% (no motion)
-		console.log('not implemented');
+		response *= sens * con * 0.1;
 	}
 	return response;
 }

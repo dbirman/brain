@@ -350,7 +350,8 @@ function uiBrainInit() {
 	views.brain.zoom.scale.set(ORIGIN_W*.1/views.brain.zoom.width);
 	views.brain.zoom.interactive = true;
 	views.brain.zoom
-		.on('click',resolveBrainSwitch);
+		// .on('click',resolveBrainSwitch);
+		.on('pointertap',resolveBrainSwitch);
 
 	brainContainer.sortChildren();
 

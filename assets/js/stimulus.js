@@ -116,7 +116,8 @@ function initStimulus() {
   views.stim.addGraphic.moveTo(off+rad,off+rad*.3);
   views.stim.addGraphic.lineTo(off+rad,off+rad*1.7);
   views.stim.addGraphic
-  	.on('click',function() {addStimulusWindow(swidth/2,sheight/2)});	
+  	// .on('click',function() {addStimulusWindow(swidth/2,sheight/2)});
+  	.on('pointertap',function() {addStimulusWindow(swidth/2,sheight/2)});	
 
   // var t = new PIXI.Text('Touch and hold to add',style);
   // t.anchor.set(0.5,0.5);
@@ -131,21 +132,34 @@ function initStimulus() {
   views.stim.addContainer.interactive = true;
   views.stim.addContainer
   	.on('pointertap',resolveStimulusWindow);
+  views.stim.addContainer.visible = false;
 
-  views.stim.addContainer.addMotion = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/motion.png'));
-  views.stim.addContainer.addMotion.anchor.set(0.5,0.5);
-  views.stim.addContainer.addMotion.x = views.buffer + ORIGIN_W/2;
-  views.stim.addContainer.addMotion.y = views.buffer + ORIGIN_H/2;
-  views.stim.addContainer.addMotion.width = swidth/4;
-  views.stim.addContainer.addMotion.height = swidth/4;
-  views.stim.addContainer.addMotion.interactive = true;
-  views.stim.addContainer.addMotion
-  	.on('pointertap',pickMotion);
+  // add the mask full-size window
+  let ginvis = views.stim.addContainer.addChild(new PIXI.Graphics());
+  ginvis.beginFill(0xFFFFFF,0.8);
+  ginvis.drawRect(0,0,ORIGIN_WIDTH,ORIGIN_HEIGHT);
+
+  stimX = [-1,0,1];
+  stimTypes = ['dot','gabor','motion'];
+  stimCallbacks = [pickGaussian,pickGabor,pickMotion];
+
+  for (var si=0;si<stimTypes.length;si++) {
+	  let temp = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/'+stimTypes[si]+'.png'));
+	  temp.anchor.set(0.5,0.5);
+	  temp.x = views.buffer + ORIGIN_W/2 + swidth/4*stimX[si];
+	  temp.y = views.buffer + ORIGIN_H/2;
+	  temp.width = swidth/4;
+	  temp.height = swidth/4;
+	  temp.interactive = true;
+	  temp.m = temp.addChild(new PIXI.Graphics());
+	  temp.m.drawCircle(swidth/4,swidth/4,swidth/4);
+	  temp
+	  	.on('pointertap',stimCallbacks[si]);
+  }
 
   // views.stim.addContainer.addGabor = views.stim.addContainer.addChild(new PIXI.Sprite.fromImage('./assets/stim_ex/gabor.png'));
   // views.stim.addContainer.addGabor.scale.set(swidth/8 / views.stim.addContainer.addGabor.width);
 
-  views.stim.addContainer.visible = false;
 
   // make sure to sort
   views.stim.container.sortChildren();
@@ -170,7 +184,6 @@ function addStimulusWindow(x,y) {
 	}
 
 	// temporarily blank out the stimulus window and remove interaction
-	views.container.alpha = 0.1;
 	views.container.interactive = false;
 
 	// open up the add window
@@ -179,7 +192,14 @@ function addStimulusWindow(x,y) {
 
 function pickMotion() {
 	createMotionStimulus(newStimX,newStimY);
-	resolveStimulusWindow();
+}
+
+function pickGaussian() {
+	createGaussianStimulus(newStimX,newStimY);
+}
+
+function pickGabor() {
+	createGaborStimulus(newStimX,newStimY);
 }
 
 function addStimulusWindow_() {
@@ -189,24 +209,54 @@ function addStimulusWindow_() {
 
 function resolveStimulusWindow() {
 	views.stim.addContainer.visible = false;
-	views.container.alpha = 1;
 	views.container.interactive = true;
 }
 
+
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+// GAUSSIAN BLOB
+// //////////////////////////// //////////////////////////// //////////////////////////// //
+
+function createGaussianStimulus(x=0,y=0,rad=30) {
+	gaussian = views.stim.stimulusWindow.addChild(new Gaussian(x-rad,y-rad,rad));
+	gaussian.start(); // you still have to start -- otherwise it doesn't draw
+	// technically with the gaussian you don't need to re-draw each frame...
+}
+
+class Gaussian extends Stimulus {
+	constructor(x,y,radius) {
+		super('gaussian',computePartialSensitivity,x,y,radius*2,radius*2);
+
+
+		this._size = radius;
+		this._ecc = this._size+this._size/5 
+
+		this.graphics = this.stimulus.addChild(new PIXI.Graphics());
+
+		this.sortChildren();
+	}
+
+	draw(gaussian) {
+		gaussian.graphics.clear();
+		gaussian.graphics.beginFill(0xFFFFFF,1);
+		gaussian.graphics.drawCircle(gaussian.size,gaussian.size,gaussian.size);
+	}
+}
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // GABORS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+function createGaborStimulus(x=0,y=0,rad=30) {
+	console.log('todo');
+}
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=35) {
+function createMotionStimulus(x=0,y=0,rad=40) {
 	motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
-
-	// stimulus.push(motion);
 }
 
 class Motion extends Stimulus {
@@ -214,9 +264,7 @@ class Motion extends Stimulus {
 		super('motion',computePartialSensitivity,x,y,radius*2,radius*2);
 
 		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/51,2);
-		this.addChild(this.dots.g);
-
-		this.pivot.set(radius,radius);
+		this.stimulus.addChild(this.dots.g);
 
 		this._size = radius;
 		this._ecc = this._size+this._size/5 
@@ -332,15 +380,6 @@ class Motion extends Stimulus {
 
 	set contrast(_contrast) {
 		this.dots.alpha = _contrast;
-	}
-
-	get pos() {
-		// get position
-		return {
-			x:(this.x)*51/swidth-25,
-			y:-((this.y)*51/sheight-25),
-			rad:this.size*51/views.stim.container.width
-		}
 	}
 }
 
