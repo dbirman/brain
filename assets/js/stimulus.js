@@ -67,9 +67,9 @@ function initStimulus() {
 	// tack on the bucket to enable/disable flagging
 	let sprite = views.stim.stimulusBackground.addChild(new PIXI.Sprite.fromImage('./assets/bucket.png'));
 	sprite.anchor.set(0,1);
-	sprite.x = swidth * 0.75;
-	sprite.y = views.stim.fullHeight+sheight;
-	sprite.scale.set(sprite.width/ORIGIN_W*1);
+	sprite.x = swidth * 0.15;
+	sprite.y = views.stim.fullHeight+sheight*1.02;
+	sprite.scale.set(sprite.width/ORIGIN_W*1.35);
 	sprite.alpha = 0.2;
 	sprite.interactive = true;
 	sprite
