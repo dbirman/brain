@@ -189,10 +189,11 @@ class Stimulus extends DContainer {
 	}
 
 	move(event) {
-		// if (event.target==null) {return;}
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
-	    let mpos = event.data.getLocalPosition(this.parent);
+	    // let mpos = event.data.getLocalPosition(this.parent);
+	    let mpos = event.data.global;
+	    mpos.y -= views.stim.stimulusWindow.getGlobalPosition().y;
 	  	let nx = Math.min(swidth,Math.max(0,mpos.x-this.offX)),
 	  		ny = Math.min(sheight,Math.max(0,mpos.y-this.offY));
 	    this.position.set(nx,ny);
