@@ -5,7 +5,7 @@ function initHelp() {
   views.brainSprite.y = views.buffer;
   views.brainSprite.interactive = true;
   views.brainSprite
-    .on('click',showHelp);
+    .on('pointertap',showHelp);
 
   // add text for help
   let style = new PIXI.TextStyle({

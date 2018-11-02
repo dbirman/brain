@@ -55,7 +55,7 @@ class Stimulus extends DContainer {
 		this.controls.close.interactive = true;
 		let tempid = this.id;
 		this.controls.close
-			.on('click',function() {stimulus[tempid].destroy();});
+			.on('pointertap',function() {stimulus[tempid].destroy();});
 
 		this.drawClose(this.controls.close,this.stimWidth);
 
@@ -178,9 +178,9 @@ class Stimulus extends DContainer {
 		this.controlFlag = false;
 		this.isdown = true;
 		// track offset
-		let pos = event.data.getLocalPosition(this.parent);
-		this.offX = pos.x - this.x;
-		this.offY = pos.y - this.y;
+		let dpos = event.data.getLocalPosition(this.parent);
+		this.offX = dpos.x - this.x;
+		this.offY = dpos.y - this.y;
 	}
 
 	up(event) {
@@ -191,9 +191,9 @@ class Stimulus extends DContainer {
 	move(event) {
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
-	    let pos = event.data.getLocalPosition(this.parent);
-	  	let nx = Math.min(swidth-this.size,Math.max(-this.size,pos.x-this.offX)),
-	  		ny = Math.min(sheight-this.size,Math.max(-this.size,pos.y-this.offY));
+	    let mpos = event.data.getLocalPosition(this.parent);
+	  	let nx = Math.min(swidth-this.size,Math.max(-this.size,mpos.x-this.offX)),
+	  		ny = Math.min(sheight-this.size,Math.max(-this.size,mpos.y-this.offY));
 	    this.position.set(nx,ny);
 
 	    // compute the percentage scrolled and use that to light up the menu
