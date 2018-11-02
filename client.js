@@ -73,11 +73,8 @@ function launch() {
   // Init User Interface
   loader.onComplete.add(uiInit);
 
-  // if (browser!='Chrome') {
-  //   alert('The demo is only fully functional in Chrome. Sorry!');
-  // }
-
-  enableAudio(spk_init);
+  // Note that uiInit calls audioInitialization functions, but only after the loader
+  // has all assets
 }
 
 function resize() {

@@ -173,7 +173,7 @@ class Stimulus extends DContainer {
 	}
 
 	stimDown(event) {
-		if (event.currentTarget!=this) {return;}
+		if (event.target!=this || event.currentTarget!=this) {return;}
 		globalStimulusDown = true;
 		this.moved = false;
 		this.controlFlag = false;
@@ -192,6 +192,9 @@ class Stimulus extends DContainer {
 
 	stimMove(event) {
 		if (event.currentTarget!=this) {return;}
+
+		// console.log(event)
+
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
 	    // let mpos = event.data.getLocalPosition(this.parent);
