@@ -5,20 +5,25 @@ var stick,
     spike_true = [5,50,-10,-5,-2],
     cur_spk = 0,
     spk_max = 50,
-    cspk;
+    cspk,
+    loaded = false;
     
 function spk_init() {
-  console.log('initializing spikes');
-  if (browser=="Firefox") {
-    cspk = new Audio("./assets/snd/spike_16.wav");
-  } else {
-    cspk = new Audio("./assets/snd/spike.wav");
-  }
-  cspk.load();
-  cspk.onloadeddata = function () {
-    for (var i=0;i<50;i++) {
-      spikes.push(cspk.cloneNode());
+  if (!loaded) {
+    console.log('initializing spikes');
+    if (browser=="Firefox") {
+      cspk = new Audio("./assets/snd/spike_16.wav");
+    } else {
+      cspk = new Audio("./assets/snd/spike.wav");
     }
+    cspk.load();
+    cspk.onloadeddata = function () {
+      for (var i=0;i<50;i++) {
+        spikes.push(cspk.cloneNode());
+        spikes[spikes.length-1].oncanplay = function() {alert('meow'); console.log('meow');}
+      }
+    }
+    loaded = true;
   }
 }
 
