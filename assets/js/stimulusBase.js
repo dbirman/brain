@@ -189,6 +189,7 @@ class Stimulus extends DContainer {
 	}
 
 	move(event) {
+		if (event.currentTarget!=this) {return;}
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
 	    // let mpos = event.data.getLocalPosition(this.parent);
