@@ -110,7 +110,7 @@
 	<div id="canvas">
 	</div>
 
-  <div id="opener" class="modal" style="display:none">
+  <div id="opener" class="modal"><!--  style="display:none"> -->
 
     <!-- Modal content -->
     <div class="modal-content fifty">
@@ -122,7 +122,8 @@
       	<br>
       	<img src="./assets/brain_opener.png" alt="logo for brain.js"/>
       	<h3>Brain.js - a tutorial environment for cognitive neuroscience</h3>
-        <p>This is a <b>demo</b> copy: you can record from neurons in V1 or MT by placing an electrode into these areas. Press 'h' at any time to access a help window.</p>
+        <p>This is a <b>demo</b> copy: you can record from neurons in V1 or MT by placing an electrode into these areas.</p>
+        <button onclick="document.getElementById('content').parentElement.style.display='none'; document.getElementById('canvas').className = ''; spk_init();">Begin</button>
       	<h4>&copy; <a href="http://danbirman.com">Daniel Birman</a> 2018-Present  <a href="http://github.com/dbirman/brain">Code</a>.
     	</div>
     </div>
