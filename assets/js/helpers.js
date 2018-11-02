@@ -201,6 +201,10 @@ var enableAudio = function (callback) {
   var bufferLength = 10
   let acFunc = window.AudioContext || window.webkitAudioContext;
   audioCtx = new acFunc();
+
+  gainNode = audioCtx.createGain();
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+
   var myArrayBuffer = audioCtx.createBuffer(1, bufferLength, audioCtx.sampleRate);
   var source = audioCtx.createBufferSource();  
 

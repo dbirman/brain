@@ -27,6 +27,8 @@ function spk_init() {
 
     request.send();
   }
+
+  gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
 }
 
 function _spk_play() {
