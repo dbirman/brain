@@ -45,6 +45,21 @@ function uiInit() {
 	checkOpener();
 
 	switchStatic();
+
+  enableAudio(spk_init);
+
+  if (audioCtx.state=='suspended') {
+  	document.addEventListener('click',resumeAudio);
+  	document.addEventListener('pointertap',resumeAudio);
+  	console.log(audioCtx.state)
+  }
+}
+
+function resumeAudio() {
+	console.log('Resuming context')
+	audioCtx.resume();
+	document.removeEventListener('pointertap',resumeAudio);
+	document.removeEventListener('click',resumeAudio);
 }
 
 function checkOpener() {
@@ -406,42 +421,3 @@ function checkBrainX(nx) {
 function checkBrainY(ny) {
 	return Math.max(-iheight*views.brain.brainContainer.scale.y,Math.min(views.brain.initialHeight-iheight*views.brain.brainContainer.scale.y,ny));
 }
-
-// --- Scrolling functionality 
-
-// function stimScroll(event) {
-// 	if ((document.getElementById('help').style.display=='none') && (document.getElementById('opener').style.display=='none')) {
-// 		event.preventDefault();
-// 	}
-
-// 	if (event.ctrlKey) {
-// 		let scale = views.brain.brainContainer.scale.x;
-// 		//pivot to the location
-
-// 		let x = event.x, y = event.y;
-// 		let p = views.brain.brainContainer.toLocal(new PIXI.Point(x,y));
-// 		// scale
-// 		let nscale = Math.max(views.brain.initialScale/2,Math.min(views.brain.initialScale*4,scale-event.deltaY*0.01));
-// 		views.brain.brainContainer.scale.set(nscale);	
-// 		let cx = views.brain.brainContainer.x,
-// 			cy = views.brain.brainContainer.y;
-// 		// we need to adjust the positino based on px and py and the change in scale
-// 		let dscale = nscale-scale;
-// 		views.brain.brainContainer.position.set(checkBrainX(cx-dscale*p.x),checkBrainY(cy-dscale*p.y));
-
-//   } else {
-// 		// console.log(event.wheelDeltaZ);
-// 		if (views.brain.container.visible) {
-// 			brainScroll(event);
-// 		} else {
-// 			// Check if any parameter windows are open
-// 			// console.log('todo: add parameter scrolling')
-// 		}
-//   }
-// }
-
-// function brainScroll(event) {
-// 	let nx = checkBrainX(views.brain.brainContainer.x-event.deltaX);
-// 	let ny = checkBrainY(views.brain.brainContainer.y-event.deltaY);
-//   views.brain.brainContainer.position.set(nx,ny); 
-// }

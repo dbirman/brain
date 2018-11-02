@@ -199,7 +199,8 @@ let audioCtx;
 
 var enableAudio = function (callback) {
   var bufferLength = 10
-  audioCtx = new window.AudioContext() || window.webkitAudioContext();
+  let acFunc = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new acFunc();
   var myArrayBuffer = audioCtx.createBuffer(1, bufferLength, audioCtx.sampleRate);
   var source = audioCtx.createBufferSource();  
 

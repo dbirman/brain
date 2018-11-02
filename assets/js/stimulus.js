@@ -401,7 +401,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = false, tg;
+let sensTest = true, tg;
 let flagging = false;
 
 function flipFlagging() {
@@ -429,8 +429,9 @@ function computePartialSensitivity() {
 		let electrode = electrodes[ei];
 		let e_pos = electrode.pos();
 
-		if (e_pos!=undefined) {	
-
+		if (electrode.data.neuron==undefined) {
+			electrode.setRate(0);
+		} else if (e_pos!=undefined) {
 			// Draw the x/y and radius for this electrode (testing)
 			if (sensTest) {
 				let vf_pos = getVisualFieldPosition(e_pos);
@@ -450,9 +451,9 @@ function computePartialSensitivity() {
 					// check if we should tag this region
 					if (flagging && sResp > 1) {
 						views.stim.graphics.lineStyle(0,0x000000,1);
-						views.stim.graphics.beginFill(electrode.color,sResp/50);
+						views.stim.graphics.beginFill(electrode.color,Math.pow(sResp/50,2));
 						let stimPos = stimulus[si].pixPos;
-						views.stim.graphics.drawRect(0+stimPos.x,views.stim.standHeight*0.3+stimPos.y,1,1);
+						views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
 					}
 					response += sResp;
 				}
