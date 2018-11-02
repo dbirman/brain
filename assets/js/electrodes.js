@@ -262,7 +262,8 @@ socket.on('elecInfo', function(data) {
 var electrodeMoving = false;
 
 function elecDown(event) {
-  if (event.currentTarget==this) {electrodeMoving = true;}
+	if (event.currentTarget!=this) {return;}
+	electrodeMoving = true;
   this.isdown = true;
   // calculate offset
   var pos = event.data.getLocalPosition(this.parent);
@@ -274,7 +275,8 @@ function elecDown(event) {
 }
 
 function elecUp(event) {
-  if (event.currentTarget==this) {electrodeMoving = false;}
+	if (event.currentTarget!=this) {return;}
+	electrodeMoving = false;
 
   updateElectrodes('requestData');
   this.isdown = false;
@@ -285,6 +287,7 @@ function elecUp(event) {
 }
 
 function elecMove(event) {
+	if (event.currentTarget!=this) {return;}
   if (this.isdown) {
     var pos = event.data.getLocalPosition(this.parent);
   	let nx = pos.x-this.offX,
