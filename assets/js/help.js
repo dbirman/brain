@@ -8,21 +8,20 @@ function initHelp() {
     .on('pointertap',showHelp);
 
   // add text for help
-  let style = new PIXI.TextStyle({
-    fill: "black",
-    fontSize: views.static.TEXT_HEIGHT*3,
-    fontFamily: views.static.FAMILY
-  });
-  views.brainSprite.text = views.brainSprite.addChild(new PIXI.Text('Click for help',style));
-  views.brainSprite.text.anchor.set(0.5,0);
-  views.brainSprite.text.x = views.brainSprite.width/views.brainSprite.scale._x/2;
-  views.brainSprite.text.y = views.brainSprite.height/views.brainSprite.scale._x;
+  // let style = new PIXI.TextStyle({
+  //   fill: "black",
+  //   fontSize: views.static.TEXT_HEIGHT*3,
+  //   fontFamily: views.static.FAMILY
+  // });
+  // views.brainSprite.text = views.brainSprite.addChild(new PIXI.Text('Click for help',style));
+  // views.brainSprite.text.anchor.set(0.5,0);
+  // views.brainSprite.text.x = views.brainSprite.width/views.brainSprite.scale._x/2;
+  // views.brainSprite.text.y = views.brainSprite.height/views.brainSprite.scale._x;
 
   document.body.onkeydown = function(e){checkHelpKey(e);};
 }
 
 function showHelp() {
-  views.brainSprite.text.visible = false;
   document.getElementById('help').style.display='block';
   document.getElementById("canvas").className = "blur";
 }
