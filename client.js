@@ -73,9 +73,9 @@ function launch() {
   // Init User Interface
   loader.onComplete.add(uiInit);
 
-  if (browser!='Chrome') {
-    alert('The demo is only fully functional in Chrome. Sorry!');
-  }
+  // if (browser!='Chrome') {
+  //   alert('The demo is only fully functional in Chrome. Sorry!');
+  // }
 }
 
 function resize() {

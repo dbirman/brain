@@ -228,6 +228,10 @@ socket.on('elecInfo', function(data) {
 	  }
 	  // set trace text
 	  electrodes[data.info.id].trace.text.setText('Area: ' + side + ' ' + areas[data.neuron[4]].name);
+  } else {
+  	// set electrode to null
+  	electrodes[data.info.id].trace.text.setText('Area: ');
+  	electrodes[data.info.id].data.neuron = undefined;
   }
 });
 
