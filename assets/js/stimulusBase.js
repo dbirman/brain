@@ -39,10 +39,10 @@ class Stimulus extends DContainer {
 		this.localPreventMotion = false;
 		this
 			.on('pointertap',this.clicked)
-			.on('pointerdown',this.down)
-			.on('pointerup',this.up)
-			.on('pointerupoutside',this.up)
-			.on('pointermove',this.move);
+			.on('pointerdown',this.stimDown)
+			.on('pointerup',this.stimUp)
+			.on('pointerupoutside',this.stimUp)
+			.on('pointermove',this.stimMove);
 
 		this.stimulus = this.addChild(new DContainer());
 		this.stimulus.zOrder = 99;
@@ -172,7 +172,7 @@ class Stimulus extends DContainer {
 		}
 	}
 
-	down(event) {
+	stimDown(event) {
 		globalStimulusDown = true;
 		this.moved = false;
 		this.controlFlag = false;
@@ -183,12 +183,12 @@ class Stimulus extends DContainer {
 		this.offY = dpos.y - this.y;
 	}
 
-	up(event) {
+	stimUp(event) {
 		globalStimulusDown = false;
 		this.isdown = false;
 	}
 
-	move(event) {
+	stimMove(event) {
 		if (event.currentTarget!=this) {return;}
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
