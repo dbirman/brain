@@ -192,8 +192,15 @@ function addStimulusWindow(x,y) {
 		uiElecInitSpikes();
 	}
 
+	// check how many of stimulus are undefined
 	if (stimulus.length>=4) {
-		return;
+		let count = 0;
+		for (var si=0;si<stimulus.length;si++) {
+			stimulus[si]==undefined ? count : count++;
+		}
+		if (count>=4) {
+			return;
+		}
 	}
 
 	// temporarily blank out the stimulus window and remove interaction

@@ -60,7 +60,7 @@ function responseMT(elec,stim) {
 }
 
 function responseV1(elec,stim) {
-	// A V1 neuron cares only that things have contrast
+	// A V1 neuron cares only that things have contrast (and orientation?)
 	let response = maxFire;
 
 	// Compute the overlap

@@ -87,7 +87,6 @@ class Stimulus extends DContainer {
 
 	drawClose(g,w) {
 	  let rad = w*.1;
-	  console.log(rad/3)
 	  g.lineStyle(Math.min(1,rad/3),0xFF0000,1);
 	  g.beginFill(0x000000,0);
 	  g.drawCircle(w+rad,0,rad);
@@ -192,7 +191,7 @@ class Stimulus extends DContainer {
 	move(event) {
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
-	    var pos = event.data.getLocalPosition(this.parent);
+	    let pos = event.data.getLocalPosition(this.parent);
 	  	let nx = Math.min(swidth-this.size,Math.max(-this.size,pos.x-this.offX)),
 	  		ny = Math.min(sheight-this.size,Math.max(-this.size,pos.y-this.offY));
 	    this.position.set(nx,ny);
