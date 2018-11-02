@@ -5,8 +5,8 @@ var stick,
     cur_spk = 0,
     spk_max = 50,
     cspk,
-    loaded = false,
-    soundBuffer;
+    soundBuffer,
+    loaded = false;
     
 function spk_init() {
   console.log('Loading sound buffers');

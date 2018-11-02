@@ -188,10 +188,6 @@ function addStimulusWindow(x,y) {
 	newStimX = x,
 	newStimY = y;
 
-	if (spikes.length==0) {
-		uiElecInitSpikes();
-	}
-
 	// check how many of stimulus are undefined
 	if (stimulus.length>=4) {
 		let count = 0;

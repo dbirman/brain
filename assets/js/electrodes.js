@@ -190,7 +190,6 @@ function Electrode(id) {
 let ticks;
 
 function spikeElectrodes() {
-
 	for (var ei=0;ei<electrodes.length;ei++) {
 		electrodes[ei].trace.g = drawTrace(electrodes[ei].trace,ei);
 	}

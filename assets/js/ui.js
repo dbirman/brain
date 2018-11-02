@@ -200,18 +200,14 @@ function uiElecInit() {
 	// views.spikes.container.
 	// 	on('pointertap',uiElecInitSpikes);
 
+	console.log('here')
+	
 	electrodes = [];
 
 	// Create the four electrodes
 	for (var ei=0;ei<4;ei++) {
 		electrodes.push(new Electrode(ei));
 	}
-}
-
-function uiElecInitSpikes() {
-	views.spikes.container.interactive = false;
-	spk_init();
-
 	spikeElectrodes();
 }
 
