@@ -193,8 +193,8 @@ class Stimulus extends DContainer {
 	  if (this.isdown && !this.localPreventMotion) {
 			this.moved = true;
 	    let mpos = event.data.getLocalPosition(this.parent);
-	  	let nx = Math.min(swidth-this.size,Math.max(-this.size,mpos.x-this.offX)),
-	  		ny = Math.min(sheight-this.size,Math.max(-this.size,mpos.y-this.offY));
+	  	let nx = Math.min(swidth,Math.max(0,mpos.x-this.offX)),
+	  		ny = Math.min(sheight,Math.max(0,mpos.y-this.offY));
 	    this.position.set(nx,ny);
 
 	    // compute the percentage scrolled and use that to light up the menu
