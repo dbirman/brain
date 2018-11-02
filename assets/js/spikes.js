@@ -1,30 +1,43 @@
 
 var stick,
-    spikes = [],
     spike_false = [0,0,0,0,0],
     spike_true = [5,50,-10,-5,-2],
     cur_spk = 0,
     spk_max = 50,
     cspk,
-    loaded = false;
+    loaded = false,
+    soundBuffer;
     
 function spk_init() {
+  console.log('Loading sound buffers');
   if (!loaded) {
-    console.log('initializing spikes');
-    if (browser=="Firefox") {
-      cspk = new Audio("./assets/snd/spike_16.wav");
-    } else {
-      cspk = new Audio("./assets/snd/spike.wav");
+    var request = new XMLHttpRequest();
+    request.open("GET", './assets/snd/spike.wav', true);
+    request.responseType = "arraybuffer";
+
+    var loader = this;
+
+    request.onload = function() {
+        audioCtx.decodeAudioData(request.response, function(buffer) {soundBuffer=buffer;});
     }
-    cspk.load();
-    cspk.onloadeddata = function () {
-      for (var i=0;i<50;i++) {
-        spikes.push(cspk.cloneNode());
-        spikes[spikes.length-1].oncanplay = function() {console.log('meow');}
-      }
+
+    request.onerror = function() {
+        alert('BufferLoader: XHR error');        
     }
-    loaded = true;
+
+    request.send();
   }
+}
+
+function _spk_play() {
+    //creating source node
+    var source = audioCtx.createBufferSource();
+    //passing in file
+    source.buffer = soundBuffer;
+
+    //start playing
+    source.connect(audioCtx.destination);  // added
+    source.start(0);
 }
 
 // Add a new spike trace
@@ -72,9 +85,4 @@ function _spk_spike(trace) {
   } else {
     for (var i=0;i<5;i++) {trace.spk.shift(); trace.spk.push(spike_false[i]+randn()*2);}
   }
-}
-
-function _spk_play() {
-  spikes[cur_spk++].play();
-  cur_spk = cur_spk>=spikes.length ? 0 : cur_spk;
 }

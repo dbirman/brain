@@ -76,6 +76,8 @@ function launch() {
   // if (browser!='Chrome') {
   //   alert('The demo is only fully functional in Chrome. Sorry!');
   // }
+
+  enableAudio(spk_init);
 }
 
 function resize() {

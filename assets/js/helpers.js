@@ -194,3 +194,44 @@ function checkBrowser(){
     }
     return browser;
 }
+
+let audioCtx;
+
+var enableAudio = function (callback) {
+  var bufferLength = 10
+  audioCtx = new window.AudioContext() || window.webkitAudioContext();
+  var myArrayBuffer = audioCtx.createBuffer(1, bufferLength, audioCtx.sampleRate);
+  var source = audioCtx.createBufferSource();  
+
+  var nowBuffering = myArrayBuffer.getChannelData(0);
+  for (var i = 0; i < bufferLength; i++) {    
+    nowBuffering[i] = Math.random() * 2 - 1;
+  }
+
+  source.buffer = myArrayBuffer;  
+  source.connect(audioCtx.destination);
+
+  var playFakeAudio = function (cb) {
+    var done = false
+    source.onended = function (a) {
+      done = true
+      cb(true)
+    }
+    source.start(0);
+    setTimeout(function () {if (!done) cb(false)}, bufferLength + 5)
+  }
+
+  playFakeAudio(function (isAudioEnabled) {    
+    if (isAudioEnabled == false) { 
+      var onTouch = function () {             
+        playFakeAudio(function(){
+          document.removeEventListener('touchstart', onTouch)
+          callback()
+        })
+      }
+      document.addEventListener('touchstart', onTouch)
+    } else {
+      callback()
+    }
+  })
+}
