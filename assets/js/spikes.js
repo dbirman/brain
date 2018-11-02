@@ -20,7 +20,7 @@ function spk_init() {
     cspk.onloadeddata = function () {
       for (var i=0;i<50;i++) {
         spikes.push(cspk.cloneNode());
-        spikes[spikes.length-1].oncanplay = function() {alert('meow'); console.log('meow');}
+        spikes[spikes.length-1].oncanplay = function() {console.log('meow');}
       }
     }
     loaded = true;
