@@ -242,7 +242,7 @@ function resolveStimulusWindow() {
 // GAUSSIAN BLOB
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaussianStimulus(x=0,y=0,rad=30) {
+function createGaussianStimulus(x=0,y=0,rad=deg2pix*2.5) {
 	var gaussian = views.stim.stimulusWindow.addChild(new Gaussian(x-rad,y-rad,rad));
 	gaussian.start(); // you still have to start -- otherwise it doesn't draw
 	// technically with the gaussian you don't need to re-draw each frame...
@@ -271,7 +271,7 @@ class Gaussian extends Stimulus {
 // GABORS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaborStimulus(x=0,y=0,rad=30) {
+function createGaborStimulus(x=0,y=0,rad=deg2pix*2.5) {
 	var gabor = views.stim.stimulusWindow.addChild(new Gabor(x-rad,y-rad,rad));
 	gabor.start();
 }
@@ -386,7 +386,7 @@ class Gabor extends Stimulus {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=40) {
+function createMotionStimulus(x=0,y=0,rad=deg2pix*3) {
 	var motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 }
