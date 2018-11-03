@@ -31,6 +31,11 @@
 // HELPERS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
+
+function angdist(t1,t2) {
+  return Math.acos(Math.cos(t1)*Math.cos(t2)+Math.sin(t1)*Math.sin(t2));
+}
+
 function zeros(z) {
   a=[]; for(let zi=0;zi<z;zi++) {a.push(0);}return a;
 }

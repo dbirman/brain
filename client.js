@@ -15,6 +15,7 @@ let ORIGIN_WIDTH = document.body.clientWidth,
 
 // setup the different views
 let views = {
+  maxStim: 1,
   buffer: Math.round(ORIGIN_WIDTH/150),
   static: {
     BRAIN: 0.3,

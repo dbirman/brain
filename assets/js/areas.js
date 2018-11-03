@@ -6,6 +6,8 @@ const areas =  {
 	0: {
 		name: 'V1',
 		func: responseV1,
+		theta_sd: Math.PI/5,
+		pdf_max: normpdf(0,0,Math.PI/5),
 		contrast: {
 			func: function(x) {return nakarushton(x,{rmax:1,x50:0.25})}
 		},
@@ -17,7 +19,7 @@ const areas =  {
 		name: 'MT',
 		func: responseMT,
 		theta_sd: Math.PI/2.5,
-		pdf_max: normpdf(0,0,Math.PI/2),
+		pdf_max: normpdf(0,0,Math.PI/2.5),
 		contrast: {
 			func: function(x) {return insensitive(x,{max:1})}
 		},
@@ -44,7 +46,7 @@ function responseMT(elec,stim) {
 
 	// compute the selectivity, contrast, coherence
 
-	let sens = normpdf(elec.getTheta()-stim.theta,0,areas[1].theta_sd)/areas[1].pdf_max;
+	let sens = normpdf(angdist(elec.getTheta(),stim.theta),0,areas[1].theta_sd)/areas[1].pdf_max;
 	let coh = areas[1].coherence.func(stim.coherence);
 	let con = areas[1].contrast.func(stim.contrast);
 
@@ -68,9 +70,21 @@ function responseV1(elec,stim) {
 
 	response *= overlap;
 
+	let sens = normpdf(Math.min(angdist(elec.getTheta(),stim.theta),angdist(elec.getTheta(),stim.theta+Math.PI)),0,areas[0].theta_sd)/areas[0].pdf_max;
 	let con = areas[0].contrast.func(stim.contrast);
 
-	response *= con;
+	console.log(sens)
+	console.log(con)
+
+	if (stim.type=='gaussian') {
+		response *= con * 0.25;
+	} else if (stim.type=='gabor') {
+		response *= sens * con;
+	} else if (stim.type=='motion') {
+		response *= con * 0.15;
+	}
+
+	console.log(response)
 
 	return response;
 

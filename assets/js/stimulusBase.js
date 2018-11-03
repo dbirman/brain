@@ -77,6 +77,8 @@ class Stimulus extends DContainer {
 		this.sortChildren();
 
 		stimulus.push(this);
+
+		resolveStimNum();
 	}
 
 	drawControls() {
@@ -221,6 +223,7 @@ class Stimulus extends DContainer {
 		}
 		// re-compute firing after removing this stimulus
 		computePartialSensitivity();
+		resolveStimNum();
 	}
 
 	get contrast() {

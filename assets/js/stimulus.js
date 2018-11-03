@@ -184,17 +184,26 @@ function drawStimulusBackground() {
 
 let newStimX,newStimY;
 
+function resolveStimNum() {
+	var count = 0;
+	for (var i=0;i<stimulus.length;i++) {
+		count += stimulus[i]!=undefined ? 1 : 0;
+	}
+	
+	views.stim.addGraphic.alpha = count>=views.maxStim ? 0.1 : 1;
+}
+
 function addStimulusWindow(x,y) {
 	newStimX = x,
 	newStimY = y;
 
 	// check how many of stimulus are undefined
-	if (stimulus.length>=1) {
+	if (stimulus.length>=views.maxStim) {
 		let count = 0;
 		for (var si=0;si<stimulus.length;si++) {
 			stimulus[si]==undefined ? count : count++;
 		}
-		if (count>=1) {
+		if (count>=views.maxStim) {
 			return;
 		}
 	}
@@ -269,21 +278,107 @@ function createGaborStimulus(x=0,y=0,rad=30) {
 
 class Gabor extends Stimulus {
 	constructor(x,y,radius) {
-		super('gaussian',computePartialSensitivity,x,y,radius*2,radius*2);
-
+		super('gabor',computePartialSensitivity,x,y,radius*2,radius*2);
 
 		this._size = radius;
 		this._ecc = this._size+this._size/5 
 
 		this.graphics = this.stimulus.addChild(new PIXI.Graphics());
+		this.graphics.pivot.set(this.size,this.size);
+		// draw a white bar in the middle
+		this.graphics.beginFill(0xFFFFFF,1);
+		this.graphics.drawRect(0,this.size-this.size/8,this.size*2,this.size/4);
+		// draw two white bars above and below
+		this.graphics.drawRect(this.size/2,this.size/2-this.size/8,this.size,this.size/4);
+		this.graphics.drawRect(this.size/2,this.size*3/2-this.size/8,this.size,this.size/4);
+		this.graphics.beginFill(0x000000,1);
+		this.graphics.drawRect(this.size/3,this.size*3/4-this.size/8,this.size*4/3,this.size/4);
+		this.graphics.drawRect(this.size/3,this.size*5/4-this.size/8,this.size*4/3,this.size/4);
+
+		this.controls.motionControl = this.controls.addChild(new PIXI.Graphics());
+		// this.drawMotionControlCircle(this.dots.dir,this._ecc);
+		this.controls.motionControl.interactive = true;
+		this.controls.motionControl
+			.on('pointerdown',this.motionControlDown)
+			.on('pointerup',this.motionControlUp)
+			.on('pointerupoutside',this.motionControlUp)
+			.on('pointermove',this.motionControlMove);
+		this.controls.callbacks.push(this.drawMotionControlCircle);
+
+		this.dir = 0;
 
 		this.sortChildren();
 	}
 
-	draw(gaussian) {
-		gaussian.graphics.clear();
-		gaussian.graphics.beginFill(0xFFFFFF,1);
-		gaussian.graphics.drawCircle(gaussian.size,gaussian.size,gaussian.size);
+	draw(gabor) {
+		gabor.graphics.rotation = gabor.dir;
+	}
+
+	drawMotionControlCircle(object) {
+		let angle = object.dir,
+			dist = object._ecc;
+
+		object.controls.motionControl.clear();
+		// compute position
+		let xang = Math.cos(angle),
+			yang = Math.sin(angle);
+		let x = object._size + dist * xang,
+			y = object._size + dist * yang;
+		object.controls.motionControl.lineStyle(1,0x000000,0);
+		object.controls.motionControl.beginFill(0xFF0000,1);
+		object.controls.motionControl.drawCircle(x,y,object._size/5);
+	}
+
+	motionControlDown(event) {
+		this.isdown = true;
+		this.moved = false;
+	}
+
+	motionControlUp() {
+		this.isdown = false
+		// set a timeout on the movement flag, otherwise we can't close out the controls
+		// from the main object which is really annoying
+		// (might be a better way to do this... not sure)
+		var temp = this;
+		setTimeout(function() {temp.moved=false;},100);
+	}
+
+	motionControlMove(event) {
+	  if (this.isdown) {
+			this.moved = true;
+			this.parent.parent.controlFlag = true;
+			var pPos = this.parent.parent.getGlobalPosition();
+	    var pos = event.data.global;
+
+	    // *USE ANGLE FOR MOTION DIRECTION
+	    // check the angle, then rotate the stimulus to match the angle
+	    var theta = Math.atan2(pos.y-pPos.y,pos.x-pPos.x);
+	    this.parent.parent.dir = theta;
+
+			// *USE HYPOTENUSE FOR MOTION COHERENCE
+			// var hypot = Math.hypot(pos.y-pPos.y,pos.x-pPos.x);
+			// hypot = Math.max(this.parent.parent._ecc,Math.min(this.parent.parent._ecc*2,hypot));
+
+	    // re-draw the circle
+			this.parent.parent.drawControls();
+
+			// recompute
+			computePartialSensitivity();
+	  }
+	}
+
+	motionControls() {
+		if (!this.isdown && !this.moved && !this.controls.motionControl.moved) {
+			
+		}
+	}
+
+	get theta() {
+		return this.dir;
+	}
+
+	set theta(_theta) {
+		this.dir = _theta;
 	}
 }
 
