@@ -285,6 +285,7 @@ class Gabor extends Stimulus {
 
 		this.graphics = this.stimulus.addChild(new PIXI.Graphics());
 		this.graphics.pivot.set(this.size,this.size);
+		this.graphics.position.set(this.size,this.size);
 		// draw a white bar in the middle
 		this.graphics.beginFill(0xFFFFFF,1);
 		this.graphics.drawRect(0,this.size-this.size/8,this.size*2,this.size/4);
