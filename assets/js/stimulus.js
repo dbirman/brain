@@ -234,7 +234,7 @@ function resolveStimulusWindow() {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createGaussianStimulus(x=0,y=0,rad=30) {
-	gaussian = views.stim.stimulusWindow.addChild(new Gaussian(x-rad,y-rad,rad));
+	var gaussian = views.stim.stimulusWindow.addChild(new Gaussian(x-rad,y-rad,rad));
 	gaussian.start(); // you still have to start -- otherwise it doesn't draw
 	// technically with the gaussian you don't need to re-draw each frame...
 }
@@ -263,7 +263,28 @@ class Gaussian extends Stimulus {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createGaborStimulus(x=0,y=0,rad=30) {
-	console.log('todo');
+	var gabor = views.stim.stimulusWindow.addChild(new Gabor(x-rad,y-rad,rad));
+	gabor.start();
+}
+
+class Gabor extends Stimulus {
+	constructor(x,y,radius) {
+		super('gaussian',computePartialSensitivity,x,y,radius*2,radius*2);
+
+
+		this._size = radius;
+		this._ecc = this._size+this._size/5 
+
+		this.graphics = this.stimulus.addChild(new PIXI.Graphics());
+
+		this.sortChildren();
+	}
+
+	draw(gaussian) {
+		gaussian.graphics.clear();
+		gaussian.graphics.beginFill(0xFFFFFF,1);
+		gaussian.graphics.drawCircle(gaussian.size,gaussian.size,gaussian.size);
+	}
 }
 
 // //////////////////////////// //////////////////////////// //////////////////////////// //
@@ -271,7 +292,7 @@ function createGaborStimulus(x=0,y=0,rad=30) {
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
 function createMotionStimulus(x=0,y=0,rad=40) {
-	motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
+	var motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 }
 
