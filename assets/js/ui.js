@@ -206,17 +206,7 @@ let electrodes;
 function uiElecInit() {
 	// Electrodes start in the top of the brain container. They can be dragged inside of this to different
 	// positions. All four electrodes are visible by default, but they only "record" when they are in
-	// a brain region that we have data for.
-
-	// Initialize container
-
-	// Used to use this to enable spiking but now we just wait for a stimulus
-	// views.spikes.container.interactive = true;
-	// views.spikes.container.
-	// 	on('pointertap',uiElecInitSpikes);
-
-	console.log('here')
-	
+	// a brain region that we have data for.	
 	electrodes = [];
 
 	// Create the four electrodes

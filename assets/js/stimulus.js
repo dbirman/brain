@@ -189,12 +189,12 @@ function addStimulusWindow(x,y) {
 	newStimY = y;
 
 	// check how many of stimulus are undefined
-	if (stimulus.length>=4) {
+	if (stimulus.length>=1) {
 		let count = 0;
 		for (var si=0;si<stimulus.length;si++) {
 			stimulus[si]==undefined ? count : count++;
 		}
-		if (count>=4) {
+		if (count>=1) {
 			return;
 		}
 	}
