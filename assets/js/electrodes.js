@@ -17,7 +17,7 @@ function Electrode(id) {
 
 	let ewidth = 167, eheight = 208;
 
-	let opts = [0xFF0000,0x00FF00,0x0000FF,0xFF00FF,0x00FFFF];
+	let opts = [0xFF0000,0x008080,0x0000FF,0xFF00FF];
 	this.color = opts[id];
 
 	this.container = views.brain.brainContainer.addChild(new DContainer());
@@ -32,9 +32,10 @@ function Electrode(id) {
 	this.sprite = this.container.addChild(PIXI.Sprite.fromImage('./assets/electrode.png'));
 	this.sprite.tint = this.color;
 	// set the hitArea
-	let points = [0,eheight, 
-								ewidth,30,
-								ewidth-50,0];
+	let points = [-10,eheight-5, 
+								10,eheight+5,
+								ewidth+10,20,
+								ewidth-50,-5];
 	this.sprite.hitArea = new PIXI.Polygon(points);
 	// set other properties
 	this.sprite.position.set(iwidth-ewidth+ewidth*(id%2),iheight-eheight+(id<2?0:eheight));
