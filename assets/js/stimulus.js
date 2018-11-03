@@ -327,7 +327,7 @@ class Gabor extends Stimulus {
 			y = object._size + dist * yang;
 		object.controls.motionControl.lineStyle(1,0x000000,0);
 		object.controls.motionControl.beginFill(0xFF0000,1);
-		object.controls.motionControl.drawCircle(x,y,object._size/5);
+		object.controls.motionControl.drawCircle(x,y,object._size/4);
 	}
 
 	motionControlDown(event) {
@@ -436,7 +436,7 @@ class Motion extends Stimulus {
 		object.controls.motionControl.lineTo(object._size+object._ecc*2*xang,object._size+object._ecc*2*yang);
 		object.controls.motionControl.lineStyle(1,0x000000,0);
 		object.controls.motionControl.beginFill(0xFF0000,1);
-		object.controls.motionControl.drawCircle(x,y,object._size/5);
+		object.controls.motionControl.drawCircle(x,y,object._size/4);
 	}
 
 	motionControlDown(event) {

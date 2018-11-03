@@ -105,7 +105,7 @@ class Stimulus extends DContainer {
 		object.controls.contrastControl.lineTo(object.stimWidth,object.stimWidth/2);
 		object.controls.contrastControl.lineStyle(1,16776960,1);
 		object.controls.contrastControl.beginFill(16776960,1);
-		object.controls.contrastControl.drawCircle(object.stimWidth*object.contrast,object.stimWidth/2,object.stimWidth/10);
+		object.controls.contrastControl.drawCircle(object.stimWidth*object.contrast,object.stimWidth/2,object.stimWidth/8);
 	}
 
 	contrastControlDown(event) {
