@@ -174,6 +174,12 @@ class Stimulus extends DContainer {
 
 	stimDown(event) {
 		if (event.target!=this || event.currentTarget!=this) {return;}
+
+		// to prevent other stimuli from moving we'll FORCE all the other stimuli to .isdown = false
+		for (var i=0;i<stimulus.length;i++) {
+			if (stimulus[i]!=undefined) {stimulus[i].isdown = false;}
+		}
+
 		globalStimulusDown = true;
 		this.moved = false;
 		this.controlFlag = false;
