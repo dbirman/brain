@@ -18,8 +18,8 @@ const areas =  {
 	1: {
 		name: 'MT',
 		func: responseMT,
-		theta_sd: Math.PI/2.5,
-		pdf_max: normpdf(0,0,Math.PI/2.5),
+		theta_sd: Math.PI/3.5,
+		pdf_max: normpdf(0,0,Math.PI/3.5),
 		contrast: {
 			func: function(x) {return insensitive(x,{max:1})}
 		},
