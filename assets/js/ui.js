@@ -81,7 +81,7 @@ function showOpener() {
 		console.log('Local storage was blocked -- defaulting to session');
 		sessionStorage.opener = true;
 	}
-	document.getElementById('opener').style.display='block';
+	document.getElementById('help').style.display='block';
   document.getElementById("canvas").className = "blur";
 }
 
