@@ -32,7 +32,7 @@ function hideHelp() {
 }
 
 function checkHelpKey(e) {
-  if (any(equals([69,68,81,65,87,83,72,77,84],e.keyCode))) {e.preventDefault();}
+  if (any(equals([72],e.keyCode))) {e.preventDefault();}
 
   // if (e.keyCode==77) {
   // 	stimulus.push(createMotionStimulus());
