@@ -4,6 +4,11 @@ The raw brain images brain_lateral and brain_medial get used to generate the vis
 
 The processing scripts will find anything encoded in the green channel 0->255 and process it with the following rules. Whenever the code finds a red channel value it will ignore that pixel entirely.
 
+# What to update in code
+
+data.js - knows about how to read the png files
+areas.js - interprets the properties
+
 # Neuron properties
 
 px - pixel x location

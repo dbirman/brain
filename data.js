@@ -18,6 +18,9 @@ const DATA = {
 		'MT' : {
 			order: 1,
 			orient: function() {return Math.random()*2*Math.PI;}
+		},
+		'Ret' : {
+			order: 2,
 		}
 	},
 	path: './assets/data/raw',

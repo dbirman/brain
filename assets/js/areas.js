@@ -26,6 +26,18 @@ const areas =  {
 		coherence: {
 			func: function(x) {return linear(x,{slope:2,b0:0})}
 		}
+	},
+	2: {
+		name: 'Retina',
+		func: responseRet,
+		theta_sd: Math.PI/10,
+		pdf_max: normpdf(0,0,Math.PI/10),
+		contrast: {
+			func: function(x) {return insensitive(x,{max:1})}
+		},
+		coherence: {
+			func: function(x) {return insensitive(x,{max:1})}
+		}
 	}
 };
 
@@ -88,6 +100,18 @@ function responseV1(elec,stim) {
 
 	return response;
 
+}
+
+function responseRet(elec,stim) {
+	// retina is a point detector, simply responds maximally when overlapped
+	let response = maxFire;
+
+	// Compute the overlap
+	overlap = computeOverlap(elec.pos(),stim.pos) / (Math.PI * elec.pos().rad**2);
+
+	response *= overlap;
+
+	return response;
 }
 
 function computeOverlap(p1,p2) {
