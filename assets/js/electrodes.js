@@ -17,7 +17,7 @@ function Electrode(id) {
 
 	let ewidth = 167, eheight = 208;
 
-	let opts = [0xFF0000,0x008080,0x0000FF,0xFF00FF];
+	let opts = [0xE69F00,0x5230189,0xd55e00,0xC2AA44F];
 	this.color = opts[id];
 
 	this.container = views.brain.brainContainer.addChild(new DContainer());
