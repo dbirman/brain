@@ -576,6 +576,7 @@ function computePartialSensitivity() {
 				}
 			}
 			// Set the spike rate
+			response = response==-1 ? 3 : response;
 			electrode.setRate(response);
 		}
 	}
