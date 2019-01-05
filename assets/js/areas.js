@@ -30,8 +30,8 @@ const areas =  {
 	2: {
 		name: 'Retina',
 		func: responseRet,
-		theta_sd: Math.PI/10,
-		pdf_max: normpdf(0,0,Math.PI/10),
+		theta_sd: Math.PI/12,
+		pdf_max: normpdf(0,0,Math.PI/12),
 		contrast: {
 			func: function(x) {return insensitive(x,{max:1})}
 		},
@@ -42,8 +42,8 @@ const areas =  {
 	3: {
 		name: 'LGN',
 		func: responseLGN,
-		theta_sd: Math.PI/8,
-		pdf_max: normpdf(0,0,Math.PI/8),
+		theta_sd: Math.PI/10,
+		pdf_max: normpdf(0,0,Math.PI/10),
 		contrast: {
 			func: function(x) {return insensitive(x,{max:1})}
 		},
@@ -94,6 +94,9 @@ function responseMT(elec,stim) {
 		// Multiply by the response to contrast, but reduce to 10% (no motion)
 		response *= sens * con * 0.1;
 	}
+
+	response = response<0.2 ? -1 : response;
+
 	return response;
 }
 
@@ -120,7 +123,7 @@ function responseV1(elec,stim) {
 		response *= con * 0.15;
 	}
 
-	console.log(response)
+	response = response<0.2 ? -1 : response;
 
 	return response;
 
@@ -135,20 +138,38 @@ function responseRet(elec,stim) {
 
 	response *= overlap;
 
+	response = response<0.2 ? -1 : response;
+
 	return response;
 }
 
 function responseLGN(elec,stim) {
 	let response = maxFire;
 
-	// Compute the overlap
-	overlap = computeOverlap(elec.pos(),stim.pos) / (Math.PI * elec.pos().rad**2);
-
 	// Compute the distance
 	// if we are within 1 SD, as normal, but 1-2 SD, invert the firing rate
-	let dist = 
+	let ep = elec.pos();
+	let sp = stim.pos;
 
-	response *= overlap;
+	let dist = Math.sqrt((ep.x-sp.x)**2+(ep.y-sp.y)**2);
+	let dratio = dist/ep.rad;
+
+	if (dratio>8) {return -1;}
+
+	if (stim.type=='motion') {
+		// don't fire, active inhibition (covers both on and off regions)
+		return 0;
+
+	} else {
+		// different behavior based on whether this is a center-on or -off cell
+		if (elec.data.neuron[3]) {
+			// on center neuron
+			response *= dratio < 5 ? (Math.cos(dratio*Math.PI/5)+1)/2 : 0;
+		} else {
+			// off center neuron
+			response *= dratio < 10 ? (Math.cos((dratio-5)*Math.PI/5)+1)/2 : 0;
+		}
+	}
 
 	return response;
 }

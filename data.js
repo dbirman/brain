@@ -24,9 +24,11 @@ const DATA = {
 		},
 		'LGN' : {
 			order: 3,
+			ontype: function() {return Math.floor(Math.random()*2);}
 		},
 		'V2' : {
 			order: 4,
+			orient: function() {return Math.random()*2*Math.PI;}
 		}
 	},
 	path: './assets/data/raw',
@@ -125,6 +127,10 @@ const DATA = {
   				// add the orientation data
   				if ((DATA.areas[area].orient!=undefined) && (this.raw[type][xi][yi][3]==undefined)) {
   					this.raw[type][xi][yi][3] = DATA.areas[area].orient();
+  				}
+  				// if this an area with ontype information, add that (e.g. LGN)
+  				if ((DATA.areas[area].ontype!=undefined) && (this.raw[type][xi][yi][3]==undefined)) {
+  					this.raw[type][xi][yi][3] = DATA.areas[area].ontype();
   				}
   				// add the area
   				if (this.raw[type][xi][yi][4]==undefined) {
