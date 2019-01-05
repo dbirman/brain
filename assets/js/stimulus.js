@@ -518,7 +518,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = true, tg;
+let sensTest = false, tg;
 let flagging = false;
 
 function flipFlagging() {
@@ -576,7 +576,7 @@ function computePartialSensitivity() {
 				}
 			}
 			// Set the spike rate
-			response = response==-1 ? 3 : response;
+			response = response==-1 ? 0.5 : response;
 			electrode.setRate(response);
 		}
 	}
