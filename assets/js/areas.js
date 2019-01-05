@@ -38,7 +38,31 @@ const areas =  {
 		coherence: {
 			func: function(x) {return insensitive(x,{max:1})}
 		}
-	}
+	},
+	3: {
+		name: 'LGN',
+		func: responseLGN,
+		theta_sd: Math.PI/8,
+		pdf_max: normpdf(0,0,Math.PI/8),
+		contrast: {
+			func: function(x) {return insensitive(x,{max:1})}
+		},
+		coherence: {
+			func: function(x) {return insensitive(x,{max:1})}
+		}
+	},
+	4: {
+		name: 'V2',
+		func: responseV2,
+		theta_sd: Math.PI/4.25,
+		pdf_max: normpdf(0,0,Math.PI/4.25),
+		contrast: {
+			func: function(x) {return nakarushton(x,{rmax:1,x50:0.10})}
+		},
+		coherence: {
+			func: function(x) {return insensitive(x,{max:1})}
+		}
+	},
 };
 
 
@@ -112,6 +136,25 @@ function responseRet(elec,stim) {
 	response *= overlap;
 
 	return response;
+}
+
+function responseLGN(elec,stim) {
+	let response = maxFire;
+
+	// Compute the overlap
+	overlap = computeOverlap(elec.pos(),stim.pos) / (Math.PI * elec.pos().rad**2);
+
+	// Compute the distance
+	// if we are within 1 SD, as normal, but 1-2 SD, invert the firing rate
+	let dist = 
+
+	response *= overlap;
+
+	return response;
+}
+
+function responseV2(elec,stim) {
+	// failure
 }
 
 function computeOverlap(p1,p2) {

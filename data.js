@@ -21,6 +21,12 @@ const DATA = {
 		},
 		'Ret' : {
 			order: 2,
+		},
+		'LGN' : {
+			order: 3,
+		},
+		'V2' : {
+			order: 4,
 		}
 	},
 	path: './assets/data/raw',

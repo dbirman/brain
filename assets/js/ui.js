@@ -320,10 +320,14 @@ function uiBrainInit() {
 		let scale = si==0 ? 1 : -1;
 
 		let imgs = si==0 ? ['lateral','medial'] : ['medial','lateral'];
+		let aimgs = si==0 ? ['lateral','medial'] : ['medial','lateral_flip'];
+		let ascale = si==0 ? [1,1] : [-1,1];
 
 		for (let ii=0;ii<imgs.length;ii++) {
-		  // add the lateral brain image
 		  itype = imgs[ii];
+		  atype = aimgs[ii];
+
+		  // add the lateral brain image
 			let img = views.brain.brainContainer_brains.addChild(PIXI.Sprite.fromImage('./assets/brain_'+itype+'.png'));
 			img.alpha = 0.9;
 			img.anchor.set(0,0);
@@ -334,11 +338,22 @@ function uiBrainInit() {
 			ui_brains[side][itype] = img;
 
 			// // add the low-alpha image in front
-			let aimg = views.brain.brainContainer_areas.addChild(PIXI.Sprite.fromImage('./assets/areas_'+itype+'.png'));
+			let aimg = views.brain.brainContainer_areas.addChild(PIXI.Sprite.fromImage('./assets/areas_'+atype+'.png'));
 			aimg.anchor.set(0,0);
-			aimg.x = ii*iwidth+iwidth*si;
-			aimg.y = si*iheight;
-			aimg.scale.x = scale;
+			// the area image goes at different locations
+			if (si==1 && ii==0) {
+				aimg.x = ii*iwidth+iwidth*si;
+				aimg.y = si*iheight;
+				aimg.scale.x = ascale[ii];
+			} else if (si==1) {
+				aimg.x = iwidth*si;
+				aimg.y = si*iheight;
+				aimg.scale.x = ascale[ii];
+			} else {
+				aimg.x = ii*iwidth+iwidth*si;
+				aimg.y = si*iheight;
+				aimg.scale.x = ascale[ii];
+			}
 			// aimg.alpha = 0.5;
 			// views.brain.areas.push(aimg);
 		}
