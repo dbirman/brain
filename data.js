@@ -48,7 +48,7 @@ const DATA = {
 		},
 		sd: {
 			stops: [0,255],
-			vals: [1,15]
+			vals: [0.5,10]
 		}
 	},
 	// INIT

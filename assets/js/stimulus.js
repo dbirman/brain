@@ -14,10 +14,12 @@ function initStimulus() {
 	views.stim.container.interactive = true;
 
 	// Calculate the space the stimulus viewer will take up 
-	swidth=views.stim.STIM_W*ORIGIN_W, sheight=views.stim.STIM_W*ORIGIN_H;
+	sheight=views.stim.STIM_W*ORIGIN_H;
+	// swidth=views.stim.STIM_W*ORIGIN_W; // original calculation
+	swidth = sheight;
 
 	// set up the default starting location of the projector screen
-	views.stim.container.x = views.buffer;
+	views.stim.container.x = views.buffer+views.stim.STIM_W*ORIGIN_W/2-swidth/2;
 	views.stim.container.y = views.buffer+ORIGIN_H/2-sheight/2-sheight*0.2;
 	views.stim.standHeight = sheight*0.4; // 30% above, 70% below
 	views.stim.fullHeight = sheight*0.5;
@@ -67,7 +69,7 @@ function initStimulus() {
 	// tack on the bucket to enable/disable flagging
 	let sprite = views.stim.stimulusBackground.addChild(new PIXI.Sprite.fromImage('./assets/bucket.png'));
 	sprite.anchor.set(0,1);
-	sprite.x = swidth * 0.15;
+	sprite.x = swidth * 0.05;
 	sprite.y = views.stim.fullHeight+sheight*1.02;
 	sprite.scale.set(sprite.width/ORIGIN_W*1.35);
 	sprite.alpha = 0.2;
@@ -518,7 +520,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = false, tg;
+let sensTest = true, tg;
 let flagging = false;
 
 function flipFlagging() {

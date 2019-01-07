@@ -54,8 +54,8 @@ const areas =  {
 	4: {
 		name: 'V2',
 		func: responseV2,
-		theta_sd: Math.PI/4.25,
-		pdf_max: normpdf(0,0,Math.PI/4.25),
+		theta_sd: Math.PI/6,
+		pdf_max: normpdf(0,0,Math.PI/6),
 		contrast: {
 			func: function(x) {return nakarushton(x,{rmax:1,x50:0.10})}
 		},
@@ -111,9 +111,6 @@ function responseV1(elec,stim) {
 
 	let sens = normpdf(Math.min(angdist(elec.getTheta(),stim.theta),angdist(elec.getTheta(),stim.theta+Math.PI)),0,areas[0].theta_sd)/areas[0].pdf_max;
 	let con = areas[0].contrast.func(stim.contrast);
-
-	console.log(sens)
-	console.log(con)
 
 	if (stim.type=='gaussian') {
 		response *= con * 0.25;
@@ -175,7 +172,43 @@ function responseLGN(elec,stim) {
 }
 
 function responseV2(elec,stim) {
-	// failure
+	// response V2 is identical to response V1, but V2 "complex cells"
+	// don't care about overlap, just distance (use FWHM, so ~2.2*SD)
+
+	// A V1 neuron cares only that things have contrast (and orientation?)
+	let response = maxFire;
+
+	// Compute the distance
+	let ep = elec.pos();
+	let sp = stim.pos;
+
+	let dist = Math.sqrt((ep.x-sp.x)**2+(ep.y-sp.y)**2);
+	let dratio = dist/ep.rad;
+	console.log(dist);
+
+	let fwhm = ep.rad*2.2;
+
+	if (dist > fwhm) {
+		response = 0;
+	} else if (dist > (fwhm-0.5)) {
+  	// if we are too far away, drop off linearly 1->0 with distance
+  	response *= (fwhm-dist-0.5)/0.5+1;
+  }
+
+	let sens = normpdf(Math.min(angdist(elec.getTheta(),stim.theta),angdist(elec.getTheta(),stim.theta+Math.PI)),0,areas[0].theta_sd)/areas[0].pdf_max;
+	let con = areas[0].contrast.func(stim.contrast);
+
+	if (stim.type=='gaussian') {
+		response *= con * 0.25;
+	} else if (stim.type=='gabor') {
+		response *= sens * con;
+	} else if (stim.type=='motion') {
+		response *= con * 0.15;
+	}
+
+	response = response<0.2 ? -1 : response;
+
+	return response;
 }
 
 function computeOverlap(p1,p2) {
