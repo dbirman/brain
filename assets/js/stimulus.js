@@ -15,8 +15,8 @@ function initStimulus() {
 
 	// Calculate the space the stimulus viewer will take up 
 	sheight=views.stim.STIM_W*ORIGIN_H;
-	// swidth=views.stim.STIM_W*ORIGIN_W; // original calculation
-	swidth = sheight;
+	swidth=views.stim.STIM_W*ORIGIN_W; // original calculation
+	// swidth = sheight;
 
 	// set up the default starting location of the projector screen
 	views.stim.container.x = views.buffer+views.stim.STIM_W*ORIGIN_W/2-swidth/2;
