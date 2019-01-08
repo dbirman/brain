@@ -281,7 +281,7 @@ class Gaussian extends Stimulus {
 // GABORS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaborStimulus(x=0,y=0,rad=deg2pix*2.5) {
+function createGaborStimulus(x=0,y=0,rad=deg2pix*3) {
 	var gabor = views.stim.stimulusWindow.addChild(new Gabor(x-rad,y-rad,rad));
 	gabor.start();
 }
@@ -302,15 +302,9 @@ class Gabor extends Stimulus {
 		for (var x=0;x<(this.size*2);x++) {
 			for (var y=0;y<(this.size*2);y++) {
 				var d = hypot(x,this.size,y,this.size);
-				var alpha = normpdf(d,x/2,this.size/4)/scale;
-				var color;
-				if (y < (this.size-this.size/8)) {
-					color = 0xFFFFFF;
-				} else {
-					color = 0x000000;
-				}
-				color=0xFFFFFF;
-				this.graphics.beginFill(con2bin(alpha),alpha);
+				var alpha = normpdf(d,0,this.size/4)/scale;
+				var color = con2bin_gamma((Math.cos(y-this.size)+1)/2);
+				this.graphics.beginFill(color,alpha);
 				this.graphics.drawRect(x,y,1,1);
 			}
 		}
