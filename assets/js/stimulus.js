@@ -5,7 +5,11 @@
 	the screen, and deals with calculating the overlap and spike rates for the electrode
 	code. This is the main client-side code. 
 */
-let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg;
+let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg, horizdeg;
+
+// caution -- this is used to track the offset of the stimulus drawing container
+// relative to the stimulus, so that X/Y positions are rendered correctly
+let globalStimulusOffset;
 
 function initStimulus() {
 	views.stim.container = views.container.addChild(new DContainer());
@@ -16,19 +20,23 @@ function initStimulus() {
 	// Calculate the space the stimulus viewer will take up 
 	sheight=views.stim.STIM_W*ORIGIN_H;
 	swidth=views.stim.STIM_W*ORIGIN_W; // original calculation
+
+	// now that the viewer is calculated, figure out the vertical degrees
+	deg2pix = sheight/51; // use the height as the base
+	pix2deg = 51/sheight;
+	horizdeg = 1/deg2pix*swidth; // compute how wide the horizontal portion of the screen is
+
 	// swidth = sheight;
 
 	// set up the default starting location of the projector screen
 	views.stim.container.x = views.buffer+views.stim.STIM_W*ORIGIN_W/2-swidth/2;
+	globalStimulusOffset = views.stim.container.x;
 	views.stim.container.y = views.buffer+ORIGIN_H/2-sheight/2-sheight*0.2;
 	views.stim.standHeight = sheight*0.4; // 30% above, 70% below
 	views.stim.fullHeight = sheight*0.5;
 
 	views.stim.container.resetX = views.stim.container.x;
 	views.stim.container.resetY = views.stim.container.y;
-
-	deg2pix = swidth/51;
-	pix2deg = 51/swidth;
 
 	// initialize stimulusBackground
 	views.stim.stimulusBackground = views.stim.container.addChild(new DContainer());
@@ -244,7 +252,7 @@ function resolveStimulusWindow() {
 // GAUSSIAN BLOB
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaussianStimulus(x=0,y=0,rad=deg2pix*1.5) {
+function createGaussianStimulus(x=0,y=0,rad=deg2pix*2) {
 	var gaussian = views.stim.stimulusWindow.addChild(new Gaussian(x-rad,y-rad,rad));
 	gaussian.start(); // you still have to start -- otherwise it doesn't draw
 	// technically with the gaussian you don't need to re-draw each frame...
@@ -273,7 +281,7 @@ class Gaussian extends Stimulus {
 // GABORS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaborStimulus(x=0,y=0,rad=deg2pix*2) {
+function createGaborStimulus(x=0,y=0,rad=deg2pix*2.5) {
 	var gabor = views.stim.stimulusWindow.addChild(new Gabor(x-rad,y-rad,rad));
 	gabor.start();
 }
@@ -286,7 +294,6 @@ class Gabor extends Stimulus {
 		this._ecc = this._size+this._size/5 
 
 		this.graphics = this.stimulus.addChild(new PIXI.Graphics());
-		this.graphics.pivot.set(this.size,this.size);
 		this.graphics.position.set(this.size,this.size);
 		// draw a white bar in the middle
 		this.graphics.beginFill(0xFFFFFF,1);
@@ -389,7 +396,7 @@ class Gabor extends Stimulus {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=deg2pix*3.5) {
+function createMotionStimulus(x=0,y=0,rad=deg2pix*4) {
 	var motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 }

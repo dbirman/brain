@@ -110,7 +110,7 @@ function circIntersect(x0, y0, r0, x1, y1, r1)
 {
   var rr0 = r0 * r0;
   var rr1 = r1 * r1;
-  var d = Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+  var d = Math.sqrt((x1 - x0)**2 + (y1 - y0)**2);
 
   // Circles do not overlap
   if (d > r1 + r0)

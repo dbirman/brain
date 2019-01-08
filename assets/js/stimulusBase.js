@@ -183,7 +183,7 @@ class Stimulus extends DContainer {
 		this.isdown = true;
 		// track offset
 		let dpos = event.data.getLocalPosition(this.parent);
-		this.offX = dpos.x - this.x;
+		this.offX = dpos.x - this.x + globalStimulusOffset;
 		this.offY = dpos.y - this.y;
 	}
 
