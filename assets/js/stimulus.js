@@ -281,7 +281,7 @@ class Gaussian extends Stimulus {
 // GABORS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaborStimulus(x=0,y=0,rad=deg2pix*3) {
+function createGaborStimulus(x=0,y=0,rad=deg2pix*4) {
 	var gabor = views.stim.stimulusWindow.addChild(new Gabor(x-rad,y-rad,rad));
 	gabor.start();
 }
@@ -427,7 +427,7 @@ class Gabor extends Stimulus {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=deg2pix*4) {
+function createMotionStimulus(x=0,y=0,rad=deg2pix*5) {
 	var motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 }
