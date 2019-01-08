@@ -294,7 +294,10 @@ class Gabor extends Stimulus {
 		this._ecc = this._size+this._size/5 
 
 		this.graphics = this.stimulus.addChild(new PIXI.Graphics());
+
+		this.graphics.pivot.set(this.size,this.size);
 		this.graphics.position.set(this.size,this.size);
+
 		// draw a white bar in the middle
 		this.graphics.beginFill(0xFFFFFF,1);
 		this.graphics.drawRect(0,this.size-this.size/8,this.size*2,this.size/4);
@@ -304,6 +307,17 @@ class Gabor extends Stimulus {
 		this.graphics.beginFill(0x000000,1);
 		this.graphics.drawRect(this.size/3,this.size*3/4-this.size/8,this.size*4/3,this.size/4);
 		this.graphics.drawRect(this.size/3,this.size*5/4-this.size/8,this.size*4/3,this.size/4);
+
+		// add a gaussian mask
+		g = new PIXI.Graphics();
+		g.beginFill(0xFFFFFF);
+		for (var x=0;x<(this.size*2);x++) {
+			for (var y=0;y<(this.size*2);y++) {
+				g.drawRect(x,y,1,1);
+			}
+		}
+		g.endFill();
+		// this.graphics.mask = g;
 
 		this.controls.motionControl = this.controls.addChild(new PIXI.Graphics());
 		// this.drawMotionControlCircle(this.dots.dir,this._ecc);
