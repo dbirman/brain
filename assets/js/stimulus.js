@@ -281,7 +281,7 @@ class Gaussian extends Stimulus {
 // GABORS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createGaborStimulus(x=0,y=0,rad=deg2pix*2.5) {
+function createGaborStimulus(x=0,y=0,rad=deg2pix*4) {
 	var gabor = views.stim.stimulusWindow.addChild(new Gabor(x-rad,y-rad,rad));
 	gabor.start();
 }
@@ -298,49 +298,16 @@ class Gabor extends Stimulus {
 		this.graphics.pivot.set(this.size,this.size);
 		this.graphics.position.set(this.size,this.size);
 
-		// var scale = normpdf(0,0,this.size/4);
-		// for (var x=0;x<(this.size*2);x++) {
-		// 	for (var y=0;y<(this.size*2);y++) {
-		// 		var d = hypot(x,this.size,y,this.size);
-		// 		var alpha = normpdf(d,x/2,this.size/4)/scale;
-		// 		var color;
-		// 		if (y < (this.size-this.size/8)) {
-		// 			color = 0xFFFFFF;
-		// 		} else {
-		// 			color = 0x000000;
-		// 		}
-		// 		color=0xFFFFFF;
-		// 		this.graphics.beginFill(con2bin(alpha),alpha);
-		// 		this.graphics.drawRect(x,y,1,1);
-		// 	}
-		// }
-
-		// draw a white bar in the middle
-		this.graphics.beginFill(0xFFFFFF,1);
-		this.graphics.drawRect(0,this.size-this.size/8,this.size*2,this.size/4);
-		// draw two white bars above and below
-		this.graphics.drawRect(this.size/2,this.size/2-this.size/8,this.size,this.size/4);
-		this.graphics.drawRect(this.size/2,this.size*3/2-this.size/8,this.size,this.size/4);
-		this.graphics.beginFill(0x000000,1);
-		this.graphics.drawRect(this.size/3,this.size*3/4-this.size/8,this.size*4/3,this.size/4);
-		this.graphics.drawRect(this.size/3,this.size*5/4-this.size/8,this.size*4/3,this.size/4);
-
-		// // add a gaussian mask
-		// g = new PIXI.Graphics();
-		// g.beginFill(0x000000,0);
-		// var scale = normpdf(0,0,this.size/4);
-		// for (var x=0;x<(this.size*2);x++) {
-		// 	for (var y=0;y<(this.size*2);y++) {
-		// 		// var d = hypot(x,x/2,y,y/2);
-		// 		// var alpha = normpdf(d,x/2,this.size/4)/scale;
-		// 		// console.log(alpha);
-		// 		// g.beginFill(con2bin(alpha),1);
-		// 		g.drawRect(x,y,1,1);
-		// 	}
-		// }
-		// g.endFill();
-		// this.addChild(g);
-		// this.graphics.mask = g;
+		var scale = normpdf(0,0,this.size/4);
+		for (var x=0;x<(this.size*2);x++) {
+			for (var y=0;y<(this.size*2);y++) {
+				var d = hypot(x,this.size,y,this.size);
+				var alpha = normpdf(d,0,this.size/4)/scale;
+				var color = con2bin_gamma((Math.cos(y-this.size)+1)/2);
+				this.graphics.beginFill(color,alpha);
+				this.graphics.drawRect(x,y,1,1);
+			}
+		}
 
 		this.controls.motionControl = this.controls.addChild(new PIXI.Graphics());
 		// this.drawMotionControlCircle(this.dots.dir,this._ecc);
@@ -433,7 +400,7 @@ class Gabor extends Stimulus {
 // MOTION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-function createMotionStimulus(x=0,y=0,rad=deg2pix*4) {
+function createMotionStimulus(x=0,y=0,rad=deg2pix*5) {
 	var motion = views.stim.stimulusWindow.addChild(new Motion(x-rad,y-rad,rad));
 	motion.start();
 }
