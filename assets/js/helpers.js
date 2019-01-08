@@ -65,6 +65,10 @@ function normpdf(x,mu,sd) {
   return 1 / Math.sqrt(2*Math.PI*Math.pow(sd,2)) * Math.exp(-Math.pow(x-mu,2)/(2*Math.pow(sd,2)));
 }
 
+function hypot(x0,x1,y0,y1) {
+  return Math.sqrt((x1-x0)**2+(y1-y0)**2);
+}
+
 function now() {
   return Date.now();
 }
@@ -77,6 +81,10 @@ function equals(array, val) {
     }
   }
   return temp;
+}
+
+function con2bin(con) {
+  return Number('0x'+rgb2hex_(Math.round(255*con)));  
 }
 
 function con2bin_gamma(con) {
