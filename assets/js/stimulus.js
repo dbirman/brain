@@ -585,8 +585,12 @@ function computePartialSensitivity() {
 					// check if we should tag this region
 					if (flagging && sResp > 1) {
 						views.stim.graphics.lineStyle(0,0x000000,1);
-						views.stim.graphics.beginFill(electrode.color,Math.pow(sResp/50,2));
 						let stimPos = stimulus[si].pixPos;
+						// clear the location
+						views.stim.graphics.beginFill(con2bin_gamma(0.5),Math.pow(sResp/50,2));
+						views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
+						// re-draw
+						views.stim.graphics.beginFill(electrode.color,Math.pow(sResp/50,2));
 						views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
 					}
 					response += sResp;
