@@ -44,6 +44,9 @@ function initStimulus() {
 	views.stim.stimulusBackground.pivot.set(0,0);
 	views.stim.stimulusBackground.position.set(0,0);
 	views.stim.stimulusBackground.zOrder = -1;
+	views.stim.stimulusBackground.interactive = true;
+	views.stim.stimulusBackground
+		.on('pointertap',function() {if (globalStimulusActive!=undefined) {globalStimulusActive.clicked();}})
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
@@ -437,7 +440,7 @@ class Motion extends Stimulus {
 	constructor(x,y,radius) {
 		super('motion',computePartialSensitivity,x,y,radius*2,radius*2);
 
-		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/51,2);
+		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/horizdeg,2);
 		this.stimulus.addChild(this.dots.g);
 
 		this._size = radius;
@@ -626,7 +629,6 @@ function computePartialSensitivity() {
 // POSITION FUNCTIONS
 
 function getVisualFieldPosition(point) {
-	console.log(point)
 	let degx = point.x, degy = point.y;
 	// convert from degrees to visual field position
 

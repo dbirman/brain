@@ -1,4 +1,5 @@
 let globalStimulusDown = false;
+let globalStimulusActive;
 
 /**
 * A rare opportunity to document properly...
@@ -152,6 +153,7 @@ class Stimulus extends DContainer {
 		if (this.controlFlag) {return;}
 
 		this.controls.visible = !this.controls.visible;
+		globalStimulusActive = this.controls.visible ? this : undefined;
 		// block sliding motion 
 		this.localPreventMotion = this.controls.visible;
 		// disable or re-enable interactivity on the stimulus container and other stimuli
@@ -246,9 +248,9 @@ class Stimulus extends DContainer {
 	get pos() {
 		// get position
 		return {
-			x:(this.x)*51/swidth-25,
-			y:-((this.y)*51/sheight-25),
-			rad:this.size*51/views.stim.container.width
+			x:(this.x)*horizdeg/swidth-horizdeg/2,
+			y:-((this.y)*vertdeg/sheight-vertdeg/2),
+			rad:this.size*vertdeg/sheight
 		}
 	}
 
