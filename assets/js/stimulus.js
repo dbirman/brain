@@ -562,7 +562,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = true, tg;
+let sensTest = false, tg;
 let flagging = false;
 
 function flipFlagging() {
