@@ -5,7 +5,7 @@
 	the screen, and deals with calculating the overlap and spike rates for the electrode
 	code. This is the main client-side code. 
 */
-let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg, horizdeg;
+let stimulus = [], stimulus_graphic, swidth, sheight, deg2pix, pix2deg, horizdeg, vertdeg;
 
 // caution -- this is used to track the offset of the stimulus drawing container
 // relative to the stimulus, so that X/Y positions are rendered correctly
@@ -24,7 +24,8 @@ function initStimulus() {
 	// now that the viewer is calculated, figure out the vertical degrees
 	deg2pix = sheight/51; // use the height as the base
 	pix2deg = 51/sheight;
-	horizdeg = 1/deg2pix*swidth; // compute how wide the horizontal portion of the screen is
+	horizdeg = 61; // compute how wide the horizontal portion of the screen is
+	vertdeg = 51;
 
 	// swidth = sheight;
 
@@ -43,6 +44,9 @@ function initStimulus() {
 	views.stim.stimulusBackground.pivot.set(0,0);
 	views.stim.stimulusBackground.position.set(0,0);
 	views.stim.stimulusBackground.zOrder = -1;
+	views.stim.stimulusBackground.interactive = true;
+	views.stim.stimulusBackground
+		.on('pointertap',function() {if (globalStimulusActive!=undefined) {globalStimulusActive.clicked();}})
 
 	// Draw the stimulus stage -- a large box on the left (visual field) and then 
 	// a box on the right for the stimulus buttons
@@ -409,7 +413,7 @@ class Motion extends Stimulus {
 	constructor(x,y,radius) {
 		super('motion',computePartialSensitivity,x,y,radius*2,radius*2);
 
-		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/51,2);
+		this.dots = new dots(25,radius*2,radius*2,0,-Math.PI/2,swidth*5/horizdeg,2);
 		this.stimulus.addChild(this.dots.g);
 
 		this._size = radius;
@@ -600,10 +604,9 @@ function computePartialSensitivity() {
 function getVisualFieldPosition(point) {
 	let degx = point.x, degy = point.y;
 	// convert from degrees to visual field position
-	let vf_range = [-25,25];
 
-	let x = (degx+25)/50*swidth,
-		y = (25-degy)/50*sheight; // invert y position
+	let x = (degx+horizdeg/2)/horizdeg*swidth,
+		y = (vertdeg/2-degy)/vertdeg*sheight; // invert y position
 	return new PIXI.Point(x,y);
 }
 
