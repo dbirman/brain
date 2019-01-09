@@ -40,7 +40,7 @@ const DATA = {
 	rules: {
 		x: {
 			stops: [0,255],
-			vals: [-25,25]
+			vals: [-30,30]
 		},
 		y: {
 			stops: [0,255],
