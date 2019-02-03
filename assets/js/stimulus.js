@@ -562,7 +562,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = false, tg;
+let sensTest = true, tg;
 let flagging = false;
 
 function flipFlagging() {
@@ -585,6 +585,15 @@ function computePartialSensitivity() {
 			tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
 		}
 	}
+
+	// Add a new step which goes through each electrode and checks
+	// if the electrode is in FEF, then loop through the other electrodes
+	// and set the flag if needed
+
+	// electrodes[i].pos() -> .x .y .sd 
+
+	// Add here also code for drawing the FEF "spotlight" of attention on
+	// the visual field, using tg.drawCircle(...)
 
 	for (let ei = 0; ei < electrodes.length; ei++) {
 		let electrode = electrodes[ei];

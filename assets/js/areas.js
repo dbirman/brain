@@ -63,6 +63,14 @@ const areas =  {
 			func: function(x) {return insensitive(x,{max:1})}
 		}
 	},
+	5: {
+		name: 'FEF',
+		func: function() {return 0;},
+		theta_sd: 1,
+		pdf_max: 1,
+		contrast: 0,
+		coherence: 0
+	},
 };
 
 
@@ -119,6 +127,8 @@ function responseV1(elec,stim) {
 	} else if (stim.type=='motion') {
 		response *= con * 0.15;
 	}
+
+	// if elec.spatialAttention==true multiplicative gain
 
 	response = response<0.2 ? -1 : response;
 
