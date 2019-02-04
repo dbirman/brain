@@ -9,12 +9,8 @@ The processing scripts will find anything encoded in the green channel 0->255 an
 px - pixel x location
 py - pixel y location
 x - x location of the neurons receptive field [0,255]=[-25,25 degs]
-y - y location of the neurons receptive field [0,255]=[-25,25 degs]
+y - y location of the neurons receptive field [0,255]=[-30,30 degs]
 sd - standard deviation of the receptive field, this will act as a weight on the firing rate [0,255] = [1 15 degs]
-o - orientation preference [0,1,255]=[none,0,2pi]
-m - motion preference [0,1,255]=[none,0,2pi]
-con - contrast sensitivity, [0-10,11-255]=[insensitive/max response,1->10 linear response]
-coh - coherence sensitivity, [0,1,255]=[none,1,10] \(linear)
 
 # Input structure
 

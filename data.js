@@ -29,6 +29,10 @@ const DATA = {
 		'V2' : {
 			order: 4,
 			orient: function() {return Math.random()*2*Math.PI;}
+		},
+		'FEF' : {
+			order: 5,
+			orient: function() {return -1;}
 		}
 	},
 	path: './assets/data/raw',
