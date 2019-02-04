@@ -1,4 +1,5 @@
 let maxFire = 50;
+let attGain = 1.75;
 
 // The data code uses the function mappings to communicate which response function
 // to use for contrast/coherence sensitivity. The parameters are stored by area.
@@ -103,6 +104,9 @@ function responseMT(elec,stim) {
 		response *= sens * con * 0.1;
 	}
 
+	if (elec.spatialAttention!=undefined && elec.spatialAttention==true) {
+    response *= attGain;
+  }
 	response = response<0.2 ? -1 : response;
 
 	return response;
@@ -128,7 +132,9 @@ function responseV1(elec,stim) {
 		response *= con * 0.15;
 	}
 
-	// if elec.spatialAttention==true multiplicative gain
+	if (elec.spatialAttention!=undefined && elec.spatialAttention==true) {
+    response *= attGain;
+  }
 
 	response = response<0.2 ? -1 : response;
 
@@ -216,6 +222,9 @@ function responseV2(elec,stim) {
 		response *= con * 0.15;
 	}
 
+	if (elec.spatialAttention!=undefined && elec.spatialAttention==true) {
+    response *= attGain;
+  }
 	response = response<0.2 ? -1 : response;
 
 	return response;
