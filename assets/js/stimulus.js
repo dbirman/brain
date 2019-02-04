@@ -562,7 +562,7 @@ class Motion extends Stimulus {
 
 //// Sensitivity computation
 
-let sensTest = true, tg;
+let sensTest = false, tg;
 let flagging = false;
 
 function flipFlagging() {
@@ -594,6 +594,45 @@ function computePartialSensitivity() {
 
 	// Add here also code for drawing the FEF "spotlight" of attention on
 	// the visual field, using tg.drawCircle(...)
+  for (let ei=0; ei < electrodes.length; ei++) {
+    let electrode = electrodes[ei];
+    let e_pos = electrode.pos();
+
+    if (e_pos!= undefined){
+      let vf_pos = getVisualFieldPosition(e_pos);
+      let area = electrode.data.neuron[4]
+
+      if (area == 5) {// FEF
+        // First draw the FEF neuron's receptive field.
+        if (tg!=undefined){
+          tg.clear();
+        }else {
+          tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
+        }
+        tg.beginFill(0xFFFFFF,0.3);
+        tg.drawCircle(vf_pos.x, vf_pos.y, deg2pix*e_pos.rad);
+
+        // Check if other neurons have overlapping RFs with this FEF neuron.
+        for (let oi=0; oi < electrodes.length; oi++){
+          if (oi != ei && electrodes[oi].data.neuron!=undefined){
+            let otherElec = electrodes[oi];
+            let oArea = otherElec.data.neuron[4];
+            if (oArea != 5) { // nonFEF neuron
+              let oe_pos = otherElec.pos();
+              let o_vfPos = getVisualFieldPosition(otherElec.pos());
+
+              let elec_dist = pix2deg*hypot(o_vfPos.x, vf_pos.x, o_vfPos.y, vf_pos.y);
+              if(elec_dist < e_pos.rad + oe_pos.rad) { // overlapping RFs
+                otherElec.spatialAttention = 1;
+              } else{
+                otherElec.spatialAttention = 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
 	for (let ei = 0; ei < electrodes.length; ei++) {
 		let electrode = electrodes[ei];
