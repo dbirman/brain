@@ -682,7 +682,11 @@ function computePartialSensitivity() {
       } else{
         side = 'Left';
       }
-      electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name + '; Firing Rate: ' + response.toFixed(2) + ' spikes/sec');
+      if (showFiringRate==1){
+        electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name + '; Firing Rate: ' + response.toFixed(2) + ' spikes/sec');
+      } else{
+        electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name);
+      }
 		}
 	}
 }

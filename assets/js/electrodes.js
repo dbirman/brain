@@ -227,11 +227,7 @@ socket.on('elecInfo', function(data) {
 	  	side = 'Left';
 	  }
 	  // set trace text
-    if (electrodes[data.info.id].currResponse!=undefined) {
-      electrodes[data.info.id].trace.text.setText('Area: ' + side + ' ' + areas[data.neuron[4]].name + '; Firing Rate: ' + electrodes[data.info.id].currResponse.toFixed(2));
-    }else{
-      electrodes[data.info.id].trace.text.setText('Area: ' + side + ' ' + areas[data.neuron[4]].name);
-    }
+    electrodes[data.info.id].trace.text.setText('Area: ' + side + ' ' + areas[data.neuron[4]].name);
   } else {
   	// set electrode to null
   	electrodes[data.info.id].trace.text.setText('Area: ');
