@@ -547,6 +547,7 @@ function flipFlagging() {
 }
 
 function computePartialSensitivity() {
+	// console.log('cPS called by: ' + computePartialSensitivity.caller);
 	// For each electrode re-compute the sensitivity at the current parameters.
 	// This is used when the parameters are being directly adjusted (e.g. size
 	// contrast, coherence, etc)
@@ -569,84 +570,91 @@ function computePartialSensitivity() {
 	// the visual field, using tg.drawCircle(...)
   for (let ei=0; ei < electrodes.length; ei++) {
     let electrode = electrodes[ei];
-    let e_pos = electrode.pos();
 
-    if (e_pos!= undefined){
-      let vf_pos = getVisualFieldPosition(e_pos);
-      let area = electrode.data.neuron[4]
-
-      if (area == 5) {// FEF
-        // First draw the FEF neuron's receptive field.
-        if (tg!=undefined){
-          tg.clear();
-        }else {
-          tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
-        }
-        tg.beginFill(0xFFFFFF,0.3);
-        tg.drawCircle(vf_pos.x, vf_pos.y, deg2pix*e_pos.rad);
-
-        // Check if other neurons have overlapping RFs with this FEF neuron.
-        for (let oi=0; oi < electrodes.length; oi++){
-          if (oi != ei && electrodes[oi].data.neuron!=undefined){
-            let otherElec = electrodes[oi];
-            let oArea = otherElec.data.neuron[4];
-            if (oArea != 5) { // nonFEF neuron
-              let oe_pos = otherElec.pos();
-              let o_vfPos = getVisualFieldPosition(otherElec.pos());
-
-              let elec_dist = pix2deg*hypot(o_vfPos.x, vf_pos.x, o_vfPos.y, vf_pos.y);
-              if(elec_dist < e_pos.rad + oe_pos.rad) { // overlapping RFs
-                otherElec.spatialAttention = 1;
-              } else{
-                otherElec.spatialAttention = 0;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-	for (let ei = 0; ei < electrodes.length; ei++) {
-		let electrode = electrodes[ei];
-		let e_pos = electrode.pos();
-
-		if (electrode.data.neuron==undefined) {
+    if (electrode.data.neuron==undefined) {
 			electrode.setRate(0);
-		} else if (e_pos!=undefined) {
-			// Draw the x/y and radius for this electrode (testing)
-			if (sensTest) {
-				let vf_pos = getVisualFieldPosition(e_pos);
+		} else {
+    	let e_pos = electrode.pos();
 
-				tg.beginFill(0xFFFFFF,0.3);
-				tg.drawCircle(vf_pos.x,vf_pos.y,deg2pix*e_pos.rad);
-			}
+    	if (e_pos !=undefined) {
+	      let vf_pos = getVisualFieldPosition(e_pos);
+	      let area = electrode.data.neuron[4]
 
-			// Get the area
-			let area = electrode.data.neuron[4];
+				// Draw the x/y and radius for this electrode (testing)
+				if (sensTest) {
+					let vf_pos = getVisualFieldPosition(e_pos);
 
-			// Compute response to each stimulus
-			let response = 0;
-			for (let si = 0; si < stimulus.length; si++) {
-				if (stimulus[si]!=undefined) {
-					let sResp = areas[area].func(electrode,stimulus[si]);
-					// check if we should tag this region
-					if (flagging && sResp > 1) {
-						views.stim.graphics.lineStyle(0,0x000000,1);
-						let stimPos = stimulus[si].pixPos;
-						// clear the location
-						views.stim.graphics.beginFill(con2bin_gamma(0.5),Math.pow(sResp/50,2));
-						views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
-						// re-draw
-						views.stim.graphics.beginFill(electrode.color,Math.pow(sResp/50,2));
-						views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
-					}
-					response += sResp;
+					tg.beginFill(0xFFFFFF,0.3);
+					tg.drawCircle(vf_pos.x,vf_pos.y,deg2pix*e_pos.rad);
 				}
-			}
-			// Set the spike rate
-			response = response==-1 ? 0.5 : response;
-			electrode.setRate(response);
+
+    		// FEF-SPECIFIC CALCULATIONS
+	      if (area == 5) {
+	      	// this electrode is in the FEF
+
+	        // First draw the FEF neuron's receptive field.
+	        if (!sensTest) {
+		        if (tg!=undefined) {
+		          tg.clear();
+		        }	else {
+		          tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
+		        }
+	        }
+	        tg.beginFill(0xFFFFFF,0.3);
+	        tg.drawCircle(vf_pos.x, vf_pos.y, 2*deg2pix*e_pos.rad);
+
+	        // Check if other neurons have overlapping RFs with this FEF neuron.
+	        for (let oi=0; oi < electrodes.length; oi++){
+	          if (oi != ei && electrodes[oi].data.neuron!=undefined){
+	            let otherElec = electrodes[oi];
+	            let oArea = otherElec.data.neuron[4];
+	            if (oArea != 5) { // nonFEF neuron
+	              let oe_pos = otherElec.pos();
+	              // check that distance is less than the radius of the two neurons combined
+	              otherElec.spatialAttention = hypot(oe_pos.x, e_pos.x, oe_pos.y, e_pos.y) < 2*e_pos.rad + oe_pos.rad;
+	            }
+	          }
+	        }
+	      }
+
+	      // GENERIC FIRING RATE CALCULATIONS
+
+				// Compute response to each stimulus
+				let response = 0;
+				for (let si = 0; si < stimulus.length; si++) {
+					if (stimulus[si]!=undefined) {
+						let sResp = areas[area].func(electrode,stimulus[si]);
+						// check if we should tag this region
+						if (flagging && sResp > 1) {
+							views.stim.graphics.lineStyle(0,0x000000,1);
+							let stimPos = stimulus[si].pixPos;
+							// clear the location
+							views.stim.graphics.beginFill(con2bin_gamma(0.5),Math.pow(sResp/50,2));
+							views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
+							// re-draw
+							views.stim.graphics.beginFill(electrode.color,Math.pow(sResp/50,2));
+							views.stim.graphics.drawRect(0+stimPos.x-1,views.stim.standHeight*0.3+stimPos.y-1,3,3);
+						}
+						response += sResp;
+					}
+				}
+				// Set the spike rate
+				response = response==-1 ? 0.5 : response;
+	      electrode.currResponse = response;
+				electrode.setRate(response);
+
+	      // Update the electrode's text with firing rate info.
+	      if (electrode.data.hem=='r'){
+	        side = 'Right';
+	      } else{
+	        side = 'Left';
+	      }
+	      if (showFiringRate==1){
+	        electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name + '; Firing Rate: ' + response.toFixed(2) + ' spikes/sec');
+	      } else{
+	        electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name);
+	      }
+	    }
 		}
 	}
 }
