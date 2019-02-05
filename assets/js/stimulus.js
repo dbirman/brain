@@ -610,7 +610,7 @@ function computePartialSensitivity() {
           tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
         }
         tg.beginFill(0xFFFFFF,0.3);
-        tg.drawCircle(vf_pos.x, vf_pos.y, deg2pix*e_pos.rad);
+        tg.drawCircle(vf_pos.x, vf_pos.y, 2*deg2pix*e_pos.rad);
 
         // Check if other neurons have overlapping RFs with this FEF neuron.
         for (let oi=0; oi < electrodes.length; oi++){
@@ -622,7 +622,7 @@ function computePartialSensitivity() {
               let o_vfPos = getVisualFieldPosition(otherElec.pos());
 
               let elec_dist = pix2deg*hypot(o_vfPos.x, vf_pos.x, o_vfPos.y, vf_pos.y);
-              if(elec_dist < e_pos.rad + oe_pos.rad) { // overlapping RFs
+              if(elec_dist < 2*e_pos.rad + oe_pos.rad) { // overlapping RFs
                 otherElec.spatialAttention = 1;
               } else{
                 otherElec.spatialAttention = 0;
@@ -673,7 +673,20 @@ function computePartialSensitivity() {
 			}
 			// Set the spike rate
 			response = response==-1 ? 0.5 : response;
+      electrode.currResponse = response;
 			electrode.setRate(response);
+
+      // Update the electrode's text with firing rate info.
+      if (electrode.data.hem=='r'){
+        side = 'Right';
+      } else{
+        side = 'Left';
+      }
+      if (showFiringRate==1){
+        electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name + '; Firing Rate: ' + response.toFixed(2) + ' spikes/sec');
+      } else{
+        electrode.trace.text.setText('Area: ' + side + ' ' + areas[electrode.data.neuron[4]].name);
+      }
 		}
 	}
 }

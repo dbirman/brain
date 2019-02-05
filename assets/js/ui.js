@@ -26,6 +26,7 @@
 // touchmove
 // touchstart
 
+var showFiringRate=0;
 
 function uiInit() {
 	// add a top-level DContainer()
@@ -53,6 +54,14 @@ function uiInit() {
   	document.addEventListener('pointertap',resumeAudio);
   	console.log(audioCtx.state)
   }
+
+  // Add listener for "f" key press --> set the firing rate flag
+  document.addEventListener('keydown', function(e){
+    if (e.keyCode==70) { // f
+      showFiringRate = 1-showFiringRate;//toggle between 0 and 1
+      computePartialSensitivity();
+    } 
+  });
 }
 
 function resumeAudio() {
