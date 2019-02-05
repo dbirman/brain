@@ -233,6 +233,7 @@ socket.on('elecInfo', function(data) {
   	electrodes[data.info.id].trace.text.setText('Area: ');
   	electrodes[data.info.id].data.neuron = undefined;
   }
+  computePartialSensitivity();
 });
 
 // let data;
@@ -283,7 +284,6 @@ function elecUp(event) {
   // this.alpha = 1;
   // change alpha
   views.brain.brainContainer_areas.alpha = 0.50;
-  computePartialSensitivity();
 }
 
 function elecMove(event) {
@@ -293,7 +293,6 @@ function elecMove(event) {
   	let nx = pos.x-this.offX,
   		ny = pos.y-this.offY;
     this.position.set(nx,ny);
-    computePartialSensitivity();
   }
 }
 
