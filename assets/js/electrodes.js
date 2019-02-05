@@ -228,13 +228,25 @@ socket.on('elecInfo', function(data) {
 	  }
 	  // set trace text
     electrodes[data.info.id].trace.text.setText('Area: ' + side + ' ' + areas[data.neuron[4]].name);
+    // re-compute cPS
+    e_cPS_call = true;
+    // make a delayed call to cPS
+    setTimeout(e_cPS_wrapper,100);
   } else {
   	// set electrode to null
   	electrodes[data.info.id].trace.text.setText('Area: ');
   	electrodes[data.info.id].data.neuron = undefined;
   }
-  computePartialSensitivity();
 });
+
+let e_cPS_call = false;
+
+function e_cPS_wrapper() {
+	if (e_cPS_call) {
+		e_cPS_call = false;
+		computePartialSensitivity();
+	}
+}
 
 // let data;
 // socket.on('proc', function(proc) {console.log('received proc'); data = proc; testData();});

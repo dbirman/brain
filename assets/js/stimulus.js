@@ -574,6 +574,7 @@ function flipFlagging() {
 }
 
 function computePartialSensitivity() {
+	// console.log('cPS called by: ' + computePartialSensitivity.caller);
 	// For each electrode re-compute the sensitivity at the current parameters.
 	// This is used when the parameters are being directly adjusted (e.g. size
 	// contrast, coherence, etc)
