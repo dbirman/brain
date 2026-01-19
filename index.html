@@ -201,9 +201,10 @@
     </div>
   </div>
 
-  <script src="./socket.io/socket.io.js"></script>
   <!-- order matters: load helpers first -->
   <script src="./assets/js/helpers.js"></script>
+  <!-- Load brain data -->
+  <script src="./assets/js/brainData.js"></script>
   <!-- then load client which sets some default information and sets the launch() func -->
   <script src="./client.js"></script>
   <!-- now load the base functionality (stimulus settings, spikes, etc) -->

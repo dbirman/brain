@@ -81,7 +81,9 @@ function Electrode(id) {
 			info.id = this.id;
 			info.x = Math.floor(info.x); info.y = Math.floor(info.y);
 
-			socket.emit('request',info);
+			// Get neuron data directly from loaded brain data
+			const neuron = BrainData.getNeuronData(info.type, info.x, info.y);
+			processElectrodeData({ neuron: neuron, info: info });
 		}
 	}
 
@@ -213,8 +215,8 @@ function drawTrace(trace,id) {
 // ELECTRODE FUNCTIONS
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-// Receive data about electrodes
-socket.on('elecInfo', function(data) {
+// Process electrode data (replaces socket.io listener)
+function processElectrodeData(data) {
   // do something with this information
   if (data.neuron!=undefined) {
 	  electrodes[data.info.id].data.neuron = data.neuron;
@@ -237,7 +239,7 @@ socket.on('elecInfo', function(data) {
   	electrodes[data.info.id].trace.text.setText('Area: ');
   	electrodes[data.info.id].data.neuron = undefined;
   }
-});
+}
 
 let e_cPS_call = false;
 

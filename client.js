@@ -2,8 +2,6 @@
 // INITIALIZATION
 // //////////////////////////// //////////////////////////// //////////////////////////// //
 
-const socket = io();
-
 var rendererOptions = {
   antialiasing: false,
   transparent: true,
@@ -49,6 +47,12 @@ document.getElementById("canvas").appendChild(app.view);
 
 function launch() {
 	console.log('launched');
+
+	// Load brain data before initializing UI
+	BrainData.load().catch(error => {
+		console.error('Failed to load brain data:', error);
+		alert('Failed to load brain data. Please refresh the page.');
+	});
 
   window.addEventListener('resize', resize);
 

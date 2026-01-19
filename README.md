@@ -33,4 +33,48 @@ Brain.js is the initial version of the tool. These are the goals for a v1.0, aim
 
 # deployment
 
-git push heroku master (push the heroku remote repository?)
+This is now a fully static website that can be served from any static web server or hosting platform.
+
+## Running Locally
+
+Since this is a static website, you can serve it using any static web server:
+
+**Python Simple HTTP Server:**
+```bash
+python3 -m http.server 8080
+```
+
+**Node.js http-server:**
+```bash
+npx http-server -p 8080
+```
+
+**PHP Built-in Server:**
+```bash
+php -S localhost:8080
+```
+
+**VS Code Live Server:**
+Install the "Live Server" extension and click "Go Live"
+
+Then open your browser to `http://localhost:8080`
+
+## Deploying to Static Hosts
+
+This site can be deployed to any static hosting service:
+- **GitHub Pages**: Push to a gh-pages branch
+- **Netlify**: Drag and drop the folder or connect to your git repo
+- **Vercel**: Import your git repository
+- **AWS S3**: Upload files to an S3 bucket with static hosting enabled
+- **Any web server**: Just copy all files to your web root directory
+
+## Regenerating Data
+
+If you modify the PNG files in `assets/data/raw/`, regenerate the data file:
+
+```bash
+npm install  # Only needed once to get dependencies for data generation
+node generate-data.js
+```
+
+This will update `brain-data.json` with the new processed data.

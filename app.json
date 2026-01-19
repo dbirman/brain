@@ -1,8 +1,0 @@
-{
-  "name": "Brain",
-  "description": "Cognitive neuroscience tutorials",
-  "repository": "https://github.com/dbirman/brain",
-  // "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
-  "keywords": ["brain"],
-  // "image": "heroku/nodejs"
-}
