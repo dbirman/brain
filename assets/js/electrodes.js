@@ -291,13 +291,14 @@ function elecDown(event) {
 
 function elecUp(event) {
 	if (event.currentTarget!=this) {return;}
-	electrodeMoving = false;
-
-  updateElectrodes('requestData');
+	
   this.isdown = false;
   // this.alpha = 1;
   // change alpha
   views.brain.brainContainer_areas.alpha = 0.50;
+  
+  updateElectrodes('requestData');
+  electrodeMoving = false;
 }
 
 function elecMove(event) {
