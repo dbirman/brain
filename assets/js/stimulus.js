@@ -593,6 +593,20 @@ function computePartialSensitivity() {
 
 	// electrodes[i].pos() -> .x .y .sd 
 
+	// Clear any previous FEF attention circles and reset spatial attention flags
+	if (!sensTest) {
+		if (tg!=undefined) {
+			tg.clear();
+		}
+	}
+	
+	// Reset all spatial attention flags first
+	for (let ei=0; ei < electrodes.length; ei++) {
+		if (electrodes[ei].spatialAttention !== undefined) {
+			electrodes[ei].spatialAttention = false;
+		}
+	}
+
 	// Add here also code for drawing the FEF "spotlight" of attention on
 	// the visual field, using tg.drawCircle(...)
   for (let ei=0; ei < electrodes.length; ei++) {
@@ -621,9 +635,7 @@ function computePartialSensitivity() {
 
 	        // First draw the FEF neuron's receptive field.
 	        if (!sensTest) {
-		        if (tg!=undefined) {
-		          tg.clear();
-		        }	else {
+		        if (tg==undefined) {
 		          tg = views.stim.stimulusWindow.addChild(new PIXI.Graphics());
 		        }
 	        }
